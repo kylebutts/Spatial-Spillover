@@ -24,6 +24,10 @@ source("helper-sim_function.R")
 # Load theme_kyle()
 source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd46ef9f/raw/ef6834e879f98be630bec9fd48c7e0bd945689be/theme_kyle.R")
 
+# Is for slides or paper?
+slides <- FALSE
+
+
 ## Load Parameters -------------------------------------------------------------
 te <- 2
 te_spill <- 1
@@ -313,27 +317,37 @@ usethis::ui_done("Finished exporting high_zp maps")
 
 
 ## Kriging Example -------------------------------------------------------------
-(
-	plot_krig <- ggplot() +
-		geom_sf(data= counties_treat_high_zp, aes(fill= sim), color= "grey60", size= 0.2) + 
-		geom_sf(data= counties_treat_high_zp %>% filter(zone == TRUE), fill = NA, color = "black") +
-		geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
-		# Remove Coordinates, leaving just the map
-		coord_sf(datum = NA) +
+plot_krig <- ggplot() +
+	geom_sf(data= counties_treat_high_zp, aes(fill= sim), color= "grey60", size= 0.2) + 
+	geom_sf(data= counties_treat_high_zp %>% filter(zone == TRUE), fill = NA, color = "black") +
+	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
+	# Remove Coordinates, leaving just the map
+	coord_sf(datum = NA) +
+	labs(
+		fill= ""
+	) +
+	# Put Legend on Bottom
+	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
+	# Fill Scale, colors from R color Brewer
+	scale_fill_distiller(palette = "Spectral")
+
+if(slides) {
+	plot_krig <- plot_krig + 
 		labs(
-			# title= "Direct Effect + Spillover on Control and Treated", 
 			title = "Kriging Example",
-			subtitle= glue::glue("Spatial Autocorrelation Measure = {high_zone_plus}"),
-			fill= ""
-		) +
+			subtitle= glue::glue("Spatial Autocorrelation Measure = {high_zone_plus}")
+		) + 
 		theme_kyle(slides = TRUE) + 
-		# Put Legend on Bottom
-		guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-		theme(legend.position = "bottom") +
-		# Fill Scale, colors from R color Brewer
-		scale_fill_distiller(palette = "Spectral")
-		# scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
-)
+		theme(legend.position = "bottom")
+}
+if(!slides) {
+	plot_krig <- plot_krig + 
+		theme_kyle() + 
+		theme(legend.position = "bottom")
+}
 
+plot_krig
 
-ggsave("figures/figure-krig.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+if(slides) ggsave("figures/figure-krig_slides.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+	
+if(!slides) ggsave("figures/figure-krig.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")

@@ -232,15 +232,17 @@ bias_by_method <- sim_results %>%
 	ungroup()
 
 bias_fix_plot <- ggplot(bias_by_method, aes(x = treat_prob, y = bias)) +
- 	geom_point(aes(color = method)) + geom_line(aes(color = method)) +
+	geom_line(aes(color = method)) +
+ 	geom_point(aes(color = method, shape = method), size = 2) + 
  	geom_ribbon(aes(ymin = bias_lower, ymax = bias_upper, fill = method), color = "white", alpha = 0.2) + 
  	xlim(0, 0.5) + 
  	labs(
  		x = "Treatment Probability", 
  		y = "Bias of Tau hat",
- 		color = "Estimation Strategy", fill = "Estimation Strategy"
+ 		color = "Estimation Strategy", fill = "Estimation Strategy", shape = "Estimation Strategy"
  		# caption = "spillovers: contiguous, tau = 2, tau_spill,control = 1, tau_spill,treat = 0.5"
  	) +
+	scale_shape_manual(values = c(16, 18)) + 
 	scale_fill_manual(values = c("#5E81AC", "#B48EAD")) +
 	scale_color_manual(values = c("#5E81AC", "#B48EAD")) +
 	# Put Legend on Bottom

@@ -4,9 +4,11 @@
 ## R files
 .RData
 .RHistory
-.Rapp.history.Rproj.user/*
+.Rapp.history
+.Rproj.user/*
 
 ## Core latex/pdflatex auxiliary files:
+/latex/.vscode
 *.aux
 *.lof
 *.log

@@ -18,8 +18,10 @@
 *.fot
 *.cb
 *.cb2
+*.bcf
 .*.lb
 *.blg
 *.bbl
 *.bdg_latexmk
+*.fdb_latexmk
 *.synctex.gz

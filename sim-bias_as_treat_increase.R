@@ -28,6 +28,7 @@ source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd4
 
 # Export
 export <- TRUE
+slides <- FALSE
 
 
 ## Load Spatial Data -----------------------------------------------------------
@@ -169,25 +170,39 @@ bias <- sim_results %>%
 	) %>%
 	ungroup()
 
-(bias_plot <- ggplot(bias, aes(x= treat_prob, y= bias)) +
+bias_plot <- ggplot(bias, aes(x= treat_prob, y= bias)) +
 	geom_point(color = "#B48EAD") + geom_line(color = "#B48EAD") +
 	geom_ribbon(aes(ymin = bias_lower, ymax = bias_upper), fill = "#B48EAD", color = "white", alpha = 0.2) + 
 	xlim(0, 0.5) +
 	ylim(NA, 0) +
 	labs(
 		x = "Treatment Probability", 
-		y = "Bias of Tau hat", 
-		title = "As more units are treated, the bias increases", 
-		subtitle = "Monte Carlo simulations with 100 trials per simulation"
-		# caption = "spillovers: contiguous, tau = 2, tau_spill,control = 1, tau_spill,treat = 0.5"
+		y = "Bias of Tau hat"
 	) +
- 	theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) +
 	# Put Legend on Bottom
 	guides(fill = guide_legend(title.position = "top", nrow = 1)) 
-)
 
-if(export) ggsave("figures/figure-bias_from_prob_treat.png", plot= bias_plot, 
+
+if(slides) {
+	bias_plot <- bias_plot + 
+		labs(	
+			title = "As more units are treated, the bias increases", 
+			subtitle = "Monte Carlo simulations with 100 trials per simulation"
+		) + 
+		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE)
+}
+if(!slides) {
+	bias_plot <- bias_plot +
+		theme_kyle()
+}
+
+bias_plot
+
+if(export & slides) ggsave("figures/figure-bias_from_prob_treat_slides.png", plot= bias_plot, 
 	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+
+if(export & !slides) ggsave("figures/figure-bias_from_prob_treat.png", plot= bias_plot, 
+						   dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
 
 
 ## Plot Bias with and without removing spillover -------------------------------
@@ -216,29 +231,51 @@ bias_by_method <- sim_results %>%
 	) %>% 
 	ungroup()
 
-(bias_fix_plot <- ggplot(bias_by_method, aes(x = treat_prob, y = bias)) +
+bias_fix_plot <- ggplot(bias_by_method, aes(x = treat_prob, y = bias)) +
  	geom_point(aes(color = method)) + geom_line(aes(color = method)) +
  	geom_ribbon(aes(ymin = bias_lower, ymax = bias_upper, fill = method), color = "white", alpha = 0.2) + 
  	xlim(0, 0.5) + 
  	labs(
  		x = "Treatment Probability", 
- 		y = "Bias of Tau hat", 
- 		title = "Dropping control units removes bias, but increases variance", 
- 		subtitle = "Monte Carlo simulations with 100 trials per simulation",
+ 		y = "Bias of Tau hat",
  		color = "Estimation Strategy", fill = "Estimation Strategy"
  		# caption = "spillovers: contiguous, tau = 2, tau_spill,control = 1, tau_spill,treat = 0.5"
  	) +
 	scale_fill_manual(values = c("#5E81AC", "#B48EAD")) +
 	scale_color_manual(values = c("#5E81AC", "#B48EAD")) +
- 	theme_kyle(slides = TRUE, title_pos = "left") +
 	# Put Legend on Bottom
-	guides(col = guide_legend(title.position = "top", label.position = "bottom", nrow = 1)) +
-	theme(
-		plot.title = ggplot2::element_text(size = 14),
-		legend.position = "bottom",
-		legend.spacing.x = unit(5, "points")
-	)
-)
+	guides(col = guide_legend(title.position = "top", label.position = "bottom", nrow = 1))
 
-if(export) ggsave("figures/figure-bias_fix.png", plot= bias_fix_plot, 
+
+if(slides) {
+	bias_fix_plot <- bias_fix_plot + 
+		labs(	
+			title = "Dropping control units removes bias, but increases variance", 
+			subtitle = "Monte Carlo simulations with 100 trials per simulation"
+		) + 
+		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
+		theme(
+			plot.title = ggplot2::element_text(size = 14),
+			legend.position = "bottom",
+			legend.spacing.x = unit(5, "points")
+		)
+}
+if(!slides) {
+	bias_fix_plot <- bias_fix_plot +
+		theme_kyle() +
+		theme(
+			plot.title = ggplot2::element_text(size = 14),
+			legend.position = "bottom",
+			legend.spacing.x = unit(5, "points")
+		)
+}
+
+bias_fix_plot
+
+
+
+if(export & slides) ggsave("figures/figure-bias_fix_slides.png", plot= bias_fix_plot, 
 	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+
+if(export & !slides) ggsave("figures/figure-bias_fix.png", plot= bias_fix_plot, 
+		dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")

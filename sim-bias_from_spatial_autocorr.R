@@ -28,6 +28,9 @@ source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd4
 # Export
 export <- TRUE
 
+# Produce figures for slides?
+slides <- TRUE
+
 ## Load Spatial Data -----------------------------------------------------------
 # From data-prepare_counties.R
 load(file= "data/counties_and_mat.RData")
@@ -166,8 +169,6 @@ bias <- sim_results %>%
  	labs(
  		x= "Spatial Autocorrelation Measure", 
  		y= "Bias of Tau hat", 
- 		title= "Bias as spatial correlation changes", 
- 		subtitle= "Monte Carlo simulations with 100 trials for each simulation",
  		color= "Spillover on to Treated Units"
 	) +
  	theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
@@ -175,8 +176,31 @@ bias <- sim_results %>%
 )
 
 
-if(export) ggsave("figures/figure-bias_from_spatial_autocorr.png", plot= bias_plot, 
-	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+
+if(slides) {
+	bias_plot <- bias_plot + 
+		labs(	
+			title= "Bias as spatial correlation changes", 
+			subtitle= "Monte Carlo simulations with 100 trials for each simulation"
+		) + 
+		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
+		theme(plot.title = ggplot2::element_text(size = 14))
+}
+if(!slides) {
+	bias_plot <- bias_plot +
+		theme_kyle()
+}
+
+bias_plot
+
+
+
+if(export & slides) ggsave("figures/figure-bias_from_spatial_autocorr_slides.png", plot= bias_plot, 
+						   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+
+if(export & !slides) ggsave("figures/figure-bias_from_spatial_autocorr.png", plot= bias_plot, 
+							dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+
 
 
 ## With and Without removing Control units
@@ -211,21 +235,42 @@ bias_by_method <- sim_results %>%
 		labs(
 			x = "Spatial Autocorrelation Measure", 
 			y = "Bias of Tau hat", 
-			title = "Dropping control units no longer effectively removes all bias", 
-			subtitle = "Monte Carlo simulations with 100 trials per simulation",
 			color = "Estimation Strategy", fill = "Estimation Strategy"
 		) +
 		scale_fill_manual(values = c("#5E81AC", "#B48EAD")) +
 		scale_color_manual(values = c("#5E81AC", "#B48EAD")) +
-		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) +
 		# Put Legend on Bottom
-		guides(col = guide_legend(title.position = "top", label.position = "bottom", nrow = 1)) +
+		guides(col = guide_legend(title.position = "top", label.position = "bottom", nrow = 1)) 
+)
+
+if(slides) {
+	bias_fix_plot <- bias_fix_plot + 
+		labs(	
+			title = "Dropping control units no longer effectively removes all bias", 
+			subtitle = "Monte Carlo simulations with 100 trials per simulation"
+		) + 
+		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
+		theme(
+			plot.title = ggplot2::element_text(size = 14),
+			legend.position = "bottom",
+			legend.spacing.x = unit(5, "points")
+		) 
+}
+if(!slides) {
+	bias_fix_plot <- bias_fix_plot +
+		theme_kyle() +
 		theme(
 			plot.title = ggplot2::element_text(size = 14),
 			legend.position = "bottom",
 			legend.spacing.x = unit(5, "points")
 		)
-)
+}
 
-if(export) ggsave("figures/figure-bias_fix_spatial_autocorr.png", plot= bias_fix_plot, 
-	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+bias_fix_plot
+
+
+if(export & slides)  ggsave("figures/figure-bias_fix_spatial_autocorr_slides.png", plot= bias_fix_plot, 
+							dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+
+if(export & !slides)  ggsave("figures/figure-bias_fix_spatial_autocorr.png", plot= bias_fix_plot, 
+							 dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")

@@ -20,25 +20,22 @@
 
 \begin{document}
 
-% Title Page ---------------------------------------
-
-   
-    
-    
+% --------------------------------------------------
 \begin{titlepage}
-    
     \maketitle
     
     \begin{abstract}
         Empirical work often uses treatment variables defined by geographic boundaries. When researchers ignore the common problem that the effects of treatment cross over borders, differences-in-differences produces biased estimates for the average treatment effect. In this paper, I identify two sources of bias. First, the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment. Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I use Monte Carlo simulations to demonstrate when the biases are particularly large. Further, I show that a common solution used in the literature of removing `contaminated' control units only prevents one source of bias. Lastly, I propose improved estimation strategies that can remove both sources of bias.  
     \end{abstract}
 \end{titlepage}
+% --------------------------------------------------
     
 \newpage 
 
 % --------------------------------------------------
 \section{Introduction}
 % --------------------------------------------------
+
 Empirical work in economics often considers treatment assigned by geographic boundaries such as cities, counties, and states. The effect of these treatments do not typically stay within these boundaries whether it be from people crossing borders or from general equilibrium mechanisms affecting neighboring areas. In the causal inference literature, the Stable Unit Treatment Value Assumption (SUTVA) is often assumed which says that treatment effects do not depend on the treatment status of any other unit \citep{Rubin_1980}. This article considers a common violation of SUTVA in a process I label `spatial spillovers' where `close' units treatment assignment affects outcomes of nearby units.\footnote{Close can refer to many different things, e.g. geographic distance, node distance in graph theory, or social relationships in schools or cities.} 
 
 Despite the problem of spatial spillovers being common across many settings, \citet{Berg_Streitz_2019} document that little empirical analysis takes the problem seriously. In a survey of eight top Economics and Finance Journals in 2017, they find that only 21 articles out of 108 that run differencse-in-differences estimation discuss spillovers.\footnote{The articles surveyed are American Economic Review, Econometrica, the Journal of Political Economy, the Quarterly Journal of Economics, the Review of Economic Studies, the Journal of Finance, the Journal of Financial Economics, and the Review of Financial Studies.} Of those 21, only eight include spillovers to prevent bias in the estimation of treatment effects.
@@ -111,12 +108,12 @@ With a new definition of potential outcomes, I now formalize what is meant by ``
     Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0).
 \] 
 Then, the average spillover onto control units averages over potential heterogeneity in spillovers and over heterogeneity in exposure intensity $h_i(\vec{D})$: \[
-    \tau_{\text{spillover, control}} = \mathbb{E}_i \left[ Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0) \ \vert \ D_i = 0 \right].
+    \tau_{\text{spill,control}} = \mathbb{E}_i \left[ Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0) \ \vert \ D_i = 0 \right].
 \]
-To emphasize, the average spillover effect depends on the average of exposure mapping. For example, assuming the potential outcomes is additively linear in $D_i$ and $h_i(\vec{D})$, then an individual control unit's spillover effect is $\beta_{\text{spillover, control}} \ h_i(\vec{D})$. The average spillover onto control unit would therefore be $\tau_{\text{spillover, control}} = \beta_{\text{spillover, control}} * \mathbb{E}_{i} \left[ h_i(\vec{D})\right]$, i.e. the average over all control units exposure mapping.
+To emphasize, the average spillover effect depends on the average of exposure mapping. For example, assuming the potential outcomes is additively linear in $D_i$ and $h_i(\vec{D})$, then an individual control unit's spillover effect is $\beta_{\text{spill,control}} \ h_i(\vec{D})$. The average spillover onto control unit would therefore be $\tau_{\text{spill,control}} = \beta_{\text{spill,control}} * \mathbb{E}_{i} \left[ h_i(\vec{D})\right]$, i.e. the average over all control units exposure mapping.
 
 Similarly, we define the spillover onto also treated units as: \[ 
-    \tau_{\text{spillover, treated}} = \mathbb{E}_i \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(1, 0) \ \vert \ D_i = 1 \right].
+    \tau_{\text{spill,treated}} = \mathbb{E}_i \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(1, 0) \ \vert \ D_i = 1 \right].
 \] 
 
 It is important to clarify what I am assuming is the estimand of interest researchers would like to estimate when using differences-in-differences. I assume that the term `Average Treatment Effect' is trying to measure what I will call the `direct effect of treatment': \[
@@ -154,7 +151,7 @@ Given that Assumption \ref{parallel} holds, the estimate can be decomposed as th
     If Assumption \ref{parallel} holds, 
     \begin{align*}
         \mathbb{E}[\hat{\tau}] &= \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right] \\ 
-        &= \tau_{\text{direct}} + \tau_{\text{spillover, treated}} - \tau_{\text{spillover, control}}
+        &= \tau_{\text{direct}} + \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}
     \end{align*}
 \end{theorem}
 
@@ -165,6 +162,32 @@ The intuition behind the biases are as follows. First, the change in outcomes am
 \subsection{Example Parameterization of Bias}
 % --------------------------------------------------
 
+To exemplify the above bias, I will model a particular form of spillovers by parameterizing the exposure mapping and the potential outcomes equation. For the exposure mapping, I will assume that spillovers occur for any county that is within 40 miles of a treated county, i.e. 
+\begin{align}
+    \label{eq:example_exposure}
+    \text{Near}_{it} \equiv h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < 40 ].
+\end{align}
+This specification is a simple one in that the spillover is not additive in the number of nearby treated units and does not decay over distance. The potential outcome is assumed to be additive in both treatment and in the exposure mapping, but the coefficient on $\text{Near}_{it}$ is allowed to differ between treated and non-treated unitts:
+\begin{align}
+    \label{eq:example_po}
+    \begin{split}
+        y_{it} &= \alpha + \mu_t + \mu_i + \beta_{\text{direct}} D_{it} + \beta_{\text{spill,control}} (1-D_{it}) \text{Near}_{it} \\
+        &\quad + \beta_{\text{spill,treated}} D_{it} \text{Near}_{it} + \varepsilon_{it},
+    \end{split}
+\end{align}
+where $\mu_t$ and $\mu_i$ are unit and time fixed effects respectively. In this case, the spillover on an individual control unit is given by $\tau_{\text{spill,control}}$ and on an treated unit is $\tau_{\text{spill,treated}}$. 
+
+If a researcher estimates 
+\begin{align}
+    \label{eq:twfe}    
+    y_{it} = \alpha + \mu_t + \mu_i + \tau D_{it} + \varepsilon_{it},    
+\end{align}
+then the bias will be $\tau_{\text{spill,treated}} - \tau_{\text{spill,control}}$ where the two bias terms are \[ 
+    \tau_{\text{spill,control}} = \beta_{\text{spill,control}} \frac{\sum_{i: D_{it} = 0} \text{Near}_{it}}{N_C}
+\] and \[ 
+    \tau_{\text{spill,treated}} = \beta_{\text{spill,treated}} \frac{\sum_{i: D_{it} = 1} \text{Near}_{it}}{N_T},
+\]
+where $N_C$ and $N_T$ are the number of control and treated units respectively. Simply put, the bias will be the proportion of treated units that receive spillover effects time the size of the effect on treated units minus the proportion of control units that receive spillover effects time the size of the effect on control units. 
 
 
 
@@ -172,7 +195,79 @@ The intuition behind the biases are as follows. First, the change in outcomes am
 \section{Monte Carlo Simulations}
 % --------------------------------------------------
 
-I now turn to a series of Monte Carlo Simulations to highlight the importance for controlling for spillovers in simulations. 
+% --------------------------------------------------
+\subsection{Simulation 1}
+% --------------------------------------------------
+
+\begin{figure}[t]
+    \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
+    \label{fig:bias_as_treat_prob}
+    {\centering
+        \resizebox{\columnwidth}{!}{
+            \includegraphics{../../figures/figure-bias_fix.png}
+        } 
+    }
+    {\footnotesize
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+    }
+\end{figure}
+
+I now turn to a series of Monte Carlo Simulations to highlight the importance for controlling for spillovers in simulations. The data generating process used is defined by the exposure mapping given in Equation \ref{eq:example_exposure} and the data generating process given in Equation \ref{eq:example_po}. A unit of observation is a US county and the periods are $t \in \{1, \dots, 20\}$ with treatment turning on in period $t = 10$. The intercepet is $\alpha = -2$, the fixed effects are $\mu_t \sim N(t * 0.2, 0.1^2)$ and $\mu_i \sim N(6, 2^2)$, and the error term is $\epsilon \sim N(0, 2^2)$. Last, the size of treatment and spillovers are as follows: $\beta_{\text{direct}} = 2$, $\beta_{\text{spillover, control}} = 1$ and $\beta_{\text{spillover, treat}} = 0$.
+
+For the first simulation, I restrict spillovers only to occur among control units, i.e. $\tau_{\text{spillover, treat}} = 0$ and estimate the typical two-way fixed effects model. This data generating process where spillovers only occur onto control units matches what has been typically assumed in the literature. I assign treatment among U.S. counties randomly with various probabilities between 3 percent and 50 percent. The DGP is therefore 
+\begin{equation}
+    \label{dgp1} 
+    y_{it} = -2 + \mu_t + \mu_i + 2 D_{it} - (1-D_{it}) \text{Near}_{it} + \varepsilon_{it}   
+\end{equation}
+
+The size of the bias from estimating Equation \ref{eq:twfe} at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. 
+
+A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. The line stays centered constantly around zero as all control units that no longer followed their counterfactual trend were removed. This however requires complete knowledge of which units are affected. The bias would fall between the two lines as fewer problematic control units are removed. 
+
+There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
+
+
+% --------------------------------------------------
+\subsection{Simulation 2}
+% --------------------------------------------------
+
+For the following simulation, I will add in spillovers onto treated units with $\beta_{\text{spillover, treat}} = -0.5$. The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
+
+In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. 
+
+
+
+\begin{figure}[t]
+    \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
+    \label{fig:kriging}
+    {\centering
+        \resizebox{\columnwidth}{!}{
+            \includegraphics{../../figures/figure-bias_fix.png}
+        } 
+    }
+    {\footnotesize
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+    }
+\end{figure}
+
+
+
+
+\begin{figure}[t]
+    \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
+    \label{fig:bias_as_treat_prob}
+    {\centering
+        \resizebox{\columnwidth}{!}{
+            \includegraphics{../../figures/figure-bias_fix.png}
+        } 
+    }
+    {\footnotesize
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+    }
+\end{figure}
+
+
+
 
 
 
@@ -226,7 +321,7 @@ I now turn to a series of Monte Carlo Simulations to highlight the importance fo
     &= 
     \mathbb{E}_i \left[ Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] + \mathbb{E}_i \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, \vec{0}) \mid D_i = 1 \right] \\
     &\quad - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 0 \right] \\
-    &= \tau_{\text{direct}} + \tau_{\text{spillover, treated}} - \tau_{\text{spillover, control}}
+    &= \tau_{\text{direct}} + \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}
 \end{align*}
 
 

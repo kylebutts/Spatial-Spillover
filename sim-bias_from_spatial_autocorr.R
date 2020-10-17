@@ -234,7 +234,6 @@ bias_by_method <- sim_results %>%
 		xlim(0, 2.0) + 
 		ylim(NA, 0) +
 		labs(
-			x = "Spatial Autocorrelation Measure", 
 			y = "Bias of Tau hat", 
 			color = "Estimation Strategy", fill = "Estimation Strategy", shape = "Estimation Strategy"
 		) +
@@ -249,7 +248,8 @@ if(slides) {
 	bias_fix_plot <- bias_fix_plot + 
 		labs(	
 			title = "Dropping control units no longer effectively removes all bias", 
-			subtitle = "Monte Carlo simulations with 100 trials per simulation"
+			subtitle = "Monte Carlo simulations with 100 trials per simulation",
+			x = "Spatial Autocorrelation Measure"
 		) + 
 		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
 		theme(
@@ -260,6 +260,9 @@ if(slides) {
 }
 if(!slides) {
 	bias_fix_plot <- bias_fix_plot +
+		labs(
+			x = "Zone Plus"
+		) +
 		theme_kyle() +
 		theme(
 			plot.title = ggplot2::element_text(size = 14),

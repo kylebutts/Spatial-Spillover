@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 
-\title{\color{teal} Differences-in-Differences with Spatial Spillover}
+\title{\color{dark-maroon} Differences-in-Differences with Spatial Spillover}
 % \subtitle{Subtitle}
 \author{\normalsize Kyle Butts\\{\footnotesize Univ. of Colorado, Boulder}}
 \date{\footnotesize\today}
@@ -15,8 +15,7 @@
 ]{biblatex}
 \addbibresource{references.bib}
 
-\usepackage{rotating}
-
+\usepackage{subcaption}
 
 \begin{document}
 
@@ -207,8 +206,9 @@ where $N_C$ and $N_T$ are the number of control and treated units respectively. 
             \includegraphics{../../figures/figure-bias_fix.png}
         } 
     }
+
     {\footnotesize
-        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
     }
 \end{figure}
 
@@ -222,7 +222,7 @@ For the first simulation, I restrict spillovers only to occur among control unit
 
 The size of the bias from estimating Equation \ref{eq:twfe} at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. 
 
-A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. The line stays centered constantly around zero as all control units that no longer followed their counterfactual trend were removed. This however requires complete knowledge of which units are affected. The bias would fall between the two lines as fewer problematic control units are removed. 
+A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not hte correct measure of $h_i(\vec{D}$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
 
 There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
 
@@ -231,41 +231,49 @@ There is a trade-off between the bias and the variance of the estimator when usi
 \subsection{Simulation 2}
 % --------------------------------------------------
 
-For the following simulation, I will add in spillovers onto treated units with $\beta_{\text{spillover, treat}} = -0.5$. The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
-
-In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. 
-
-
+For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spillover, treat}} = -0.5$. The DGP is as follows 
+\begin{equation}
+    \label{dgp2} 
+    y_{it} = -2 + \mu_t + \mu_i + 2 D_{it} - (1-D_{it}) \text{Near}_{it} - 0.5 D_{it} \text{Near}_{it} + \varepsilon_{it}   
+\end{equation} 
+The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
 
 \begin{figure}[t]
-    \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
+    \caption{Example of Kriging Field}
     \label{fig:kriging}
     {\centering
         \resizebox{\columnwidth}{!}{
-            \includegraphics{../../figures/figure-bias_fix.png}
+            \includegraphics{../../figures/figure-krig.png}
         } 
     }
     {\footnotesize
-        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+        \textit{Notes:} This figure plots an example of a kriging simulation using the `gstat' package in R using an exponential variogram. The outlined counties are in the top ten percent of values for this simulation. 
     }
 \end{figure}
 
-
-
+In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. Kriging generates a Gaussian field for a large grid of points across the entire United States where the spatial autocorrelation of the points is described by a set of parameters. One such field is depicted in Figure \ref{fig:kriging}. For a given field, I find the counties in the top ten percent of values and give these counties a value of $\text{Zone}_i = 1$. Then I assign treatment with a probability that differs based on Zone. The unconditional probability is equal to 5 percent in all simulations. To do this, I use a variable `Zone Plus' to adjust the relative probability of receiving treatment: 
+\begin{equation}
+    \label{eq:cond_prob}
+    P(D_i \ \vert \ \text{Zone}_i) = (.1 + \text{Zone Plus} * \text{Zone}_i) \frac{.05}{.1 * .9 + (.1 + \text{Zone Plus}) * .1}
+\end{equation}
+The second term normalizes probabilities so the unconditional probability stays at 5 percent. In our simulations, Zone Plus ranges from 0 which is the case where p = 10 percent for all counties to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.166 + 0.35 * \text{Zone}_i$
 
 \begin{figure}[t]
-    \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
-    \label{fig:bias_as_treat_prob}
+    \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
+    \label{fig:bias_spatial_autocorr}
     {\centering
         \resizebox{\columnwidth}{!}{
-            \includegraphics{../../figures/figure-bias_fix.png}
+            \includegraphics{../../figures/figure-bias_fix_spatial_autocorr.png}
         } 
     }
     {\footnotesize
-        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units with $\text{Near}_{it} = 1$. 
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating Equation \ref{eq:twfe} for data generated as described in the text and Equation \ref{dgp2}. Treatment probability is assigned according to the method described by the text and Equation \ref{eq:cond_prob}. Each point corresponds to the average bias for the given Zone Plus and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
     }
 \end{figure}
 
+The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias actually decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular DGP, the effect of fewer control units on the bias is larger than the bias from more treated units. 
+
+The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy. I turn to this next. 
 
 
 

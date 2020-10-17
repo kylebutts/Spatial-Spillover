@@ -17,6 +17,7 @@ library("exactextractr")
 library("fixest")
 library("doParallel")  
 library("RColorBrewer")
+library("patchwork")
 
 # sim_data(i)
 source("helper-sim_function.R")
@@ -331,6 +332,48 @@ plot_krig <- ggplot() +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_distiller(palette = "Spectral")
 
+plot_krig_highzp <- ggplot() +
+	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(treat)), color= "grey60", size= 0.2) + 
+	geom_sf(data= counties_treat_high_zp %>% filter(zone == TRUE), fill = NA, color = "black", size = 0.4) +
+	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
+	# Remove Coordinates, leaving just the map
+	coord_sf(datum = NA) +
+	labs(
+		title = "Zone Plus = 1.4",
+		fill= "Treated Unit"
+	) +
+	theme_kyle() +
+	theme(legend.position = "bottom") +
+	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
+	# Put Legend on Bottom
+	guides(fill = guide_legend(title.position = "top", nrow = 1))
+
+counties_treat_high_zp <- counties_treat_high_zp %>% mutate(
+	# `zone` has increased probability of treatment
+	prob_low = 0.1 + low_zone_plus * zone,
+	prob_low = prob_low * treat_prob/mean(prob_low),
+	
+	# Generate Treatment Variable
+	treat_low = (runif(n()) <= prob_low),
+	treat_low = as.numeric(treat_low)
+) 
+
+plot_krig_lowzp <- ggplot() +
+	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(treat_low)), color= "grey60", size= 0.2) + 
+	geom_sf(data= counties_treat_high_zp %>% filter(zone == TRUE), fill = NA, color = "black", size = 0.4) +
+	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
+	# Remove Coordinates, leaving just the map
+	coord_sf(datum = NA) +
+	labs(
+		title = "Zone Plus = 0.4",
+		fill= "Treated Unit"
+	) +
+	theme_kyle() +
+	theme(legend.position = "bottom") +
+	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
+	# Put Legend on Bottom
+	guides(fill = guide_legend(title.position = "top", nrow = 1))
+
 if(slides) {
 	plot_krig <- plot_krig + 
 		labs(
@@ -351,3 +394,7 @@ plot_krig
 if(slides) ggsave("figures/figure-krig_slides.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
 	
 if(!slides) ggsave("figures/figure-krig.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+
+if(!slides) ggsave("figures/figure-krig_lowzp.png", plot_krig_lowzp, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+
+if(!slides) ggsave("figures/figure-krig_highzp.png", plot_krig_highzp, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")

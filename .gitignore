@@ -27,3 +27,6 @@
 *.bdg_latexmk
 *.fdb_latexmk
 *.synctex.gz
+*.nav
+*.snm
+*.run.xml

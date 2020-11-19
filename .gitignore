@@ -1,5 +1,14 @@
-.DS_Store
+## Large Files
 
+
+## Latex folders
+latex/diff_in_diff_bias/*
+latex/literature_review/*
+latex/slides_research
+
+
+
+.DS_Store
 
 ## R files
 .RData

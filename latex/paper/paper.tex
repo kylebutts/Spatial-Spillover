@@ -19,7 +19,7 @@
 
 \begin{document}
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \begin{titlepage}
     \maketitle
     
@@ -31,9 +31,9 @@
     
 \newpage 
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \section{Introduction}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 Empirical work in economics often considers treatment assigned by geographic boundaries such as cities, counties, and states. The effect of these treatments do not typically stay within these boundaries whether it be from people crossing borders or from general equilibrium mechanisms affecting neighboring areas. In the causal inference literature, the Stable Unit Treatment Value Assumption (SUTVA) is often assumed which says that treatment effects do not depend on the treatment status of any other unit \citep{Rubin_1980}. This article considers a common violation of SUTVA in a process I label `spatial spillovers' where `close' units treatment assignment affects outcomes of nearby units.\footnote{Close can refer to many different things, e.g. geographic distance, node distance in graph theory, or social relationships in schools or cities.} 
 
@@ -49,11 +49,9 @@ The magnitude of the bias depends on two factors: the size of the spillover and 
 
 @TODO: Paragraph on practical guidance on including spillover measures
 
-% @TODO: Urban Application 
-
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \subsection{Literature Review}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 There are two different models of SUTVA violations in the literature. Within-group spillovers are when units are in distinct groups and outcomes depend on the treatment status of your group only. For example, SUTVA is violated if a person's likelihood of getting sick depends on the vaccine rate of his community. In this case, the community is the group within which spillovers can occur. Between-group spillovers occur when groups are overlapping which allows for more general forms of spillover. For example, a counties' economic outcomes depend on the economic outcomes of nearby counties (even across state borders). @TODO: Add citations for papers that find this.
 
@@ -80,15 +78,17 @@ The paper is structured as follows. ...
 
 
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \section{Potential Outcomes Framework}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
-Assume there is a time $t_0$ where treatment turns on for all treated units and remains on afterwards. As in \citet{Vazquez-Bare_2019}, potential outcomes for unit $i$ at time $t$ are a function of own treatment-status $D_i$ and of a function of the vector of treatment assignments $h_i(\vec{D})$ where $\vec{D} \in \{0,1 \}^n$. This function $h_i(\vec{D})$ is referred to as an `exposure mapping' and is a non-negative scalar.\footnote{The derivation of bias does not require this assumption.} The function $h_i(\vec{D})$ measures the exposure to spatial spillover and no exposure to spatial spillovers is when $h_i(\vec{D}) = 0$.
+Following the canonical difference-in-difference framework, there is a time $t_0$ where treatment turns on and remains on afterwards. As in \citet{Vazquez-Bare_2019}, potential outcomes for unit $i$ at time $t$, denoted $Y_{i,t}(D_i, h_i(\vec{D})$), are a function of own treatment-status $D_i$ and,  departing from the canonical framework, of a function of the entire vector of treatment assignments $h_i(\vec{D})$ where $\vec{D} \in \{0,1 \}^n$. The function $h_i(\vec{D})$ is referred to as an `exposure mapping' and is a non-negative scalar.\footnote{The derivation of bias does not require this assumption.} The `exposure mapping' measures the intensity at which unit $i$ is affected by spatial spillovers. When unit $i$ is sufficiently `far' away, it has no exposure to spatial spillovers and $h_i(\vec{D}) = 0$. The exposure mapping formalizes the SUTVA violation in that potential outcomes are affected by other unit's treatment assignment and can be summarized by $h_i(\vec{D})$. 
 
 To help better understand an exposure mapping, I give three examples of $h_i(\vec{D})$. Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$. First, $h_i(\vec{D})$ can be a 0/1 variable that equals one only if there is a treated unit within $x$-miles of unit $i$ (also commonly used is counties that share borders). In this case \[
     h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < x ] 
 \] 
+This exposure mapping is useful when it is assumed that spillovers do not decay over distance and the number of neighboring units treated do not impact the intensity of spillovers. For example, this mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the distance people would likely travel to a nearby library. Access to a neighboring town library likely does not depend on whether you can access 1 or more nearby libraries, so the binary value is a good approximation to the level of spillovers.  
+
 Second, $h_i(\vec{D})$ can be a function that equals the proportion of the k-nearest neighbors that are treated, i.e. \[
     h_i(\vec{D}) = 1/k \sum_{j \in k(i)} D_j,
 \]
@@ -99,9 +99,9 @@ The exposure mapping is part of the parameterization of spillovers, but the func
 
 
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \subsection{Spatial Spillovers}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 With a new definition of potential outcomes, I now formalize what is meant by ``spatial spillovers'. I define `spillover onto control units' as: \[
     Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0).
@@ -149,7 +149,10 @@ Given that Assumption \ref{parallel} holds, the estimate can be decomposed as th
     \label{thm:bias}
     If Assumption \ref{parallel} holds, 
     \begin{align*}
-        \mathbb{E}[\hat{\tau}] &= \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right] \\ 
+        \mathbb{E}[\hat{\tau}] &= \underbrace{\mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right]}_{\text{Difference-in-Differences}} \\ 
+        &= 
+        \mathbb{E} \left[ Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] + \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, \vec{0}) \mid D_i = 1 \right] \\
+        &\quad - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 0 \right] \\
         &= \tau_{\text{direct}} + \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}
     \end{align*}
 \end{theorem}
@@ -157,9 +160,21 @@ Given that Assumption \ref{parallel} holds, the estimate can be decomposed as th
 The intuition behind the biases are as follows. First, the change in outcomes among treated units combines the direct effect and the spillover from nearby treated units. Therefore the first difference adds the average spillover onto the treated units. Second, the change in outcomes among control units combines the parallel counterfactual trend with the average spillover onto control units. Since $\hat{\tau}$ is found by subtracting this second difference, we subtract the average spillover onto the control. 
 
 
-% --------------------------------------------------
-\subsection{Example Parameterization of Bias}
-% --------------------------------------------------
+
+% ------------------------------------------------------------------------------
+\subsection{Bounding the Bias}
+% ------------------------------------------------------------------------------
+
+The previous section finds an explicit form of the bias when estimating Equation \ref{eq:twfe}. The explicit form of bias can be used by researchers to provide bounds on the bias in a manner simmilar to \citet{Rambachan_Roth_2020}. To provide bounds on the bias, researchers must identify the set $\Delta = [\underline{\Delta}, \overline{\Delta}]$ such that it contains the bias \[ 
+    \tau_{\text{spill,treated}} - \tau_{\text{spill, control}} \in \Delta
+\]
+
+Choosing this set requires considerations of the economic context. It is guided by choices of parameterization of the exposure mapping and potential outcomes. To exemplify this bias, I will show a simple example that allows for a maximum bias bound. 
+
+
+% ------------------------------------------------------------------------------
+\subsubsection{Example Parameterization of Bias}
+% ------------------------------------------------------------------------------
 
 To exemplify the above bias, I will model a particular form of spillovers by parameterizing the exposure mapping and the potential outcomes equation. For the exposure mapping, I will assume that spillovers occur for any county that is within 40 miles of a treated county, i.e. 
 \begin{align}
@@ -170,7 +185,7 @@ This specification is a simple one in that the spillover is not additive in the 
 \begin{align}
     \label{eq:example_po}
     \begin{split}
-        y_{it} &= \alpha + \mu_t + \mu_i + \beta_{\text{direct}} D_{it} + \beta_{\text{spill,control}} (1-D_{it}) \text{Near}_{it} \\
+        y_{it} &= \mu_t + \mu_i + \beta_{\text{direct}} D_{it} + \beta_{\text{spill,control}} (1-D_{it}) \text{Near}_{it} \\
         &\quad + \beta_{\text{spill,treated}} D_{it} \text{Near}_{it} + \varepsilon_{it},
     \end{split}
 \end{align}
@@ -186,17 +201,32 @@ then the bias will be $\tau_{\text{spill,treated}} - \tau_{\text{spill,control}}
 \] and \[ 
     \tau_{\text{spill,treated}} = \beta_{\text{spill,treated}} \frac{\sum_{i: D_{it} = 1} \text{Near}_{it}}{N_T},
 \]
-where $N_C$ and $N_T$ are the number of control and treated units respectively. Simply put, the bias will be the proportion of treated units that receive spillover effects time the size of the effect on treated units minus the proportion of control units that receive spillover effects time the size of the effect on control units. 
+where $N_C$ and $N_T$ are the number of control and treated units respectively. Simply put, the bias will be the product of the proportion of treated units that receive spillover effects and the size of the effect on treated units minus the proportion of control units that receive spillover effects time the size of the effect on control units. 
+
+Then researchers wanting to create the bias set $\Delta$, will assume minimum and maximum values of $\beta_{\text{spill,control}}$, $\beta_{\text{spill, treated}}$, and a maximum proportion of exposed treated and control units. With these assumptions, the set $\Delta$ can be approximated and the partially identified set is given by $[\hat{\tau} + \underline{\Delta}, \hat{\tau} + \overline{\Delta}]$. Inference on this set can be done in the manner described in \citet{Rambachan_Roth_2020}. 
+
+
+% ------------------------------------------------------------------------------
+\subsection{Improving Estimation}
+% ------------------------------------------------------------------------------
+
+The previous section shows how to estimate the magnitude of potential bias in the estimation of Equation \ref{eq:twfe}. However, parameterization of the potential outcomes and exposure mapping allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
+
+First, controlling for exposure mapping allows for unbiased estimates of the direct effect of treatmnet if the potential outcomes are correctly specified. In the case where potential outcomes are `somewhat' incorrectly specified, this can remove some of the bias in estimation. Simulations below highlight that since spillovers are likely to decay over distance, controlling for immediate neighbors removes a large portion of the average spillover effects.
+
+Second, the spillover effects are highly relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' beneift will be \emph{double undercounted}. Similarly, the net benefits for a treated location depend on the direct effect and the spillover effect onto treated units. Therefore whether the benefits depend on the number of treated units nearby.
 
 
 
-% --------------------------------------------------
+
+
+% ------------------------------------------------------------------------------
 \section{Monte Carlo Simulations}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \subsection{Simulation 1}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 \begin{figure}[t]
     \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
@@ -212,9 +242,9 @@ where $N_C$ and $N_T$ are the number of control and treated units respectively. 
     }
 \end{figure}
 
-I now turn to a series of Monte Carlo Simulations to highlight the importance for controlling for spillovers in simulations. The data generating process used is defined by the exposure mapping given in Equation \ref{eq:example_exposure} and the data generating process given in Equation \ref{eq:example_po}. A unit of observation is a US county and the periods are $t \in \{1, \dots, 20\}$ with treatment turning on in period $t = 10$. The intercepet is $\alpha = -2$, the fixed effects are $\mu_t \sim N(t * 0.2, 0.1^2)$ and $\mu_i \sim N(6, 2^2)$, and the error term is $\epsilon \sim N(0, 2^2)$. Last, the size of treatment and spillovers are as follows: $\beta_{\text{direct}} = 2$, $\beta_{\text{spillover, control}} = 1$ and $\beta_{\text{spillover, treat}} = 0$.
+I now turn to a series of Monte Carlo Simulations to highlight the importance for controlling for spillovers in simulations. The data generating process used is defined by the exposure mapping given in Equation \ref{eq:example_exposure} and the data generating process given in Equation \ref{eq:example_po}. A unit of observation is a US county and the periods are $t \in \{1, \dots, 20\}$ with treatment turning on in period $t = 10$. The intercepet is $\alpha = -2$, the fixed effects are $\mu_t \sim N(t * 0.2, 0.1^2)$ and $\mu_i \sim N(6, 2^2)$, and the error term is $\epsilon \sim N(0, 2^2)$. Last, the size of treatment and spillovers are as follows: $\beta_{\text{direct}} = 2$, $\beta_{\text{spill, control}} = 1$ and $\beta_{\text{spill, treat}} = 0$.
 
-For the first simulation, I restrict spillovers only to occur among control units, i.e. $\tau_{\text{spillover, treat}} = 0$ and estimate the typical two-way fixed effects model. This data generating process where spillovers only occur onto control units matches what has been typically assumed in the literature. I assign treatment among U.S. counties randomly with various probabilities between 3 percent and 50 percent. The DGP is therefore 
+For the first simulation, I restrict spillovers only to occur among control units, i.e. $\tau_{\text{spill, treat}} = 0$ and estimate the typical two-way fixed effects model. This data generating process where spillovers only occur onto control units matches what has been typically assumed in the literature. I assign treatment among U.S. counties randomly with various probabilities between 3 percent and 50 percent. The DGP is therefore 
 \begin{equation}
     \label{dgp1} 
     y_{it} = -2 + \mu_t + \mu_i + 2 D_{it} - (1-D_{it}) \text{Near}_{it} + \varepsilon_{it}   
@@ -227,11 +257,11 @@ A common solution in the literature is to remove control units from the estimate
 There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
 
 
-% --------------------------------------------------
+% -----------------------------------------------------------------------------
 \subsection{Simulation 2}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
-For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spillover, treat}} = -0.5$. The DGP is as follows 
+For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spill, treat}} = -0.5$. The DGP is as follows 
 \begin{equation}
     \label{dgp2} 
     y_{it} = -2 + \mu_t + \mu_i + 2 D_{it} - (1-D_{it}) \text{Near}_{it} - 0.5 D_{it} \text{Near}_{it} + \varepsilon_{it}   
@@ -296,15 +326,15 @@ The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats t
 
 
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \newpage \printbibliography
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 \newpage \appendix 
 \renewcommand{\thetable}{\Alph{section}.\arabic{table}}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
 
 % --------------------------------------------------
 \section{Proofs}

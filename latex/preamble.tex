@@ -1,5 +1,5 @@
 % Margins ------------------------------------------
-\usepackage[margin=1.5in]{geometry}
+\usepackage[margin=1.25in]{geometry}
 
 % Line Spacing -------------------------------------
 \renewcommand{\baselinestretch}{1.5}
@@ -69,6 +69,12 @@
 \titleformat{\subsection}
   {\large\it}
   {\thesubsection.}
+  {0.5em}
+  {#1}
+
+\titleformat{\subsubsection}
+  {\bfseries}
+  {\thesubsubsection.}
   {1em}
   {#1}
 

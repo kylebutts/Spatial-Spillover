@@ -1,9 +1,9 @@
-\documentclass[aspectratio=43]{beamer}
-% Metropolis Theme ---------------------------------
+\documentclass[aspectratio=169]{beamer}
+% Metropolis Theme ------------------------------------------------------------------------------
 \usetheme{metropolis} % Use metropolis theme
 
 
-% Title --------------------------------------------
+% Title ------------------------------------------------------------------------------
 \title{Differnces-in-Differences with Spatial Spillover}
 \date{\today}
 \author{Kyle Butts}
@@ -11,10 +11,17 @@
 
 \input{preamble.tex}
 
-% ---------------------------------------------------
-\begin{document}
-\maketitle
+\usepackage{adjustbox}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{threeparttable}
 
+% ------------------------------------------------------------------------------
+\begin{document}
+
+% ------------------------------------------------------------------------------
+\maketitle
+% ------------------------------------------------------------------------------
 
 \begin{frame}{Spatial Spillovers}
     Effects of treatments at states, counties, etc. can spill over boundaries.
@@ -62,6 +69,11 @@
 % TE + Spill Control + Spill Treat
 \imageframe{../../figures/figure-map_te_spill_all.png}
 
+
+
+% ------------------------------------------------------------------------------
+\section{Theory}
+% ------------------------------------------------------------------------------
 
 \begin{frame}{Potential Outcomes Framework}
     For exposition, I will label units as counties. Assume all treatment occurs at the same time (2-periods or pre-post averages).\footnote{This form adapts the framework of Vazquez-Bare (2020) for the diff-in-diff setting.}
@@ -169,7 +181,9 @@
 
 
 
-
+% ------------------------------------------------------------------------------
+\section{Simulations}
+% ------------------------------------------------------------------------------
 
 \begin{frame}{Monte Carlo Simulations}
     \begin{itemize}
@@ -259,12 +273,51 @@
 
 
 
-\begin{frame}{Next Steps}
-    \begin{itemize}
-        \item Monte Carlo: estimating spillovers and the problem of misspecification
-        
-        \item Application: replicate paper(s) with a consideration of spillovers (any ideas?)
-    \end{itemize}
+% ------------------------------------------------------------------------------
+\section{Application: Tennessee Valley Authority}
+% ------------------------------------------------------------------------------
+
+\begin{frame}{Tennessee Valley Authority}
+
+\end{frame}
+
+
+
+\begin{frame}
+\begin{table}[ht]
+    \caption{Effects of Tennessee Valley Authority on Decadel Growth}
+    \label{tab:tva}
+    \renewcommand{\arraystretch}{1}
+
+    \begin{adjustbox}{width = 1\textwidth, center}
+        \begin{threeparttable}
+            \begin{tabular}{@{} lc@{\extracolsep{20pt}}c@{\extracolsep{4pt}}ccc @{}}
+                % Head
+                \toprule
+
+                & \multicolumn{1}{c}{\textbf{Kline \& Moretti (2011)}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
+                \cmidrule{2-2} \cmidrule{3-6} 
+                & & & TVA between & TVA between & TVA between \\ 
+                \textit{Dependent Var.} & TVA & TVA & 0-100 mi. & 100-250 mi. & 250-500 mi. \\ 
+
+                % Body
+                \midrule
+                
+                
+                \input{../../tables/tva_replication_slides.tex}
+                
+                \bottomrule
+            \end{tabular}
+            
+            % Notes 
+            \begin{tablenotes}\footnotesize
+
+                \item $^{*} p< 0.1$; $^{**} p < 0.05$; $^{***} p < 0.01$.
+            \end{tablenotes}
+        \end{threeparttable}
+    \end{adjustbox}
+\end{table}    
+
 \end{frame}
 
 

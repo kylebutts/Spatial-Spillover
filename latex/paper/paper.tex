@@ -5,17 +5,9 @@
 \author{\normalsize Kyle Butts\\{\footnotesize Univ. of Colorado, Boulder}}
 \date{\footnotesize\today}
 
-\input{../preamble.tex}
+\input{preamble.tex}
 
-\usepackage[
-    citestyle= authoryear,
-    style= authoryear, 
-    natbib= true, 
-    backend= biber
-]{biblatex}
 \addbibresource{references.bib}
-
-\usepackage{subcaption}
 
 \begin{document}
 
@@ -43,14 +35,14 @@ In the presence of these spatial spillovers, I identify two sources of bias that
 
 Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. Therefore the spillover is added to the treated units' change in outcomes. Therefore the bias of treatment effect is the same sign as the sign of the spillover. For example a factory opening in two neighboring counties might cause the benefit of each individual factory to decrease. The estimated treatment effect will be negatively biased because there is a negative spillover onto also treated units. 
 
-The magnitude of the bias depends on two factors: the size of the spillover and the number of units affected by spillovers. If spillovers are quite large in magnitude or spread far over distance, then the bias will generally be large. This paper provides an explicit form for this bias and enables researchers to give bounds for it under assumptions about the size of the spillover effect and on number of units affected. I use Monte Carlo simulations to quantify the magnitude of bias in various spillover settings. 
+These biases are explicit functions of potential outcomes and can be used inuitively by researchers to sign the bias. The magnitude of the bias depends on two factors: the size of the spillover and the number of units affected by spillovers. If spillovers are quite large in magnitude or spread far over distance, then the bias will generally be large. This paper provides an explicit form for this bias and enables researchers to give bounds for it under assumptions about the size of the spillover effect and on number of units affected. I use Monte Carlo simulations to quantify the magnitude of bias in various spillover settings.
 
-\citet{Berg_Streitz_2019} find that six of the eight papers that include spillovers directly in their estimation strategy simply drop the control units they suspect to be affected by spillovers. Since this is a common strategy by researchers, I use Monte Carlo simulations to show that this method is effective in the case where there is \textit{only} spillovers on to control units. Dropping control unit observations, however, makes estimates less precise, so parameterizing the spillover function may be a better strategy especially in the case where there is a high proportion of control units neighboring treated units. 
+Despite the problem of spatial spillovers being common across many settings, \citet{Berg_Streitz_2019} document that little empirical analysis takes the problem seriously. In a survey of eight top economics and finance journals in 2017, they find that only 21 articles out of 108 that run differencse-in-differences estimation discuss spillovers.\footnote{The articles surveyed are American Economic Review, Econometrica, the Journal of Political Economy, the Quarterly Journal of Economics, the Review of Economic Studies, the Journal of Finance, the Journal of Financial Economics, and the Review of Financial Studies.} Of those 21, only eight include spillovers in their empirical specification to prevent bias in the estimation of treatment effects.
 
 @TODO: Paragraph on practical guidance on including spillover measures
 
 % ------------------------------------------------------------------------------
-\subsection{Literature Review}
+\subsection{Contribution}
 % ------------------------------------------------------------------------------
 
 There are two different models of SUTVA violations in the literature. Within-group spillovers are when units are in distinct groups and outcomes depend on the treatment status of your group only. For example, SUTVA is violated if a person's likelihood of getting sick depends on the vaccine rate of his community. In this case, the community is the group within which spillovers can occur. Between-group spillovers occur when groups are overlapping which allows for more general forms of spillover. For example, a counties' economic outcomes depend on the economic outcomes of nearby counties (even across state borders). @TODO: Add citations for papers that find this.
@@ -73,8 +65,10 @@ The paper is structured as follows. ...
 
 
 
+Similarly, \citet{Clarke_2017} finds an explicit form for bias when estimating a difference-in-differences model. However, their model only allows spillovers onto control units and assumes spillovers are constant regardless on the number of nearby treated units. Lastly, \citet{Berg_Streitz_2019} and \citet{Verbitsky-Savitz_Raudenbush_2012} find results for a specific potential outcome function where $h_i(\vec{D})$ is the proportion of treated contiguous counties. They allow this spillover to enter the potential outcome additively and the coefficient is allowed to differ by own treatment status. In my framework, if I assume the particular functional forms for potential outcomes of \citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}, I arrive at the same bias equation as theirs. 
 
 
+The rest of the paper is structured as follows. Section 2 presents the potential outcomes framework, defines the estimand of interest, and shows the resulting bias from estimating a classical difference-in-differences model. Section 3 presents Monte Carlo simulations to illlustrate the bias result and to evaluate currently used solutions in the literature. Section 4 presents an application for evaluating the Tennessee Valley Authority program. 
 
 
 
@@ -87,7 +81,7 @@ Following the canonical difference-in-difference framework, there is a time $t_0
 To help better understand an exposure mapping, I give three examples of $h_i(\vec{D})$. Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$. First, $h_i(\vec{D})$ can be a 0/1 variable that equals one only if there is a treated unit within $x$-miles of unit $i$ (also commonly used is counties that share borders). In this case \[
     h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < x ] 
 \] 
-This exposure mapping is useful when it is assumed that spillovers do not decay over distance and the number of neighboring units treated do not impact the intensity of spillovers. For example, this mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the distance people would likely travel to a nearby library. Access to a neighboring town library likely does not depend on whether you can access 1 or more nearby libraries, so the binary value is a good approximation to the level of spillovers.  
+This exposure mapping is useful when it is assumed that spillovers do not decay over distance and the number of neighboring units treated do not impact the intensity of spillovers. For example, this mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the maximum distance people would likely travel to a nearby library. Access to a neighboring town library likely does not depend on whether you can access 1 or more nearby libraries, so the binary value is a good approximation to the level of spillovers.  
 
 Second, $h_i(\vec{D})$ can be a function that equals the proportion of the k-nearest neighbors that are treated, i.e. \[
     h_i(\vec{D}) = 1/k \sum_{j \in k(i)} D_j,
@@ -169,7 +163,7 @@ The previous section finds an explicit form of the bias when estimating Equation
     \tau_{\text{spill,treated}} - \tau_{\text{spill, control}} \in \Delta
 \]
 
-Choosing this set requires considerations of the economic context. It is guided by choices of parameterization of the exposure mapping and potential outcomes. To exemplify this bias, I will show a simple example that allows for a maximum bias bound. 
+Choosing this set requires considerations of the economic context. It is guided by choices of parameterization of the exposure mapping and potential outcomes. To exemplify this bias, I will show a simple example that allows a researcher to bound the bias. 
 
 
 % ------------------------------------------------------------------------------
@@ -181,7 +175,7 @@ To exemplify the above bias, I will model a particular form of spillovers by par
     \label{eq:example_exposure}
     \text{Near}_{it} \equiv h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < 40 ].
 \end{align}
-This specification is a simple one in that the spillover is not additive in the number of nearby treated units and does not decay over distance. The potential outcome is assumed to be additive in both treatment and in the exposure mapping, but the coefficient on $\text{Near}_{it}$ is allowed to differ between treated and non-treated unitts:
+This specification is a simple one in that the spillover is not additive in the number of nearby treated counties and does not decay over distance before reaching $\bar{d}$. The potential outcome is assumed to be additive in both treatment and in the exposure mapping, but the coefficient on $\text{Near}_{it}$ is allowed to differ between treated and non-treated unitts:
 \begin{align}
     \label{eq:example_po}
     \begin{split}
@@ -205,6 +199,8 @@ where $N_C$ and $N_T$ are the number of control and treated units respectively. 
 
 Then researchers wanting to create the bias set $\Delta$, will assume minimum and maximum values of $\beta_{\text{spill,control}}$, $\beta_{\text{spill, treated}}$, and a maximum proportion of exposed treated and control units. With these assumptions, the set $\Delta$ can be approximated and the partially identified set is given by $[\hat{\tau} + \underline{\Delta}, \hat{\tau} + \overline{\Delta}]$. Inference on this set can be done in the manner described in \citet{Rambachan_Roth_2020}. 
 
+In the example of library construction, a researcher would assume that people would not drive further than 40 miles to access the library. Further, a researcher can argue that treatment effect does not depend on whether other counties also have access to libraries. Therefore, only $\beta_{\text{spill,control}}$ needs to be bounded for the the bias to be bounded. 
+
 
 % ------------------------------------------------------------------------------
 \subsection{Improving Estimation}
@@ -214,8 +210,11 @@ The previous section shows how to estimate the magnitude of potential bias in th
 
 First, controlling for exposure mapping allows for unbiased estimates of the direct effect of treatmnet if the potential outcomes are correctly specified. In the case where potential outcomes are `somewhat' incorrectly specified, this can remove some of the bias in estimation. Simulations below highlight that since spillovers are likely to decay over distance, controlling for immediate neighbors removes a large portion of the average spillover effects.
 
-Second, the spillover effects are highly relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' beneift will be \emph{double undercounted}. Similarly, the net benefits for a treated location depend on the direct effect and the spillover effect onto treated units. Therefore whether the benefits depend on the number of treated units nearby.
+Second, the spillover effects themselves are potentially relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' beneift will be \emph{double undercounted}. Similarly, the net benefits for a treated location depend on the direct effect and the spillover effect onto treated units. Therefore whether the benefits depend on the number of treated units nearby.
 
+There are a few practical considerations researchers should make when parametrizing the spillovers.
+
+In a set of Monte Carlo simulations, I check the sensitivity of estimates to misspecification of spillovers.
 
 
 
@@ -225,14 +224,14 @@ Second, the spillover effects are highly relevant for policy makers. If treatmen
 % ------------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------------
-\subsection{Simulation 1}
+\subsection{Simulation 1: Spillover on Controls Only}
 % ------------------------------------------------------------------------------
 
 \begin{figure}[t]
     \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
     \label{fig:bias_as_treat_prob}
     {\centering
-        \resizebox{\columnwidth}{!}{
+        \resizebox{\textwidth}{!}{
             \includegraphics{../../figures/figure-bias_fix.png}
         } 
     }
@@ -252,7 +251,7 @@ For the first simulation, I restrict spillovers only to occur among control unit
 
 The size of the bias from estimating Equation \ref{eq:twfe} at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. 
 
-A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not hte correct measure of $h_i(\vec{D}$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
+A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not hte correct measure of $h_i(\vec{D})$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
 
 There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
 
@@ -272,7 +271,7 @@ The proportion of treated units affected by the spillover depends on the spatial
     \caption{Example of Kriging Field}
     \label{fig:kriging}
     {\centering
-        \resizebox{\columnwidth}{!}{
+        \resizebox{\textwidth}{!}{
             \includegraphics{../../figures/figure-krig.png}
         } 
     }
@@ -292,7 +291,7 @@ The second term normalizes probabilities so the unconditional probability stays 
     \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
     \label{fig:bias_spatial_autocorr}
     {\centering
-        \resizebox{\columnwidth}{!}{
+        \resizebox{\textwidth}{!}{
             \includegraphics{../../figures/figure-bias_fix_spatial_autocorr.png}
         } 
     }
@@ -303,22 +302,90 @@ The second term normalizes probabilities so the unconditional probability stays 
 
 The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias actually decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular DGP, the effect of fewer control units on the bias is larger than the bias from more treated units. 
 
-The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy. I turn to this next. 
+The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy.
 
 
 
 
 
+% ------------------------------------------------------------------------------
+\section{Application in Urban Economics}
+% ------------------------------------------------------------------------------
+
+To illustrate the importance of accounting for spatial spillovers in the estimation of treatment effects, I revisit the analysis of the Tennessee Valley Authority (TVA) in \citet{Kline_Moretti_2014}. The TVA program was a large-scale federal investment started in 1934 that focused on modernizing the Tennessee valley economy. The program focused on electrification through dams and transportation canals in order to improve the manufacturing economy. By the end of WWII, the TVA became the largest single power supplier in the country.\footnote{More details on the program are found in \citet{Kline_Moretti_2014}.} With over \$20 Billion (in 2000 dollars) spent and hundreds of dollars transferred per person in the Authority, the impacts are very likely to cross far past the authority's borders. 
+
+I will focus on three outcome variables in the analysis. The first two are (the log of) agricultural and manufacturing employment and the last is (the log of) median household income. Since the TVA focused on manufacturing employment, the authors predict that employment will grow in manufacturing and shrink in agricultural. Since manufacturing jobs pay more on average, the median household income will therefore grow. 
+
+There are two primary forces causing spillover in this context. First, the large-scale investment in dams and electricity transmission lines brought cheap power to the region. It became cheaper for nearby locations to get connected to low-cost power and therefore likely lead to transition to manufacturing and away from farming in nearby counties. Second, \citet{Duranton_Puga_2003} highlight the agglomeration of input sourcing. When the Authority has a large increase in manufacturing, they develop resource supply chains that in turn make inputs cheaper for neighboring counties. These both suggest that spillovers will occur close to the spillover region and that the exposure will decay over distance. 
+
+The analysis in \citet{Kline_Moretti_2014} begins by comparing long-differences in county-level outcomes from 1940 to 2000 between treated counties in the Authority and control counties outside. The primary difference-in-differences specification is
+\begin{equation}\label{eq:tva}
+    y_{c, t} = \mu_c + \alpha \text{Post}_t + \tau \text{TVA}_c \times \text{Post}_t + X_{c, 1940} \beta + X_{c, 1940} \times \text{Post}_t \gamma + \epsilon_{c,t},
+\end{equation}
+where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in the Authority, $\text{Post}_t$ equals one when $t = 2010$ and equals zero when $t = 1940$, and $y$ is a series of outcome variables.\footnote{The text writes the equivalent first-differences regression: \[ 
+    y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, 1940} (\gamma - \beta) + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940}). 
+\] Outcome variables are all in logs and include population, average manufacturing wage, agricultural employment, manufacturing employment, value of farm production, median family income, and median housing value.} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.}
+
+\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. As described above and estimated below, the program likely induced positive manufacturing and negative agricultural employment effects in nearby counties. Therefore, the authors likely underestimate the impact on employment by comparing counties inside the Authroity to counties on the other side of the border. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
+
+The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. Hence, their method magnifies the bias compared to a standard difference-in-differences estimator.  However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results. 
+
+I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. Specifically, I use the following intervals $\text{Dist} = \{(0, 100], (100, 250], (250, 500]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. The extended specification is given as follows:  
+\begin{equation}\label{eq:tva_spillover}
+    y_{i, 2000} - y_{i, 1940} = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + (\varepsilon_{i, 2000} - \varepsilon_{i, 1940})
+\end{equation} 
+The coefficients $\delta_d$ measure the spillover effect at different distances from the Authority.
 
 
 
+\begin{landscape}
+\thispagestyle{lscaped}
 
+\begin{table}[ht]
+    \caption{Effects of Tennessee Valley Authority on Decadel Growth}
+    \label{tab:tva}
+    \renewcommand{\arraystretch}{1}
 
+    \begin{adjustbox}{width = 1.3\textwidth, center}
+        \begin{threeparttable}
+            \begin{tabular}{@{} lc@{\extracolsep{20pt}}cc@{\extracolsep{4pt}}ccc @{}}
+                % Head
+                \toprule
 
+                & \multicolumn{1}{c}{\textbf{Kline \& Moretti (2011)}} &
+                \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
+                \cmidrule{2-2} \cmidrule{3-3} \cmidrule{4-7} 
+                & & & & TVA between & TVA between & TVA between \\ 
+                & TVA & TVA & TVA & 0-100 mi. & 100-250 mi. & 250-500 mi. \\ 
+                \textit{Dependent Var.} & (1) & (2) & (3) & (4) & (5) & (6) \\
+                
+ 
+                % Body
+                \midrule
+                
+                
+                \input{../../tables/tva_replication.tex}
+                
+                \bottomrule
+            \end{tabular}
+            
+            % Notes 
+            \begin{tablenotes}\footnotesize
+                \item \textit{Notes.} Each row corresponds to an outcome variable. Each cell is the point estimate and the standard error for the variable described in the column title. All standard errors are clustered at the state-level. The column labeled \citet{Kline_Moretti_2014} replicates the Oaxaca-Blinder estimator found in column (3) of Table III. The column labeled `Diff-in-Diff' estimates Equation \ref{eq:tva} by OLS. The final four columns labeled `Diff-in-Diff with Spillovers' are estimates from Equation \ref{eq:tva_spillover}.
+                
+                \item $^{*} p< 0.1$; $^{**} p < 0.05$; $^{***} p < 0.01$.
+            \end{tablenotes}
+        \end{threeparttable}
+    \end{adjustbox}
+\end{table}
 
+\end{landscape}
 
+The results of the analysis are presented in Table \ref{tab:tva}. The first column lists which dependent variable (measured in logs) was used in the row. The following columns contain point estimates for $\tau$ and $\delta_s$ in different specifications and can be interpreted as decadel growth rates in outcomes. The column labeled `Kline \& Moretti (2011)' use an Oaxaca-Blinder estimator while the column labeled difference-in-differences uses an ordinary least squares estimator for Equation \ref{eq:tva}. The two columns are very close in magnitude to each other. They find a decline in agricultural employment of about $5.7\%$ per decade, an increase in manufacturing employment of about $7\%$ per decade, and an increase in median family income of about $2.6\%$ per decade. 
 
+Turning to the last four columns that estimate Equation \ref{eq:tva_spillover}, the columns contain point estimates for $\tau$ and $\delta_d$. For agricultural employment, our point estimates show there was a decline in agriculture employment in control units near to the authority. This is likely due to the fact that electrification of the region provided benefits beyond the border of the authority.\footnote{As noted in footnote 9 of \citet{Kline_Moretti_2014}, the spillover could theoretically be of either sign. It could be positive if farmers chose to locate in the authority to receive the benefits instead of just over the border.} Because the spillovers onto the control counties is negative, the original difference-in-differences estimator was positively biased. The new point estimate indicates a decline of agricultural employment of about $9.6\%$ per decade compared to $5.7\%$. 
 
+Similarly, manufacturing employment grew in nearby counties likely due to agglomeration economies and the improved regional transportation system. However, the size of the spillovers are smaller than in the agricultural employment regression, so the bias is smaller in this instance. The new point estimate is an increase of manufacturing employment of $8.54\%$ per decade compared to an original estimate of $7\%$. Median family income similarly increased in nearby counties and therefore the estimate was negatively biased. The point estimate is an increase of family income of $3.5\%$ per decade compared to $2.58\%$. These results show that including spillovers in the estimation of direct treatment effects is important and can lead to \emph{significant} differences in treatment effect estimates. 
 
 
 
@@ -327,13 +394,14 @@ The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats t
 
 
 % ------------------------------------------------------------------------------
-\newpage \printbibliography
+\newpage \printbibliography%
 % ------------------------------------------------------------------------------
 
 
 % ------------------------------------------------------------------------------
 \newpage \appendix 
 \renewcommand{\thetable}{\Alph{section}.\arabic{table}}
+\renewcommand{\thefigure}{\Alph{section}.\arabic{figure}}
 % ------------------------------------------------------------------------------
 
 % --------------------------------------------------

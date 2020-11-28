@@ -33,7 +33,8 @@ df <- read_dta("data/tva/build.dta") %>%
 	)
  
 counties <- sf::read_sf("data/counties.geojson") %>% 
-	mutate(state = as.numeric(fips) %% 1000)
+	mutate(state = as.numeric(fips) %% 1000) %>% 
+	rmapshaper::ms_simplify(keep = 0.05)
 
 # Create TVA shape
 tva_fips <- scan("data/tva/tvacounties.txt", character())
@@ -45,22 +46,11 @@ tva <- counties %>%
 dist_mat <- st_distance(counties %>% st_point_on_surface(), tva) 
 counties$dist_to_tva <- as.vector(units::drop_units(units::set_units(dist_mat, "mi")))
 
-counties <- counties %>% mutate(
-		spill = case_when(
-			0 < dist_to_tva & dist_to_tva <= 50 ~ "0 to 50 miles",
-			50 < dist_to_tva & dist_to_tva <= 100 ~ "50 to 100 miles",
-			100 < dist_to_tva & dist_to_tva <= 150 ~ "100 to 150 miles"
-		)
-	)
-# sanity check
-ggplot() +
-	geom_sf(data = counties, aes(fill = spill), color = "grey40") + 
-	# Outline of TVA
-	geom_sf(data = tva, color = "Black", fill = NA) + 
-	coord_sf(datum = NA) + 
-	theme_kyle() +
-	scale_fill_manual(values = c("red", "yellow", "orange"), na.translate = FALSE)
 
+controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpop30", "lnpop30sq", "popdifsq", "agrshr20", "agrshr20sq", "agrshr30", "agrshr30sq", "manufshr20", "manufshr30", "lnwage20", "lnwage30", "lntwage30", "lnemp20", "lnemp30", "urbshare20", "urbshare30", "lnfaval20", "lnfaval30", "lnmedhsval30", "lnmedrnt30", "white20", "white20sq", "white30", "white30sq", "pctil20", "pctil30", "urate30", "fbshr20", "fbshr30", "PRADIO30", "nowage20dum", "nowage30dum", "notwage30dum")
+
+
+## Create Spillover Variables --------------------------------------------------
 
 # lat-long of county centroids
 temp <- counties %>% st_transform(4326) %>% st_point_on_surface() %>% st_coordinates()
@@ -79,7 +69,15 @@ df_reg <- df %>%
 	)
 
 
+## Logit for subsample ---------------------------------------------------------
 
+formula_logit <- as.formula(paste0("tva ~ ", paste(controls, collapse = " + ")))
+tva_logit <- fixest::femlm(formula_logit, data = df_reg, family = "logit")
+df_reg <- df_reg %>% 
+	mutate(
+		phat = predict(tva_logit, df_reg), 
+		keep = phat > quantile(phat, probs = c(0.25), na.rm = TRUE)
+	)
 
 # Regression -------------------------------------------------------------------
 
@@ -119,11 +117,13 @@ for(y in dep_names) {
 	
 	temp <- df_reg %>% 
 		# Drop NAs from data
-		drop_na(!!c(controls, y, "tva_0_100"))
+		drop_na(!!c(controls, y, "tva_0_100")) %>% 
+		filter(keep == 1)
 	
 	
 	# Oaxcac-Blinder Estimate --------------------------------------------------
 	formula_oaxaca <- as.formula(paste0(y, " ~ ", paste(controls, collapse = " + ")))
+	# Remove bordering counties
 	reg_oaxaca <- oaxaca_estimate(temp %>% filter(is.na(border_county)), formula_oaxaca, "tva", cluster = "FIPSTAT1")
 	
 	

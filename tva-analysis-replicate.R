@@ -32,7 +32,8 @@ df <- read_dta("data/tva/build.dta") %>%
 		fips = sprintf("%05d", fipstat * 1000 + fipcnty)
 	)
  
-counties <- sf::read_sf("data/counties.geojson")
+counties <- sf::read_sf("data/counties.geojson") %>% 
+	mutate(state = as.numeric(fips) %% 1000)
 
 # Create TVA shape
 tva_fips <- scan("data/tva/tvacounties.txt", character())
@@ -44,13 +45,21 @@ tva <- counties %>%
 dist_mat <- st_distance(counties %>% st_point_on_surface(), tva) 
 counties$dist_to_tva <- as.vector(units::drop_units(units::set_units(dist_mat, "mi")))
 
-
+counties <- counties %>% mutate(
+		spill = case_when(
+			0 < dist_to_tva & dist_to_tva <= 50 ~ "0 to 50 miles",
+			50 < dist_to_tva & dist_to_tva <= 100 ~ "50 to 100 miles",
+			100 < dist_to_tva & dist_to_tva <= 150 ~ "100 to 150 miles"
+		)
+	)
 # sanity check
 ggplot() +
-	geom_sf(data = counties, aes(fill = dist_to_tva)) + 
-	geom_sf(data = tva, color = "red", fill = NA) + 
-	coord_sf(datum = NULL) + 
-	scale_fill_distiller()
+	geom_sf(data = counties, aes(fill = spill), color = "grey40") + 
+	# Outline of TVA
+	geom_sf(data = tva, color = "Black", fill = NA) + 
+	coord_sf(datum = NA) + 
+	theme_kyle() +
+	scale_fill_manual(values = c("red", "yellow", "orange"), na.translate = FALSE)
 
 
 # lat-long of county centroids
@@ -63,10 +72,10 @@ df_reg <- df %>%
 	left_join(., counties %>% st_drop_geometry(), by = "fips") %>% 
 	mutate(
 		tva_0_100 = !tva & dist_to_tva >= 0 & dist_to_tva < 100,
-		tva_100_250 = !tva & dist_to_tva >= 100 & dist_to_tva < 250,
-		tva_250_500 = !tva & dist_to_tva >= 250 & dist_to_tva < 500,
+		tva_0_50 = !tva & dist_to_tva >= 0 & dist_to_tva < 50,
 		tva_50_100 = !tva & dist_to_tva >= 50 & dist_to_tva < 100,
-		year = "1"
+		tva_100_150 = !tva & dist_to_tva >= 100 & dist_to_tva < 150,
+		tva_150_250 = !tva & dist_to_tva >= 150 & dist_to_tva < 250
 	)
 
 
@@ -95,9 +104,7 @@ dep_names <- c(
 		"Median housing value" = "D_lnfaval"
 	)
 
-controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpop30", "lnpop30sq", "popdifsq", "agrshr20", "agrshr20sq", "agrshr30", "agrshr30sq", "manufshr20", "manufshr30", "lnwage20", "lnwage30", "lntwage30", "lnemp20", "lnemp30", "urbshare20", "urbshare30", "lnfaval20", "lnfaval30", "lnmedhsval30", "lnmedrnt30", "white20", "white20sq", "white30", "white30sq", "pctil20", "pctil30", "urate30", "fbshr20", "fbshr30")
-
-# missing: c("nowage20", "nowage30", "notwage30", "PRADIO")
+controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpop30", "lnpop30sq", "popdifsq", "agrshr20", "agrshr20sq", "agrshr30", "agrshr30sq", "manufshr20", "manufshr30", "lnwage20", "lnwage30", "lntwage30", "lnemp20", "lnemp30", "urbshare20", "urbshare30", "lnfaval20", "lnfaval30", "lnmedhsval30", "lnmedrnt30", "white20", "white20sq", "white30", "white30sq", "pctil20", "pctil30", "urate30", "fbshr20", "fbshr30", "PRADIO30", "nowage20dum", "nowage30dum", "notwage30dum")
 
 
 # Wide Table Version -----------------------------------------------------------
@@ -114,14 +121,14 @@ for(y in dep_names) {
 		# Drop NAs from data
 		drop_na(!!c(controls, y, "tva_0_100"))
 	
-	formula_oaxaca <- as.formula(paste0(y, " ~ ", paste(controls, collapse = " + ")))
-	formula_controls <- as.formula(paste0(y, " ~ tva + ", paste(controls, collapse = " + ")))
-	formula_controls_spill <- as.formula(paste0(y, " ~ tva + tva_0_100 + tva_100_250 + tva_250_500 + ", paste(controls, collapse = " + ")))
 	
-	# Oaxcac-Blinder Estimate
+	# Oaxcac-Blinder Estimate --------------------------------------------------
+	formula_oaxaca <- as.formula(paste0(y, " ~ ", paste(controls, collapse = " + ")))
 	reg_oaxaca <- oaxaca_estimate(temp %>% filter(is.na(border_county)), formula_oaxaca, "tva", cluster = "FIPSTAT1")
 	
-	# Diff-in-Diff with Controls
+	
+	# Diff-in-Diff with Controls -----------------------------------------------
+	formula_controls <- as.formula(paste0(y, " ~ tva + ", paste(controls, collapse = " + ")))
 	reg_controls <- fixest::feols(formula_controls, data = temp, demeaned = TRUE)
 	
 	X <- reg_controls$X_demeaned
@@ -134,7 +141,8 @@ for(y in dep_names) {
 	
 	# cov_controls <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4)$Spatial
 	
-	# Diff-in-Diff with Spillovers
+	# Diff-in-Diff with Spillovers ---------------------------------------------
+	formula_controls_spill <- as.formula(paste0(y, " ~ tva + tva_0_50 + tva_50_100 + tva_100_150 + ", paste(controls, collapse = " + ")))
 	reg_spill <- fixest::feols(formula_controls_spill, data = temp, demeaned = TRUE)
 	
 	X <- reg_spill$X_demeaned
@@ -148,7 +156,7 @@ for(y in dep_names) {
 	# cov_spill <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4, time = time, id = time)$Spatial
 	
 	
-	keep_slides <- y %in% c("lnagr", "lnmanuf", "lnmedfaminc")
+	keep_slides <- y %in% c("D_lnagr", "D_lnmanuf", "D_lnmedfaminc")
 	
 	# Create row
 	row    <- ""
@@ -169,6 +177,8 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
+	row_slides    <- paste0(row_slides, pt_str, "& ")
+	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]
@@ -192,9 +202,9 @@ for(y in dep_names) {
 	row_slides    <- paste0(row_slides, pt_str, "& ")
 	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
-	pt     <- coef(reg_spill)[["tva_0_100TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_100TRUE", "tva_0_100TRUE"]])
-	# se     <- cov_spill[["tva_0_100TRUE", "tva_0_100TRUE"]]
+	pt     <- coef(reg_spill)[["tva_0_50TRUE"]]
+	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_50TRUE", "tva_0_50TRUE"]])
+	# se     <- cov_spill[["tva_0_50TRUE", "tva_0_50TRUE"]]
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
@@ -202,9 +212,9 @@ for(y in dep_names) {
 	row_slides    <- paste0(row_slides, pt_str, "& ")
 	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
-	pt     <- coef(reg_spill)[["tva_100_250TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_250TRUE", "tva_100_250TRUE"]])
-	# se     <- cov_spill[["tva_100_250TRUE", "tva_100_250TRUE"]]
+	pt     <- coef(reg_spill)[["tva_50_100TRUE"]]
+	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_50_100TRUE", "tva_50_100TRUE"]])
+	# se     <- cov_spill[["tva_50_100TRUE", "tva_50_100TRUE"]]
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
@@ -212,9 +222,9 @@ for(y in dep_names) {
 	row_slides    <- paste0(row_slides, pt_str, "& ")
 	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
-	pt     <- coef(reg_spill)[["tva_250_500TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_250_500TRUE", "tva_250_500TRUE"]])
-	# se     <- cov_spill[["tva_250_500TRUE", "tva_250_500TRUE"]]
+	pt     <- coef(reg_spill)[["tva_100_150TRUE"]]
+	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_150TRUE", "tva_100_150TRUE"]])
+	# se     <- cov_spill[["tva_100_150TRUE", "tva_100_150TRUE"]]
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "\\\\\n")
@@ -244,7 +254,7 @@ if(export) cat(table_tex_slides, file = "tables/tva_replication_slides.tex")
 # 	
 # 	formula <- as.formula(paste0("D_", y, " ~ tva"))
 # 	formula_controls <- as.formula(paste0("D_", y, " ~ tva + ", paste(controls, collapse = " + ")))
-# 	formula_controls_spill <- as.formula(paste0("D_", y, " ~ tva + tva_0_100 + tva_100_250 + tva_250_500 + ", paste(controls, collapse = " + ")))
+# 	formula_controls_spill <- as.formula(paste0("D_", y, " ~ tva + tva_0_50 + tva_50_100 + tva_100_150 + ", paste(controls, collapse = " + ")))
 # 	
 # 	reg <- lm(formula, data = df_reg)
 # 	reg_controls <- lm(formula_controls, data = df_reg)
@@ -254,9 +264,9 @@ if(export) cat(table_tex_slides, file = "tables/tva_replication_slides.tex")
 # 		l = list(reg, reg_controls, reg_spill), 
 # 		custom.coef.map = list(
 # 			"tva"             = "TVA", 
-# 			"tva_0_100TRUE"   = "TVA between 0 and 100mi",
-# 			"tva_100_250TRUE" = "TVA between 100 and 250mi",
-# 			"tva_250_500TRUE" = "TVA between 250 and 500mi"
+# 			"tva_0_50TRUE"   = "TVA between 0 and 50mi",
+# 			"tva_50_100TRUE" = "TVA between 50 and 100mi",
+# 			"tva_100_150TRUE" = "TVA between 100 and 150mi"
 # 		)
 # 	))
 # 	

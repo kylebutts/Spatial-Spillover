@@ -328,7 +328,7 @@ To illustrate the importance of accounting for spatial spillovers in the estimat
 
 \citet{Kline_Moretti_2014} focus on a set of outcome variables, but I will focus on three in the analysis. The first two are (the log of) agricultural and manufacturing employment and the last is (the log of) median household income. Since the TVA focused on manufacturing employment, the authors predict that employment will grow in manufacturing and shrink in agricultural. Since manufacturing jobs pay more on average, the median household income will therefore grow. 
 
-There are two primary forces causing spillover in this context. First, the large-scale investment in dams and electricity transmission lines brought cheap power to the region. It became cheaper for nearby locations to get connected to low-cost power and therefore this likely caused a transition to manufacturing and away from farming in nearby counties. Second, \citet{Duranton_Puga_2003} highlight the agglomeration of input sourcing. When the Authority has a large increase in manufacturing, they develop resource supply chains that in turn make inputs cheaper for neighboring counties. These both suggest that spillovers will occur close to the spillover region and that the exposure will decay over distance.
+In \citet{Kline_Moretti_2014}, they discuss the nature of spillovers that can occur. For agriculture employment, \citet{Kline_Moretti_2014} claim that improved wages in the Authority will draw agriculture workers out of nearby counties. Hence they predict a negative spillover. For manufacturing, the sign is ambiguous. There could be positive spillovers if electrification brought cheap power to the neighboring areas. Also, agglomeration effects increase manufacturing employment in nearby counties.\footnote{\citet{Duranton_Puga_2003} give theoretical motivations for different sources of agglomeration. In this context, agglomerations due to `sourcing' is most likely. When the Authority has a large increase in manufacturing, they develop resource supply chains that in turn make inputs cheaper for neighboring counties.} However, manufacturing could decline if firms chose to locate in the Authority that would have, in the absence of the program, decided to locate nearby. 
 
 The analysis in \citet{Kline_Moretti_2014} begins by comparing long-differences in county-level outcomes from 1940 to 2000 between treated counties in the Authority and control counties outside. The primary difference-in-differences specification is
 \begin{equation}\label{eq:tva}
@@ -338,29 +338,27 @@ where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in t
     y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, 1940} (\gamma - \beta) + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940}). 
 \] Outcome variables are all in logs and include population, average manufacturing wage, agricultural employment, manufacturing employment, value of farm production, median family income, and median housing value.} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.} 
 
-\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. As described above and estimated below, the program likely induced positive manufacturing and negative agricultural employment effects in nearby counties. Therefore, the authors likely underestimate the impact on employment by comparing counties inside the Authroity to counties on the other side of the border. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
+\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. As described above and estimated below, the program likely induced manufacturing and agricultural employment effects in nearby counties. By comparing counties inside the Authroity to counties on the other side of the border, the authors likely underestimate the negative effect on agricultural employment while the bias in the manufacturing effect is theoretically ambiguous. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
 
 The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. Hence, their method magnifies the bias compared to a standard difference-in-differences estimator.  However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results since the weights are not that different from uniform. 
 
-I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. I do this for two reasons. Specifically, I use the following intervals $\text{Dist} = \{(0, 100], (100, 250], (250, 500]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. As discussed above, I suspect the spillover to decrease as counties move further away, hence I allow the effect to be seperately identified in bins. However, I 
+I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. I do this for two reasons. Specifically, I use the following intervals $\text{Dist} = \{(0, 50], (50, 100], (100, 150]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. As discussed above, I suspect the spillover effects to change with distance to the authority, hence I allow the effect to be seperately identified in bins. I keep the number of bins small to improve precision of spillover estimates.
 
 The specification with spillovers is given as follows:  
 \begin{equation}\label{eq:tva_spillover}
     y_{i, 2000} - y_{i, 1940} = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + (\varepsilon_{i, 2000} - \varepsilon_{i, 1940})
 \end{equation} 
-The coefficients $\delta_d$ measure the spillover effect at different distances from the Authority.
+The coefficients $\delta_d$ measure the spillover effect onto control units at different distances from the Authority. If specification \ref{eq:tva_spillover} is correctly specified, then $\hat{\tau}$ will be an unbiased estimate for the `local' effect. As shown above, minor misspecification will remove some but not all of the bias from standard difference-in-differences estimates. 
 
 
-
-\begin{landscape}
-\thispagestyle{lscaped}
-
-\begin{table}[ht]
+% \begin{landscape}
+% \thispagestyle{lscaped}
+\begin{table}[!tb]
     \caption{Effects of Tennessee Valley Authority on Decadel Growth}
     \label{tab:tva}
     \renewcommand{\arraystretch}{1}
 
-    \begin{adjustbox}{width = 1.3\textwidth, center}
+    \begin{adjustbox}{width = 1.2\textwidth, center}
         \begin{threeparttable}
             \begin{tabular}{@{} lc@{\extracolsep{20pt}}cc@{\extracolsep{4pt}}ccc @{}}
                 % Head
@@ -370,7 +368,7 @@ The coefficients $\delta_d$ measure the spillover effect at different distances 
                 \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
                 \cmidrule{2-2} \cmidrule{3-3} \cmidrule{4-7} 
                 & & & & TVA between & TVA between & TVA between \\ 
-                & TVA & TVA & TVA & 0-100 mi. & 100-250 mi. & 250-500 mi. \\ 
+                & TVA & TVA & TVA & 0-50 mi. & 50-100 mi. & 100-150 mi. \\ 
                 \textit{Dependent Var.} & (1) & (2) & (3) & (4) & (5) & (6) \\
                 
  
@@ -378,7 +376,7 @@ The coefficients $\delta_d$ measure the spillover effect at different distances 
                 \midrule
                 
                 
-                \input{../../tables/tva_replication.tex}
+                \input{../../tables/tva_replication_slides.tex}
                 
                 \bottomrule
             \end{tabular}
@@ -392,14 +390,13 @@ The coefficients $\delta_d$ measure the spillover effect at different distances 
         \end{threeparttable}
     \end{adjustbox}
 \end{table}
-
-\end{landscape}
+%\end{landscape}
 
 The results of the analysis are presented in Table \ref{tab:tva}. The first column lists which dependent variable (measured in logs) was used in the row. The following columns contain point estimates for $\tau$ and $\delta_s$ in different specifications and can be interpreted as decadel growth rates in outcomes. The column labeled `Kline \& Moretti (2011)' use an Oaxaca-Blinder estimator while the column labeled difference-in-differences uses an ordinary least squares estimator for Equation \ref{eq:tva}. The two columns are very close in magnitude to each other. They find a decline in agricultural employment of about $5.7\%$ per decade, an increase in manufacturing employment of about $7\%$ per decade, and an increase in median family income of about $2.6\%$ per decade. 
 
-Turning to the last four columns that estimate Equation \ref{eq:tva_spillover}, the columns contain point estimates for $\tau$ and $\delta_d$. For agricultural employment, our point estimates show there was a decline in agriculture employment in control units near to the authority. This is likely due to the fact that electrification of the region provided benefits beyond the border of the authority.\footnote{As noted in footnote 9 of \citet{Kline_Moretti_2014}, the spillover could theoretically be of either sign. It could be positive if farmers chose to locate in the authority to receive the benefits instead of just over the border.} Because the spillovers onto the control counties is negative, the original difference-in-differences estimator was positively biased. The new point estimate indicates a decline of agricultural employment of about $9.6\%$ per decade compared to $5.7\%$. 
+Turning to the last four columns that estimate Equation \ref{eq:tva_spillover}, column (3) contains a point estimate for $\tau$ and and columns (4)-(6) contain point estimates of the spillover effects $\delta_d$. For agricultural employment, our point estimates show there was a decline in agriculture employment in control units near the Authority. This is likely due to the fact that higher paying manufacturing jobs within the Authority drew migrants from nearby counties. Because the spillovers onto the control counties is negative, the original difference-in-differences estimator was positively biased. The new point estimate indicates a decline of agricultural employment of about $7.6\%$ per decade compared to $5.8\%$. 
 
-Similarly, manufacturing employment grew in nearby counties likely due to agglomeration economies and the improved regional transportation system. However, the size of the spillovers are smaller than in the agricultural employment regression, so the bias is smaller in this instance. The new point estimate is an increase of manufacturing employment of $8.54\%$ per decade compared to an original estimate of $7\%$. Median family income similarly increased in nearby counties and therefore the estimate was negatively biased. The point estimate is an increase of family income of $3.5\%$ per decade compared to $2.58\%$. These results show that including spillovers in the estimation of direct treatment effects is important and can lead to \emph{significant} differences in treatment effect estimates. 
+For manufacturing, our point estimates for spillovers in column (4)-(6) are statistically significant, but suggest that neighboring counties had a potentially negative spillover effect. Since there is little spillovers present, the new point estimate in column (3) of $-5.18\%$ is close to the original estimate. Similarly, there is not a significant spillover on median family income. The point estimate therefore stays the same. These results show that including spillovers in the estimation of direct treatment effects is potentially important and in the case of agricultural employment can lead to \emph{significant} differences in treatment effect estimates. 
 
 
 

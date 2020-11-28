@@ -23,7 +23,7 @@ library("patchwork")
 source("helper-sim_function.R")
 
 # Load theme_kyle()
-source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd46ef9f/raw/ef6834e879f98be630bec9fd48c7e0bd945689be/theme_kyle.R")
+source("https://raw.githubusercontent.com/kylebutts/templates/master/ggplot_theme/theme_kyle.R")
 
 # Is for slides or paper?
 slides <- FALSE

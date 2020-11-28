@@ -203,7 +203,7 @@ In the example of library construction, a researcher would assume that people wo
 
 
 % ------------------------------------------------------------------------------
-\subsection{Improving Estimation}
+\subsection{Improving Estimation by Parameterizing Spillovers}
 % ------------------------------------------------------------------------------
 
 The previous section shows how to estimate the magnitude of potential bias in the estimation of Equation \ref{eq:twfe}. However, parameterization of the potential outcomes and exposure mapping allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
@@ -212,7 +212,7 @@ First, controlling for exposure mapping allows for unbiased estimates of the dir
 
 Second, the spillover effects themselves are potentially relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' beneift will be \emph{double undercounted}. Similarly, the net benefits for a treated location depend on the direct effect and the spillover effect onto treated units. Therefore whether the benefits depend on the number of treated units nearby.
 
-There are a few practical considerations researchers should make when parametrizing the spillovers.
+There are a few practical considerations researchers should make when parametrizing the spillovers. % @TODO: Expand upon considerations in the introduction
 
 In a set of Monte Carlo simulations, I check the sensitivity of estimates to misspecification of spillovers.
 
@@ -224,7 +224,7 @@ In a set of Monte Carlo simulations, I check the sensitivity of estimates to mis
 % ------------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------------
-\subsection{Simulation 1: Spillover on Controls Only}
+\subsection{Spillover on Controls Only}
 % ------------------------------------------------------------------------------
 
 \begin{figure}[t]
@@ -251,13 +251,13 @@ For the first simulation, I restrict spillovers only to occur among control unit
 
 The size of the bias from estimating Equation \ref{eq:twfe} at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. 
 
-A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not hte correct measure of $h_i(\vec{D})$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
+A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not the correct measure of $h_i(\vec{D})$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
 
 There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
 
 
 % -----------------------------------------------------------------------------
-\subsection{Simulation 2}
+\subsection{Spillovers onto Control and Treated Units}
 % ------------------------------------------------------------------------------
 
 For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spill, treat}} = -0.5$. The DGP is as follows 
@@ -300,11 +300,23 @@ The second term normalizes probabilities so the unconditional probability stays 
     }
 \end{figure}
 
+In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. Kriging generates a Gaussian field for a large grid of points across the entire United States where the spatial autocorrelation of the points is described by a set of parameters. One such field is depicted in Figure \ref{fig:kriging}. For a given field, I find the counties in the top ten percent of values and give these counties a value of $\text{Zone}_i = 1$. Then I assign treatment with a probability that differs based on Zone. The unconditional probability is equal to 5 percent in all simulations. To do this, I use a variable `Zone Plus' to adjust the relative probability of receiving treatment: 
+\begin{equation}
+    \label{eq:cond_prob}
+    P(D_i \ \vert \ \text{Zone}_i) = (.1 + \text{Zone Plus} * \text{Zone}_i) \times \frac{.05}{.1 * .9 + (.1 + \text{Zone Plus}) * .1}
+\end{equation}
+The second term normalizes probabilities so the unconditional probability stays at five percent. In our simulations, Zone Plus ranges from 0 which is the case where p = five percent for all counties to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.0166 + 0.35 * \text{Zone}_i$
+
 The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias actually decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular DGP, the effect of fewer control units on the bias is larger than the bias from more treated units. 
 
 The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy.
 
 
+% ------------------------------------------------------------------------------
+\subsection{Misspecification of Spillovers}
+% ------------------------------------------------------------------------------
+
+% @ TODO
 
 
 
@@ -314,23 +326,25 @@ The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats t
 
 To illustrate the importance of accounting for spatial spillovers in the estimation of treatment effects, I revisit the analysis of the Tennessee Valley Authority (TVA) in \citet{Kline_Moretti_2014}. The TVA program was a large-scale federal investment started in 1934 that focused on modernizing the Tennessee valley economy. The program focused on electrification through dams and transportation canals in order to improve the manufacturing economy. By the end of WWII, the TVA became the largest single power supplier in the country.\footnote{More details on the program are found in \citet{Kline_Moretti_2014}.} With over \$20 Billion (in 2000 dollars) spent and hundreds of dollars transferred per person in the Authority, the impacts are very likely to cross far past the authority's borders. 
 
-I will focus on three outcome variables in the analysis. The first two are (the log of) agricultural and manufacturing employment and the last is (the log of) median household income. Since the TVA focused on manufacturing employment, the authors predict that employment will grow in manufacturing and shrink in agricultural. Since manufacturing jobs pay more on average, the median household income will therefore grow. 
+\citet{Kline_Moretti_2014} focus on a set of outcome variables, but I will focus on three in the analysis. The first two are (the log of) agricultural and manufacturing employment and the last is (the log of) median household income. Since the TVA focused on manufacturing employment, the authors predict that employment will grow in manufacturing and shrink in agricultural. Since manufacturing jobs pay more on average, the median household income will therefore grow. 
 
-There are two primary forces causing spillover in this context. First, the large-scale investment in dams and electricity transmission lines brought cheap power to the region. It became cheaper for nearby locations to get connected to low-cost power and therefore likely lead to transition to manufacturing and away from farming in nearby counties. Second, \citet{Duranton_Puga_2003} highlight the agglomeration of input sourcing. When the Authority has a large increase in manufacturing, they develop resource supply chains that in turn make inputs cheaper for neighboring counties. These both suggest that spillovers will occur close to the spillover region and that the exposure will decay over distance. 
+There are two primary forces causing spillover in this context. First, the large-scale investment in dams and electricity transmission lines brought cheap power to the region. It became cheaper for nearby locations to get connected to low-cost power and therefore this likely caused a transition to manufacturing and away from farming in nearby counties. Second, \citet{Duranton_Puga_2003} highlight the agglomeration of input sourcing. When the Authority has a large increase in manufacturing, they develop resource supply chains that in turn make inputs cheaper for neighboring counties. These both suggest that spillovers will occur close to the spillover region and that the exposure will decay over distance.
 
 The analysis in \citet{Kline_Moretti_2014} begins by comparing long-differences in county-level outcomes from 1940 to 2000 between treated counties in the Authority and control counties outside. The primary difference-in-differences specification is
 \begin{equation}\label{eq:tva}
     y_{c, t} = \mu_c + \alpha \text{Post}_t + \tau \text{TVA}_c \times \text{Post}_t + X_{c, 1940} \beta + X_{c, 1940} \times \text{Post}_t \gamma + \epsilon_{c,t},
 \end{equation}
-where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in the Authority, $\text{Post}_t$ equals one when $t = 2010$ and equals zero when $t = 1940$, and $y$ is a series of outcome variables.\footnote{The text writes the equivalent first-differences regression: \[ 
+where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in the Authority, $\text{Post}_t$ equals one when $t = 2010$ and equals zero when $t = 1940$, and $y$ is a set of outcome variables.\footnote{The text writes the equivalent first-differences regression: \[ 
     y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, 1940} (\gamma - \beta) + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940}). 
-\] Outcome variables are all in logs and include population, average manufacturing wage, agricultural employment, manufacturing employment, value of farm production, median family income, and median housing value.} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.}
+\] Outcome variables are all in logs and include population, average manufacturing wage, agricultural employment, manufacturing employment, value of farm production, median family income, and median housing value.} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.} 
 
 \citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. As described above and estimated below, the program likely induced positive manufacturing and negative agricultural employment effects in nearby counties. Therefore, the authors likely underestimate the impact on employment by comparing counties inside the Authroity to counties on the other side of the border. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
 
-The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. Hence, their method magnifies the bias compared to a standard difference-in-differences estimator.  However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results. 
+The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. Hence, their method magnifies the bias compared to a standard difference-in-differences estimator.  However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results since the weights are not that different from uniform. 
 
-I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. Specifically, I use the following intervals $\text{Dist} = \{(0, 100], (100, 250], (250, 500]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. The extended specification is given as follows:  
+I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. I do this for two reasons. Specifically, I use the following intervals $\text{Dist} = \{(0, 100], (100, 250], (250, 500]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. As discussed above, I suspect the spillover to decrease as counties move further away, hence I allow the effect to be seperately identified in bins. However, I 
+
+The specification with spillovers is given as follows:  
 \begin{equation}\label{eq:tva_spillover}
     y_{i, 2000} - y_{i, 1940} = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + (\varepsilon_{i, 2000} - \varepsilon_{i, 1940})
 \end{equation} 

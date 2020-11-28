@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 
-\title{\color{dark-maroon} Differences-in-Differences with Spatial Spillover}
+\title{\color{navyblue} Differences-in-Differences with Spatial Spillover}
 % \subtitle{Subtitle}
 \author{\normalsize Kyle Butts\\{\footnotesize Univ. of Colorado, Boulder}}
 \date{\footnotesize\today}
@@ -16,57 +16,48 @@
     \maketitle
     
     \begin{abstract}
-        Empirical work often uses treatment variables defined by geographic boundaries. When researchers ignore the common problem that the effects of treatment cross over borders, differences-in-differences produces biased estimates for the average treatment effect. In this paper, I identify two sources of bias. First, the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment. Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I use Monte Carlo simulations to demonstrate when the biases are particularly large. Further, I show that a common solution used in the literature of removing `contaminated' control units only prevents one source of bias. Lastly, I propose improved estimation strategies that can remove both sources of bias.  
+        Empirical work often uses treatment variables defined by geographic boundaries. When researchers ignore the common problem that the effects of treatment cross over borders, classical difference-in-differences estimation produces biased estimates for the average treatment effect. In this paper, I decompose this bias in two parts. First, the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment. Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I use Monte Carlo simulations to demonstrate when the biases are particularly large. Further, I show that a common solution used in the literature of removing `contaminated' control units only prevents the first source of bias. Lastly, I propose improved estimation strategies that can remove both sources of bias. I highlight the importance of considering spillovers by revisiting analysis of the Tennessee Valley Authority.
     \end{abstract}
 \end{titlepage}
-% --------------------------------------------------
-    
-\newpage 
+% ------------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------------
 \section{Introduction}
 % ------------------------------------------------------------------------------
 
-Empirical work in economics often considers treatment assigned by geographic boundaries such as cities, counties, and states. The effect of these treatments do not typically stay within these boundaries whether it be from people crossing borders or from general equilibrium mechanisms affecting neighboring areas. In the causal inference literature, the Stable Unit Treatment Value Assumption (SUTVA) is often assumed which says that treatment effects do not depend on the treatment status of any other unit \citep{Rubin_1980}. This article considers a common violation of SUTVA in a process I label `spatial spillovers' where `close' units treatment assignment affects outcomes of nearby units.\footnote{Close can refer to many different things, e.g. geographic distance, node distance in graph theory, or social relationships in schools or cities.} 
+Empirical work in economics often considers treatment assigned by geographic boundaries such as cities, counties, and states. The effect of these treatments do not typically stay within these boundaries whether it be from people crossing borders to access treatment (imperfect compliance) or from general equilibrium effects affecting neighboring areas. In the causal inference literature, the Stable Unit Treatment Value Assumption (SUTVA) is often assumed which says that a unit's potential outcome does not depend on the treatment status of any other unit \citep{Rubin_1980}. This article considers a common violation of SUTVA in a process I label `spatial spillovers' where `close' units treatment assignment affects outcomes of nearby units.\footnote{Close can refer to many different things, e.g. geographic distance, node distance in a graph, or social relationships in schools or cities.} 
 
-Despite the problem of spatial spillovers being common across many settings, \citet{Berg_Streitz_2019} document that little empirical analysis takes the problem seriously. In a survey of eight top Economics and Finance Journals in 2017, they find that only 21 articles out of 108 that run differencse-in-differences estimation discuss spillovers.\footnote{The articles surveyed are American Economic Review, Econometrica, the Journal of Political Economy, the Quarterly Journal of Economics, the Review of Economic Studies, the Journal of Finance, the Journal of Financial Economics, and the Review of Financial Studies.} Of those 21, only eight include spillovers to prevent bias in the estimation of treatment effects.
+This paper first introduces a potential outcome framework that explicitly models this violation of SUTVA following \citet{Vazquez-Bare_2019}. In the presence of spatial spillovers, I identify two sources of bias that result when estimating treatment effects by standard difference-in-differences methodologies.
 
-In the presence of these spatial spillovers, I identify two sources of bias that result when estimating treatment effects by standard differences-in-differences methodologies. First, untreated units that are `close' to treated units experience effects of treatment and therefore these `control' units fail to identify the counterfactual trend. When estimating by differences-in-differences, the spillover onto the `close' control units is averaged into the untreated change in outcomes. In this case, the spillover is subtracted from the estimated treatment effect and biases the estimate in the opposite sign of the spillover effect. For example, if a factory opening in a given county benefits both that county and neighboring counties, the treatment effect estimate is negatively biased because the change in outcome in neighboring counties is higher than it would be absent treatment. 
+First, untreated units that are `close' to treated units experience effects of treatment and therefore these `control' units fail to identify the counterfactual trend. When estimating by difference-in-differences, the spillover onto the `close' control units is averaged into the untreated change in outcomes. In this case, the spillover is subtracted from the estimated treatment effect and biases the estimate in the opposite sign of the spillover effect. For example, if a factory opening in a given county benefits both that county and neighboring counties, the treatment effect estimate is negatively biased because the change in outcome in neighboring counties is higher than it would be absent treatment. Researchers would therefore underestimate the positive benefits of treatment.\footnote{If the policy maker had preferences over both treated and neighboring counties, they would fail to count the positive benefits of the control units and they would underestimate the positive benefits on the treated units. Difference-in-differences estimation would result in double undercounting.}
 
-Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. Therefore the spillover is added to the treated units' change in outcomes. Therefore the bias of treatment effect is the same sign as the sign of the spillover. For example a factory opening in two neighboring counties might cause the benefit of each individual factory to decrease. The estimated treatment effect will be negatively biased because there is a negative spillover onto also treated units. 
+Second, changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. The spillover is added to the treated units' change in outcomes. Therefore the bias of treatment effect is the same sign as the sign of the spillover. For example a factory opening in two neighboring counties might cause the benefit of each individual factory to increase due to agglomeration forces. The estimated treatment effect will be positively biased because there is a positive spillover onto also treated units. 
 
 These biases are explicit functions of potential outcomes and can be used inuitively by researchers to sign the bias. The magnitude of the bias depends on two factors: the size of the spillover and the number of units affected by spillovers. If spillovers are quite large in magnitude or spread far over distance, then the bias will generally be large. This paper provides an explicit form for this bias and enables researchers to give bounds for it under assumptions about the size of the spillover effect and on number of units affected. I use Monte Carlo simulations to quantify the magnitude of bias in various spillover settings.
 
 Despite the problem of spatial spillovers being common across many settings, \citet{Berg_Streitz_2019} document that little empirical analysis takes the problem seriously. In a survey of eight top economics and finance journals in 2017, they find that only 21 articles out of 108 that run differencse-in-differences estimation discuss spillovers.\footnote{The articles surveyed are American Economic Review, Econometrica, the Journal of Political Economy, the Quarterly Journal of Economics, the Review of Economic Studies, the Journal of Finance, the Journal of Financial Economics, and the Review of Financial Studies.} Of those 21, only eight include spillovers in their empirical specification to prevent bias in the estimation of treatment effects.
 
-@TODO: Paragraph on practical guidance on including spillover measures
+Of the eight papers that include spillovers directly in their estimation strategy, six simply drop the control units they suspect to be affected by spillovers. Since this is a common strategy by researchers, I use Monte Carlo simulations to show that this method is effective in the case where there is \textit{only} spillovers on to control units. Dropping control unit observations, however, makes estimates less precise, so parameterizing the spillover function may be a better strategy especially in the case where a high proportion of control units would need to be removed.
+
+Removing both kinds of bias requires a researcher to take a stance and parameterize a functional form for the spillover function. The particular functional form depends on the context of the application however there are a few practical considerations. First, the researcher should argue whether spillovers on control units and on treated units exist. Second, they should argue what the maximum distance these spillovers can occur. Last, they should consider if spillovers are additive in the number of nearby units that are treated.
 
 % ------------------------------------------------------------------------------
 \subsection{Contribution}
 % ------------------------------------------------------------------------------
 
-There are two different models of SUTVA violations in the literature. Within-group spillovers are when units are in distinct groups and outcomes depend on the treatment status of your group only. For example, SUTVA is violated if a person's likelihood of getting sick depends on the vaccine rate of his community. In this case, the community is the group within which spillovers can occur. Between-group spillovers occur when groups are overlapping which allows for more general forms of spillover. For example, a counties' economic outcomes depend on the economic outcomes of nearby counties (even across state borders). @TODO: Add citations for papers that find this.
+There are two different models of SUTVA violations in the literature. Within-group spillovers are when units are in distinct groups and outcomes depend on the treatment status within your group only. For example, SUTVA is violated if a student's standardized test score depends on the proportion of students enrolled in a tutoring program at that school. In this case, each school constitutes a group and it is assumed treatment effect is not affected by other schools' tutoring enrollment. Estimation in this case is done in a `partial intereference' framework.\footnote{\citet{Halloran_Struchiner_1995} considers community-vaccine rates in epidemology; \citet{Sobel_2006} considers interference in the Moving to Opportunity Program; and \citet{Angrist_2014} studies the context of school peer effects.} This setting compares ``control'' units in a partially treated group with control units in completely untreated groups to estimate spillover effects.\footnote{\citet{Angelucci_DiMaro_2016} provides a summary for estimation of within-group treatment effects.} However, the setting in my paper does not feature distinct groups which allow for the researcher to seperate areas into distinct non-overlapping groups.
 
-One set of literature discusses `partial intereference' where spillovers are assumed to only occur within a group and not across groups.\footnote{\citet{Halloran_Struchiner_1995} considers community-vaccine rates in epidemology; \citet{Sobel_2006} considers interference in the Moving to Opportunity Program; and \citet{Angrist_2014} studies the context of school peer effects.} This setting compares ``control'' units in a partially treated group with control units in completely untreated groups to estimate spillover effects.\footnote{\citet{Angelucci_DiMaro_2016} provides a summary for estimation of within-group treatment effects.} However, the setting in my paper does not feature distinct groups which allow for the researcher to seperate areas into distinct non-overlapping groups.
+The more general form is sometimes called between-group spillovers which occur when groups are overlapping. For example, a counties' economic outcomes depend on the economic outcomes of nearby counties (even across state borders). Estimation in this framework is more difficult and requires the researcher to either identify control units that are free from spillovers or to parameterize how control units are affected by treatment.
 
-\citet{Vazquez-Bare_2019} models within-group spillovers such that their exposure mapping is only a function of unit $i$'s group's treatment vector. He develops a potential outcomes framework which assumes that potential outcomes are a function of both own treatment-status $D_i$ and a function of the vector of treatment assignments $h_i(\vec{D})$ (this is referred to as an exposure mapping). Adding an exposure mapping to the potential outcomes framework allows to explicitly model SUTVA violations. Using this framework, he shows that a difference in means comparison between treated and control units is a biased estimated for the treatment effect. My paper uses this potential outcome framework in the case where treatment spillover is not limited to within-group spillovers and considers estimation of treatment effects by differences-in-differences. 
+\citet{Vazquez-Bare_2019} models within-group spillovers such that their exposure mapping is only a function of unit $i$'s group's treatment vector. He develops a potential outcomes framework which assumes that potential outcomes are a function of both own treatment-status $D_i$ and a function of the vector of treatment assignments $h_i(\vec{D})$. The function $h_i(\vec{D})$ is referred to as an exposure mapping and adding an exposure mapping to the potential outcomes framework allows to explicitly model SUTVA violations. Using this framework, \citet{Vazquez-Bare_2019} shows that a difference in means comparison between treated and control units is a biased estimated for the treatment effect. My paper uses this potential outcome framework in the case where treatment spillover is not limited to within-group spillovers and considers estimation of treatment effects by difference-in-differences. 
 
-\citet{Sävje_Aronow_Hudgens_2019} consider a similar potential outcome framework as \citet{Vazquez-Bare_2019}, but they instead include spillovers as a part of their definition of ``treatment effect''. Then, the authors describe how the ATE estimated by diff-in-diff averages over both individual heterogeneity and, central to their contribution, over heterogeneity in the exposure mapping, $h_i(\vec{D})$. This paper develops a strategy to allow researchers to seperately identify treatment effects and spillovers.
+\citet{Sävje_Aronow_Hudgens_2019} consider a similar potential outcome framework as \citet{Vazquez-Bare_2019}, but they instead include spillovers as a part of their definition of ``treatment effect''. Then, the authors describe how the ATE estimated by difference-in-differences averages over both individual heterogeneity and, central to their contribution, over heterogeneity in the exposure mapping, $h_i(\vec{D})$. My paper develops a strategy to allow researchers to seperately identify treatment effects and spillovers.
 
-The paper closest to mine is \citet{Delgado_Florax_2015} where they consider spillover only on to control units and identify a bias that can come from estimating a diff-in-diff model without explicitly controlling for spillovers. Using Monte-Carlo simulations, they find that there is an omitted variable bias problem by not including a measure of spillovers. This paper derives an explicit form for this bias in terms of potential outcomes and also includes the presence of spillovers on to also treated units.
-
-Similarly, \citet{Clarke_2017} finds an explicit form for bias when estimating a diff-in-diff model with spillover onto control units. However, their model only allows spillovers onto control units and assumes spillovers are constant regardless on the number of nearby treated units. Lastly, \citet{Berg_Streitz_2019} and \citet{Verbitsky-Savitz_Raudenbush_2012} find results for a specific potential outcome function where $h_i(\vec{D})$ is the proportion of treated contiguous counties. They allow this spillover to enter the potential outcome additively and the coefficient is allowed to differ by own treatment status.
-
-In my framework, if I assume the particular functional forms for potential outcomes of \citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}, I arrive at the same bias equation as theirs. 
-
-%%%%
-The paper is structured as follows. ...
-
-
-
+\citet{Delgado_Florax_2015} consider spillover only on to control units and identify a bias that can come from estimating a difference-in-differences model without explicitly controlling for spillovers. Using Monte-Carlo simulations, they find that there is an omitted variable bias problem by not including a measure of spillovers. My paper derives an explicit form for this bias in terms of potential outcomes and also includes the presence of spillovers on to also treated units.
 
 Similarly, \citet{Clarke_2017} finds an explicit form for bias when estimating a difference-in-differences model. However, their model only allows spillovers onto control units and assumes spillovers are constant regardless on the number of nearby treated units. Lastly, \citet{Berg_Streitz_2019} and \citet{Verbitsky-Savitz_Raudenbush_2012} find results for a specific potential outcome function where $h_i(\vec{D})$ is the proportion of treated contiguous counties. They allow this spillover to enter the potential outcome additively and the coefficient is allowed to differ by own treatment status. In my framework, if I assume the particular functional forms for potential outcomes of \citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}, I arrive at the same bias equation as theirs. 
 
+Lastly, I contribute to a literature in urban economics on local place-based policies. Using structural urban models, \citet{Kline_Moretti_2014b} show that the `local' effects of the policy are offset in parts by indirect effects. I contribute to estimating aggregate effects of place-based policies by showing that typical estimation strategies can underestimate the local effect by ignoring spillovers. To do so, I revise the analysis of the Tennessee Valley Authority by \citet{Kline_Moretti_2014}. The Tennessee Valley Authority was a large push to bring electrification to the Tennessee Valley with the goal of improving the manufacturing sector there. The scale of the program was large and the pro-manufacturing benefits likely spread further than the Authority's boundary due to the electrification infrastucture and agglomeration economies. I show that estimation by difference-in-differences fails to account for these spillovers and underestimates the local effect. 
 
 The rest of the paper is structured as follows. Section 2 presents the potential outcomes framework, defines the estimand of interest, and shows the resulting bias from estimating a classical difference-in-differences model. Section 3 presents Monte Carlo simulations to illlustrate the bias result and to evaluate currently used solutions in the literature. Section 4 presents an application for evaluating the Tennessee Valley Authority program. 
 
@@ -78,18 +69,22 @@ The rest of the paper is structured as follows. Section 2 presents the potential
 
 Following the canonical difference-in-difference framework, there is a time $t_0$ where treatment turns on and remains on afterwards. As in \citet{Vazquez-Bare_2019}, potential outcomes for unit $i$ at time $t$, denoted $Y_{i,t}(D_i, h_i(\vec{D})$), are a function of own treatment-status $D_i$ and,  departing from the canonical framework, of a function of the entire vector of treatment assignments $h_i(\vec{D})$ where $\vec{D} \in \{0,1 \}^n$. The function $h_i(\vec{D})$ is referred to as an `exposure mapping' and is a non-negative scalar.\footnote{The derivation of bias does not require this assumption.} The `exposure mapping' measures the intensity at which unit $i$ is affected by spatial spillovers. When unit $i$ is sufficiently `far' away, it has no exposure to spatial spillovers and $h_i(\vec{D}) = 0$. The exposure mapping formalizes the SUTVA violation in that potential outcomes are affected by other unit's treatment assignment and can be summarized by $h_i(\vec{D})$. 
 
-To help better understand an exposure mapping, I give three examples of $h_i(\vec{D})$. Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$. First, $h_i(\vec{D})$ can be a 0/1 variable that equals one only if there is a treated unit within $x$-miles of unit $i$ (also commonly used is counties that share borders). In this case \[
-    h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < x ] 
+To help better understand the exposure mapping function, I give three examples of $h_i(\vec{D})$ that are commonly used in the literature. First, $h_i(\vec{D})$ can be a 0/1 variable that equals one only if there is a treated unit within $\bar{d}$-miles of unit $i$ (similarly a dummy for counties that share borders is commonly used). Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$.  In this case \[
+    h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < \bar{d} ] 
 \] 
 This exposure mapping is useful when it is assumed that spillovers do not decay over distance and the number of neighboring units treated do not impact the intensity of spillovers. For example, this mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the maximum distance people would likely travel to a nearby library. Access to a neighboring town library likely does not depend on whether you can access 1 or more nearby libraries, so the binary value is a good approximation to the level of spillovers.  
 
 Second, $h_i(\vec{D})$ can be a function that equals the proportion of the k-nearest neighbors that are treated, i.e. \[
     h_i(\vec{D}) = 1/k \sum_{j \in k(i)} D_j,
 \]
-where $k(i)$ is the index of unit $i$'s k-nearest neighbors. Last, is the spatial decay function which depends on  the decay parameter $\alpha$. In this case, spillover intensity is the sum across all treated observations' decay term, i.e. \[ 
-    h_i(\vec{D}) = \sum_{j \neq i} D_j \exp^{-\alpha d_i(j)}
+where $k(i)$ is the index of unit $i$'s k-nearest neighbors. This exposure mapping is no longer binary, so intensity of spillovers depend on the number of units treated. In the context of large store openings and agglomeration economies, this would imply that as the number of nearby counties receiving new factories increase, the effect on own-county outcomes increase as well \citep{Basker_2005}.
+
+Last, is the spatial decay function where exposure decreases with distance. This depends on the decay parameter $\alpha$ that is decided by the researcher. In this case, spillover intensity is the sum across all treated observations' decay term, i.e. \[ 
+    h_i(\vec{D}) = \sum_{j \neq i} D_j e^{-\alpha d(i,j)}.
 \] 
-The exposure mapping is part of the parameterization of spillovers, but the functional form of the potential outcome still needs to be specified. 
+This exposure mapping allows for the intensity of spillovers to depend on distance to treatment and also is additive in the number of nearby units treated.\footnote{However, this specification assumes that all units are affected by all other units. This creates problems with inference because it implies potential correlation between all units' error terms. For this reason, this function often is summed over only the $k$-nearest neighbors.} In the literature on R\&D investment, \citet{Keller_2002} uses a modified version of this exposure mapping where $D_j$ is country $j$'s R\&D expenditure. This allows for the technology spillovers to decay over distance to an exponential degree.
+
+The last thing a researcher must do is specify the functional form of the potential outcomes. Typically, the spillover function enters into the regression linearly and ocasionally the coefficient is allowed to differ by treatment status. 
 
 
 
@@ -97,32 +92,38 @@ The exposure mapping is part of the parameterization of spillovers, but the func
 \subsection{Spatial Spillovers}
 % ------------------------------------------------------------------------------
 
-With a new definition of potential outcomes, I now formalize what is meant by ``spatial spillovers'. I define `spillover onto control units' as: \[
+With the potential outcomes defined, I now formalize what is meant by `spatial spillovers'. I define `spillover onto control units' as: \[
     Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0).
 \] 
-Then, the average spillover onto control units averages over potential heterogeneity in spillovers and over heterogeneity in exposure intensity $h_i(\vec{D})$: \[
-    \tau_{\text{spill,control}} = \mathbb{E}_i \left[ Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0) \ \vert \ D_i = 0 \right].
+The spillover measures the difference in non-treated potential outcomes between being exposed and not being exposed at level $h_i(\vec{D})$. Then, the average spillover onto control units averages over potential heterogeneity in spillovers and over heterogeneity in exposure intensity $h_i(\vec{D})$: \[
+    \tau_{\text{spill,control}} \equiv \mathbb{E} \left[ Y_{i}(0, h_i(\vec{D})) - Y_{i}(0, 0) \ \vert \ D_i = 0 \right].
 \]
-To emphasize, the average spillover effect depends on the average of exposure mapping. For example, assuming the potential outcomes is additively linear in $D_i$ and $h_i(\vec{D})$, then an individual control unit's spillover effect is $\beta_{\text{spill,control}} \ h_i(\vec{D})$. The average spillover onto control unit would therefore be $\tau_{\text{spill,control}} = \beta_{\text{spill,control}} * \mathbb{E}_{i} \left[ h_i(\vec{D})\right]$, i.e. the average over all control units exposure mapping.
 
-Similarly, we define the spillover onto also treated units as: \[ 
-    \tau_{\text{spill,treated}} = \mathbb{E}_i \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(1, 0) \ \vert \ D_i = 1 \right].
+To emphasize, the average spillover onto conrol units averages over each control unit's exposure mapping. For example, assume the potential outcomes is additively linear in $D_i$ and $h_i(\vec{D})$ and that the coefficient $\beta_{\text{spill,control}}$ measures the effect of $h_i(\vec{D})$ on outcome $Y$ among control units. Then an individual control unit's spillover effect is $\beta_{\text{spill,control}} \ h_i(\vec{D})$. The average spillover onto control unit would therefore be $\tau_{\text{spill,control}} = \beta_{\text{spill,control}} * \mathbb{E}_{i} \left[ h_i(\vec{D})\right]$, i.e. the average over all control units exposure mapping.
+
+Similarly, we define the average spillover onto also treated units as: \[ 
+    \tau_{\text{spill,treated}} \equiv \mathbb{E} \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(1, 0) \ \vert \ D_i = 1 \right].
 \] 
 
-It is important to clarify what I am assuming is the estimand of interest researchers would like to estimate when using differences-in-differences. I assume that the term `Average Treatment Effect' is trying to measure what I will call the `direct effect of treatment': \[
-    \tau_{\text{direct}} = \mathbb{E}_i \left[ Y_{i}(1, 0) - Y_{i}(0, 0) \ \vert \ D_i = 1 \right],
+It is important to clarify what I am assuming is the estimand of interest researchers would like to estimate when using difference-in-differences. I assume that what the `Average Treatment Effect' is trying to measure in this context is what I will call the `direct effect of treatment': \[
+    \tau_{\text{direct}} = \mathbb{E} \left[ Y_{i}(1, 0) - Y_{i}(0, 0) \ \vert \ D_i = 1 \right],
 \] 
 which measures the effect of being treated in the absence of exposure to spillovers. This differs from \citet{Sävje_Aronow_Hudgens_2019} where they define the Average Treatment Effect as \[ 
-    \mathbb{E}_i \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(0, h_i(\vec{D})) \ \vert \ D_i = 1 \right],
+    \mathbb{E} \left[ Y_{i}(1, h_i(\vec{D})) - Y_{i}(0, h_i(\vec{D})) \ \vert \ D_i = 1 \right],
 \] 
 where the expectation is over individuals and their exposures. I prefer the former because it allows for seperate identification of the direct effect of treatment and the spillover effects themselves.\footnote{The spillover effects themselves might be of interest to the researcher, so clearly seperating them is beneficial in estimation. Later they can be combined to estimate the `net effects' that \citet{Sävje_Aronow_Hudgens_2019} estimate.}
 
 
-% --------------------------------------------------
-\subsection{Bias in Differences-in-Difference Estimation}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
+\subsection{Bias in Difference-in-Differences Estimation}
+% ------------------------------------------------------------------------------
 
-In this section, I identify the two sources of bias in differences-in-differences estimation. For exposition, I will refer to two periods, $t = 0$ and $t = 1$, but this can be replaced by averages across $Y$ in the pre-period and the post-period respectively. First, I present the equivalent to the parallel counterfactual trends assumption in the context of the new potential outcome framework. 
+In this section, I identify the two sources of bias in difference-in-differences estimation. For exposition, I will refer to one pre- and post-period, $t = 0$ and $t = 1$, but this can be replaced by averages across $Y$ in the pre-period and the post-period respectively. To estimate the `direct effect of treatment', researchers estimate the canonical two-way fixed effects model, 
+\begin{equation}\label{eq:twfe}    
+    y_{it} = \tau D_{it} + \mu_i + \mu_t + \epsilon_{it}.
+\end{equation}
+
+The estimator $\hat{\tau}$ is a biased estimate for $\tau_{\text{direct}}$. To show this, I first present the equivalent to the parallel counterfactual trends assumption in the context of the new potential outcome framework. 
 
 \begin{assumption}[Parallel Counterfactual Trends]\label{parallel}
     \[ 
@@ -130,18 +131,13 @@ In this section, I identify the two sources of bias in differences-in-difference
         \mathbb{E}\left[ Y_{i1}(0, 0) - Y_{i0}(0, 0) \ \vert \ D_i = 0 \right]
     \]
 \end{assumption}
+This assumption states that in the absence of treatment and with zero exposure (not just the absence of individual $i$'s treatment), the change in potential outcomes from period 0 to 1 would not depend on treatment status. This generalizes to the classic parallel counterfactual trends when SUTVA is satisfied because then every unit has zero exposure.
 
-This assumption states that in the absence of treatment and with zero exposure (not just the absence of individual $i$'s treatment), the change in potential outcomes from period 0 to 1 would not depend on treatment status. This generalizes to the typical Parallel Counterfactual Trends because typically SUTVA assumes that every unit has zero exposure.
+When researchers run the canonical difference-in-differences regression, 
+the estimate $\hat{\tau}$ will be a biased estimate for $\tau_{\text{direct}}$. Given that Assumption \ref{parallel} holds, the estimate can be decomposed as the direct effect and the two sources of spillover bias. The proof is given in Appendix \ref{sec:proofs}.
 
-When researchers run the canonical differences-in-differences regression \[ 
-    y_{it}  = \alpha + \tau D_{it} + \epsilon_{it},
-\]
-$\hat{\tau}$ will be a biased estimate for $\tau_{\text{direct}}$.
-Given that Assumption \ref{parallel} holds, the estimate can be decomposed as the direct effect and the two sources of spillover bias.
-
-\begin{theorem}
-    \label{thm:bias}
-    If Assumption \ref{parallel} holds, 
+\begin{theorem}[Bias from Difference-in-Differences Estimation]\label{thm:bias}\ \\    
+    If Assumption \ref{parallel} holds, the expectation of the estimate $\hat{\tau}$ from Equation \ref{eq:twfe} is
     \begin{align*}
         \mathbb{E}[\hat{\tau}] &= \underbrace{\mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right]}_{\text{Difference-in-Differences}} \\ 
         &= 
@@ -151,7 +147,7 @@ Given that Assumption \ref{parallel} holds, the estimate can be decomposed as th
     \end{align*}
 \end{theorem}
 
-The intuition behind the biases are as follows. First, the change in outcomes among treated units combines the direct effect and the spillover from nearby treated units. Therefore the first difference adds the average spillover onto the treated units. Second, the change in outcomes among control units combines the parallel counterfactual trend with the average spillover onto control units. Since $\hat{\tau}$ is found by subtracting this second difference, we subtract the average spillover onto the control. 
+The intuition behind the biases are as follows. First, the change in outcomes among treated units combines the direct effect and the spillover from nearby treated units. Therefore the first difference adds the average spillover onto the treated units, $\tau_{\text{spill,treated}}$. Second, the change in outcomes among control units combines the parallel counterfactual trend with the average spillover onto control units. Since $\hat{\tau}$ is found by subtracting this second difference, we subtract the average spillover onto the control, $\tau_{\text{spill,control}}$. 
 
 
 
@@ -170,10 +166,10 @@ Choosing this set requires considerations of the economic context. It is guided 
 \subsubsection{Example Parameterization of Bias}
 % ------------------------------------------------------------------------------
 
-To exemplify the above bias, I will model a particular form of spillovers by parameterizing the exposure mapping and the potential outcomes equation. For the exposure mapping, I will assume that spillovers occur for any county that is within 40 miles of a treated county, i.e. 
+As an example of Theorem \ref{thm:bias}, I will consider the example of the effect of new libraries on school outcomes. Following the motivation above, I assume that spillovers occur for any county that is within $\bar{d}$ miles of a treated county, i.e. 
 \begin{align}
     \label{eq:example_exposure}
-    \text{Near}_{it} \equiv h_i(\vec{D}) = \max_{i \neq j} D_j * 1[ d(i,j) < 40 ].
+    h_i(\vec{D}) \equiv \text{Near}_{it} = \max_{i \neq j} D_j * 1[ d(i,j) < \bar{d} ].
 \end{align}
 This specification is a simple one in that the spillover is not additive in the number of nearby treated counties and does not decay over distance before reaching $\bar{d}$. The potential outcome is assumed to be additive in both treatment and in the exposure mapping, but the coefficient on $\text{Near}_{it}$ is allowed to differ between treated and non-treated unitts:
 \begin{align}
@@ -185,12 +181,7 @@ This specification is a simple one in that the spillover is not additive in the 
 \end{align}
 where $\mu_t$ and $\mu_i$ are unit and time fixed effects respectively. In this case, the spillover on an individual control unit is given by $\tau_{\text{spill,control}}$ and on an treated unit is $\tau_{\text{spill,treated}}$. 
 
-If a researcher estimates 
-\begin{align}
-    \label{eq:twfe}    
-    y_{it} = \alpha + \mu_t + \mu_i + \tau D_{it} + \varepsilon_{it},    
-\end{align}
-then the bias will be $\tau_{\text{spill,treated}} - \tau_{\text{spill,control}}$ where the two bias terms are \[ 
+If a researcher estimates Equation \ref{eq:twfe}, then the bias will be $\tau_{\text{spill,treated}} - \tau_{\text{spill,control}}$ where the two bias terms are \[ 
     \tau_{\text{spill,control}} = \beta_{\text{spill,control}} \frac{\sum_{i: D_{it} = 0} \text{Near}_{it}}{N_C}
 \] and \[ 
     \tau_{\text{spill,treated}} = \beta_{\text{spill,treated}} \frac{\sum_{i: D_{it} = 1} \text{Near}_{it}}{N_T},
@@ -227,7 +218,7 @@ In a set of Monte Carlo simulations, I check the sensitivity of estimates to mis
 \subsection{Spillover on Controls Only}
 % ------------------------------------------------------------------------------
 
-\begin{figure}[t]
+\begin{figure}[t!]
     \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
     \label{fig:bias_as_treat_prob}
     {\centering
@@ -253,7 +244,7 @@ The size of the bias from estimating Equation \ref{eq:twfe} at different treatme
 
 A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. I do this in Figure \ref{fig:bias_as_treat_prob} and the results are shown by the line with circle markers. Even though, I remove contiguous controls which is not the correct measure of $h_i(\vec{D})$, it approximates it well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. As the portion of control units receiving spillovers that are kept in the sapmle increases, the bias would fall between the two lines.
 
-There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields are more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
+There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields a more variable estimator as seen in the wider 95 percent empirical confidence intervals. 
 
 
 % -----------------------------------------------------------------------------
@@ -267,7 +258,7 @@ For the following simulation, I will add in spillovers onto also treated units w
 \end{equation} 
 The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
 
-\begin{figure}[t]
+\begin{figure}[htb!]
     \caption{Example of Kriging Field}
     \label{fig:kriging}
     {\centering
@@ -280,14 +271,7 @@ The proportion of treated units affected by the spillover depends on the spatial
     }
 \end{figure}
 
-In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. Kriging generates a Gaussian field for a large grid of points across the entire United States where the spatial autocorrelation of the points is described by a set of parameters. One such field is depicted in Figure \ref{fig:kriging}. For a given field, I find the counties in the top ten percent of values and give these counties a value of $\text{Zone}_i = 1$. Then I assign treatment with a probability that differs based on Zone. The unconditional probability is equal to 5 percent in all simulations. To do this, I use a variable `Zone Plus' to adjust the relative probability of receiving treatment: 
-\begin{equation}
-    \label{eq:cond_prob}
-    P(D_i \ \vert \ \text{Zone}_i) = (.1 + \text{Zone Plus} * \text{Zone}_i) \frac{.05}{.1 * .9 + (.1 + \text{Zone Plus}) * .1}
-\end{equation}
-The second term normalizes probabilities so the unconditional probability stays at 5 percent. In our simulations, Zone Plus ranges from 0 which is the case where p = 10 percent for all counties to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.166 + 0.35 * \text{Zone}_i$
-
-\begin{figure}[t]
+\begin{figure}[htb!]
     \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
     \label{fig:bias_spatial_autocorr}
     {\centering
@@ -415,29 +399,29 @@ For manufacturing, our point estimates for spillovers in column (4)-(6) are stat
 \renewcommand{\thefigure}{\Alph{section}.\arabic{figure}}
 % ------------------------------------------------------------------------------
 
-% --------------------------------------------------
-\section{Proofs}
-% --------------------------------------------------
+% ------------------------------------------------------------------------------
+\section{Proofs}\label{sec:proofs}
+% ------------------------------------------------------------------------------
 
 \textbf{Proof of Theorem \ref{thm:bias}}
 \begin{align*}
-    \mathbb{E}_i\left[ \hat{\tau} \right] &= \mathbb{E}_i\left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E}_i\left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right] \\
+    \mathbb{E}\left[ \hat{\tau} \right] &= \underbrace{\mathbb{E}\left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\text{Difference-in-Differences}} \\
     &= 
-    \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}_i\left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\
+    \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}\left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\
     &= 
-    \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}_i\left[ Y_{i1}(0, h_i(\vec{D})) + Y_{i1}(0, \vec{0}) - Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\
+    \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}\left[ Y_{i1}(0, h_i(\vec{D})) + Y_{i1}(0, \vec{0}) - Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\
     &= 
-    \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\ 
-    &\quad - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right] \\ 
+    \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 0 \right] \\ 
+    &\quad - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right] \\ 
     &= 
-    \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 1 \right] \\
-    &\quad - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right] \\  
-    &= \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0}) - Y_{i1}(0, \vec{0}) + Y_{i0}(0, \vec{0})\mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
-    &= \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
-    &= \mathbb{E}_i\left[ Y_{i1}(1, h_i(\vec{D})) + Y_{i1}(1, \vec{0}) - Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0})\mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
+    \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0})  \mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1}(0, \vec{0}) - Y_{i0}(0, \vec{0}) \mid D_i = 1 \right] \\
+    &\quad - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right] \\  
+    &= \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0, \vec{0}) - Y_{i1}(0, \vec{0}) + Y_{i0}(0, \vec{0})\mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
+    &= \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
+    &= \mathbb{E}\left[ Y_{i1}(1, h_i(\vec{D})) + Y_{i1}(1, \vec{0}) - Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0})\mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0})\mid D_i = 0 \right]\\
     &= 
-    \mathbb{E}_i \left[ Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] + \mathbb{E}_i \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, \vec{0}) \mid D_i = 1 \right] \\
-    &\quad - \mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 0 \right] \\
+    \mathbb{E} \left[ Y_{i1}(1, \vec{0}) - Y_{i1}(0, \vec{0}) \mid D_i = 1 \right] + \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, \vec{0}) \mid D_i = 1 \right] \\
+    &\quad - \mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, \vec{0}) \mid D_i = 0 \right] \\
     &= \tau_{\text{direct}} + \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}
 \end{align*}
 

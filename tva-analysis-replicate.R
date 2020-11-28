@@ -79,7 +79,57 @@ df_reg <- df_reg %>%
 		keep = phat > quantile(phat, probs = c(0.25), na.rm = TRUE)
 	)
 
-# Regression -------------------------------------------------------------------
+
+## Figure of counties and spillover variable -----------------------------------
+
+fips_in_sample <- df_reg %>%
+	drop_na(!!c(controls, y)) %>% 
+	filter(keep == TRUE) %>% 
+	pull(fips)
+
+rings <- counties %>% 
+	filter(fips %in% fips_in_sample) %>%
+	mutate(
+		spill = case_when(
+			0 < dist_to_tva & dist_to_tva <= 50 ~ "0 to 50 miles",
+			50 < dist_to_tva & dist_to_tva <= 100 ~ "50 to 100 miles",
+			100 < dist_to_tva & dist_to_tva <= 150 ~ "100 to 150 miles"
+		)
+	) %>% 
+	filter(!is.na(spill)) %>% 
+	group_by(spill) %>% 
+	summarize()
+
+rings$spill <- factor(rings$spill, levels = c("0 to 50 miles", "50 to 100 miles", "100 to 150 miles"))
+
+
+nord_palette <- c("#295080", "#BF616A", "#A3BE8C", "#D08770")
+grey_palette <- c("grey30", "grey50", "grey70")
+
+(spillover_map <- ggplot() +
+		geom_sf(
+			data = counties %>% filter(fips %in% fips_in_sample), 
+			fill = NA, color = "grey40", size = 0.5
+		) + 
+		geom_sf(data = rings, aes(fill = spill), color = NA) + 
+		# Outline of TVA
+		geom_sf(data = tva, color = "Black", fill = NA, size = 1.1) + 
+		coord_sf(datum = NA) + 
+		theme_kyle(base_size = 14) +
+		theme(
+			legend.position = c(0.1, 0.15), 
+			legend.background = element_rect(colour = "grey40")
+		) +
+		labs(fill = "Spillover Bin") +
+		scale_fill_manual(values = nord_palette, na.translate = FALSE)) 
+		# scale_fill_manual(values = grey_palette, na.translate = FALSE)) 
+
+
+if(export) ggsave("figures/figure-tva-sample.pdf", spillover_map, 
+	   dpi= 300, width= 2400/300, height= 1350/300, bg= "white")
+
+
+## Regression -------------------------------------------------------------------
 
 df_reg <- df_reg %>% 
 	mutate( 
@@ -272,7 +322,6 @@ if(export) cat(table_tex_slides, file = "tables/tva_replication_slides.tex")
 # 	
 # 	cli::cli_text("{cat(tex)}")
 # }
-
 
 
 

@@ -27,7 +27,9 @@
 
 Empirical work in economics often considers treatment assigned by geographic boundaries such as cities, counties, and states. The effect of these treatments do not typically stay within these boundaries whether it be from people crossing borders to access treatment (imperfect compliance) or from general equilibrium effects affecting neighboring areas. In the causal inference literature, the Stable Unit Treatment Value Assumption (SUTVA) is often assumed which says that a unit's potential outcome does not depend on the treatment status of any other unit \citep{Rubin_1980}. This article considers a common violation of SUTVA in a process I label `spatial spillovers' where `close' units treatment assignment affects outcomes of nearby units.\footnote{Close can refer to many different things, e.g. geographic distance, node distance in a graph, or social relationships in schools or cities.} 
 
-This paper first introduces a potential outcome framework that explicitly models this violation of SUTVA following \citet{Vazquez-Bare_2019}. In the presence of spatial spillovers, I identify two sources of bias that result when estimating treatment effects by standard difference-in-differences methodologies.
+This paper identifies problems in estimation of treatment effets in the presence of spillovers and provides practical advice on using specifications that are robust to spillovers.
+
+To do this, I first introduces a potential outcome framework that explicitly models this violation of SUTVA following \citet{Vazquez-Bare_2019}. In the presence of spatial spillovers, I identify two sources of bias that result when estimating treatment effects by standard difference-in-differences methodologies.
 
 First, untreated units that are `close' to treated units experience effects of treatment and therefore these `control' units fail to identify the counterfactual trend. When estimating by difference-in-differences, the spillover onto the `close' control units is averaged into the untreated change in outcomes. In this case, the spillover is subtracted from the estimated treatment effect and biases the estimate in the opposite sign of the spillover effect. For example, if a factory opening in a given county benefits both that county and neighboring counties, the treatment effect estimate is negatively biased because the change in outcome in neighboring counties is higher than it would be absent treatment. Researchers would therefore underestimate the positive benefits of treatment.\footnote{If the policy maker had preferences over both treated and neighboring counties, they would fail to count the positive benefits of the control units and they would underestimate the positive benefits on the treated units. Difference-in-differences estimation would result in double undercounting.}
 
@@ -326,13 +328,30 @@ where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in t
 
 The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results since the weights are not that different from uniform. 
 
-I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. I do this for two reasons. Specifically, I use the following intervals $\text{Dist} = \{(0, 50], (50, 100], (100, 150]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. As discussed above, I suspect the spillover effects to change with distance to the authority, hence I allow the effect to be seperately identified in bins. I keep the number of bins small to improve precision of spillover estimates.
+In order to more likely satisfy the paralell trends assumption, the run a logistic regression to predict being in the TVA based on their set of control variables $X_{c, pre}$ and keep only observations in the top 75\% of predicted probability. The counties used in the sample are presented in Figure \ref{fig:tva_sample}. 
+
+\begin{figure}[tbh!]
+    \caption{TVA Effective Sample and Spillover Variables}
+    \label{fig:tva_sample}
+
+    {\centering
+        \resizebox{\textwidth}{!}{
+            \includegraphics{../../figures/figure-tva-sample.pdf}
+        } 
+    }
+
+    {\footnotesize \textit{Notes:} The above figure plots all the counties used in the estimation. Counties that fall within the distance intervals $\{(0, 50], (50, 100], (100, 150]\}$ measured in miles are colored by their respective bin.}
+\end{figure}
+
+I extend their analysis to include spatial spillovers in the difference-in-differences specification. To parametrize the exposure mapping, I include a set of indicator variables for being in distance bins away from the Authority. I do this for two reasons. Specifically, I use the following intervals $\text{Dist} = \{(0, 50], (50, 100], (100, 150]\}$ measured in miles and define $\text{Between}(d)$ as an indicator for being within the interval $d \in \text{Dist}$ away from the Authority. Figure \ref{fig:tva_sample} displays the three spillover variables by filling in each distance bin in a different color. As discussed above, I suspect the spillover effects to change with distance to the Authority, hence I allow the effect to be seperately identified in bins. I keep the number of bins small to improve precision of spillover estimates. 
 
 The specification with spillovers is given as follows:  
 \begin{equation}\label{eq:tva_spillover}
     y_{i, 2000} - y_{i, 1940} = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + (\varepsilon_{i, 2000} - \varepsilon_{i, 1940})
 \end{equation} 
-The coefficients $\delta_d$ measure the spillover effect onto control units at different distances from the Authority. If specification \ref{eq:tva_spillover} is correctly specified, then $\hat{\tau}$ will be an unbiased estimate for the `local' effect. As shown above, minor misspecification will remove some but not all of the bias from standard difference-in-differences estimates. 
+The coefficients $\delta_d$ measure the spillover effect onto control units at different distances from the Authority. If specification \ref{eq:tva_spillover} is correctly specified, then $\hat{\tau}$ will be an unbiased estimate for what the authors call the `local' effect. As shown above, minor misspecification will remove some but not all of the bias from standard difference-in-differences estimates. 
+
+The results of the analysis are presented in Table \ref{tab:tva}. The first column lists which dependent variable (measured in logs) was used in the row. The following columns contain point estimates for $\tau$ and $\delta_s$ in different specifications and can be interpreted as decadel growth rates in outcomes. The column labeled `Kline \& Moretti (2011)' use an Oaxaca-Blinder estimator while the column labeled difference-in-differences uses an ordinary least squares estimator for Equation \ref{eq:tva}. The two columns are very close in magnitude to each other. They find a decline in agricultural employment of about $5.6\%$ per decade, an increase in manufacturing employment of about $6.1\%$ per decade, and an increase in median family income of about $2.2\%$ per decade. 
 
 
 % \begin{landscape}

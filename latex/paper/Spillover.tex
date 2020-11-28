@@ -151,6 +151,8 @@ the estimate $\hat{\tau}$ will be a biased estimate for $\tau_{\text{direct}}$. 
 
 The intuition behind the biases are as follows. First, the change in outcomes among treated units combines the direct effect and the spillover from nearby treated units. Therefore the first difference adds the average spillover onto the treated units, $\tau_{\text{spill,treated}}$. Second, the change in outcomes among control units combines the parallel counterfactual trend with the average spillover onto control units. Since $\hat{\tau}$ is found by subtracting this second difference, we subtract the average spillover onto the control, $\tau_{\text{spill,control}}$. 
 
+Readers that are judging estimates in the presence of spillovers can use the following heuristics to size the bias. If they suspect spillovers onto control units, the bias is the opposite sign of the spillover. If they suspect spillovers onto treated units, the bias is in the same sign of the spillover. The overall bias is the sum of the two.
+
 
 
 % ------------------------------------------------------------------------------
@@ -220,7 +222,7 @@ In a set of Monte Carlo simulations, I check the sensitivity of estimates to mis
 \subsection{Spillover on Controls Only}
 % ------------------------------------------------------------------------------
 
-\begin{figure}[t!]
+\begin{figure}[tb!]
     \caption{Bias of $\hat{\tau}$ with and without Control Units with Spillovers}
     \label{fig:bias_as_treat_prob}
     {\centering
@@ -260,7 +262,7 @@ For the following simulation, I will add in spillovers onto also treated units w
 \end{equation} 
 The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
 
-\begin{figure}[htb!]
+\begin{figure}[tbh!]
     \caption{Example of Kriging Field}
     \label{fig:kriging}
     {\centering
@@ -273,7 +275,7 @@ The proportion of treated units affected by the spillover depends on the spatial
     }
 \end{figure}
 
-\begin{figure}[htb!]
+\begin{figure}[tbh!]
     \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
     \label{fig:bias_spatial_autocorr}
     {\centering
@@ -324,13 +326,15 @@ where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in t
     y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, pre} (\gamma - \beta) + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940}). 
 \] Outcome variables are all in logs and include population, average manufacturing wage, agricultural employment, manufacturing employment, value of farm production, median family income, and median housing value.} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.} 
 
-\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. As described above and estimated below, the program likely induced manufacturing and agricultural employment effects in nearby counties. By comparing counties inside the Authroity to counties on the other side of the border, the authors likely underestimate the negative effect on agricultural employment while the bias in the manufacturing effect is theoretically ambiguous. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
+\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes between TVA counties with neighboring counties that likely were impacted by the large-scale electrification program. Their identification strategy depends \emph{explicitly} a parallel counterfactual trends assumption after controlling for covariates and \emph{implicitly} on no violations of the SUTVA assumption. 
 
-The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results since the weights are not that different from uniform. 
+As described above and estimated below, the program likely induced manufacturing and agricultural employment effects in nearby counties. By comparing counties inside the Authroity to counties on the other side of the border, the authors likely underestimate the negative effect on agricultural employment while the bias in the manufacturing effect is theoretically ambiguous. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
+
+The authors use an Oaxaca-Blinder estimator on the first differences and the results of \citet{Kline_2011} show that this estimator is a weighted difference-in-differences. The weights can be seen in Figure III of their text, but generally counties close to the TVA are upweighted. However, in Table \ref{tab:tva} below, I will show their estimator does not differ much from the standard difference-in-differences results since the weights are not that different from uniform weights. 
 
 In order to more likely satisfy the paralell trends assumption, the run a logistic regression to predict being in the TVA based on their set of control variables $X_{c, pre}$ and keep only observations in the top 75\% of predicted probability. The counties used in the sample are presented in Figure \ref{fig:tva_sample}. 
 
-\begin{figure}[tbh!]
+\begin{figure}[tb!]
     \caption{TVA Effective Sample and Spillover Variables}
     \label{fig:tva_sample}
 

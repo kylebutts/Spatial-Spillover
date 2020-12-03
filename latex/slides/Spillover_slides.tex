@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=43]{beamer}
 % Metropolis Theme ------------------------------------------------------------------------------
 \usetheme{metropolis} % Use metropolis theme
 
@@ -10,6 +10,8 @@
 % \institue{}
 
 \input{preamble.tex}
+
+\addbibresource{references.bib}
 
 \usepackage{adjustbox}
 \usepackage{tabularx}
@@ -76,7 +78,7 @@
 % ------------------------------------------------------------------------------
 
 \begin{frame}{Potential Outcomes Framework}
-    For exposition, I will label units as counties. Assume all treatment occurs at the same time (2-periods or pre-post averages).\footnote{This form adapts the framework of Vazquez-Bare (2020) for the diff-in-diff setting.}
+    For exposition, I will label units as counties. Assume all treatment occurs at the same time (2-periods or pre-post averages).\footnote{This form adapts the framework of \citet{Vazquez-Bare_2019} for the diff-in-diff setting.}
     
     \begin{itemize}
         \item Let $Y_{it}(D_i, h_i(\vec{D}))$ be the potential outcome of county $i \in \{ 1, \dots, N \}$ at time $t$ with treatment status $D_i \in \{0, 1\}$.
@@ -115,34 +117,33 @@
 \end{frame}
 
 \begin{frame}{Parallel Trends}
-    \begin{itemize}
-        \item I assume a modified version of the parallel trends assumption: \[
-            \mathbb{E}\left[ Y_{i,1}(0, 0) - Y_{i,0}(0, 0) \mid D_i = 1, \vec{D} = 0 \right] 
-        \] \[
-            \quad =
-            \mathbb{E}\left[ Y_{i,1}(0, 0) - Y_{i,0}(0, 0) \mid D_i = 0, \vec{D} = 0 \right],
-        \]
+    I assume a modified version of the parallel trends assumption: 
+    \[
+        \mathbb{E}\left[ Y_{i,1}(0, 0) - Y_{i,0}(0, 0) \mid D_i = 1, \vec{D} = 0 \right] 
+    \] \[
+        \quad =
+        \mathbb{E}\left[ Y_{i,1}(0, 0) - Y_{i,0}(0, 0) \mid D_i = 0, \vec{D} = 0 \right],
+    \]
 
+    \begin{itemize}
         \item In the complete absence of treatment (not just the absence of individual $i$'s treatment), the change in potential outcomes from period 0 to 1 would not depend on treatment status
     \end{itemize}
 \end{frame}
 
 \begin{frame}{What does Diff-in-Diff identify?}
-    \begin{itemize}
-        \item With that, I decompose the diff-in-diff estimate as follows: 
+    With the parallel trends assumption and random assignment of $D_i$, I decompose the diff-in-diff estimate as follows: 
         
-        \begin{align*}
-            &\mathbb{E}_i \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right] \\
-            &\quad = 
-            \textcolor{green}{\mathbb{E}_i \left[ Y_{i1}(1, 0) - Y_{i1}(0, 0) \mid D_i = 1 \right]} \\
-            &\quad\quad + 
-            \textcolor{red}{\mathbb{E}_i \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right]} \\ 
-            &\quad\quad - 
-            \textcolor{purple}{\mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]} \\
-            &\quad \equiv \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}
-        \end{align*}
+    \begin{align*}
+        &\mathbb{E}_i \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E}_i \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right] \\
+        &\quad = 
+        \textcolor{green}{\mathbb{E}_i \left[ Y_{i1}(1, 0) - Y_{i1}(0, 0) \mid D_i = 1 \right]} \\
+        &\quad\quad + 
+        \textcolor{red}{\mathbb{E}_i \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right]} \\ 
+        &\quad\quad - 
+        \textcolor{purple}{\mathbb{E}_i \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]} \\
+        &\quad \equiv \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}
+    \end{align*}
 
-    \end{itemize}
 \end{frame}
 
 \begin{frame}{Signing the Bias}
@@ -162,7 +163,7 @@
     \end{table}
 \end{frame}
 
-\begin{frame}{Example of Bias Simulation}
+\begin{frame}{Example of Bias}
     \textbf{Treated Spillover:}
     
     $\mathbb{E}_i \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right] = -0.5$ if county $i$ is within 40 miles of a treated county and $0$ otherwise.
@@ -278,16 +279,62 @@
 % ------------------------------------------------------------------------------
 
 \begin{frame}{Tennessee Valley Authority}
+    \citet{Kline_Moretti_2014} look at the long-run impacts of the Tennessee Valley Authority (TVA).
 
+    \begin{itemize}
+        \item The TVA was a large-scale federal investment started in 1934 that focused on improving manufacturing economy.
+        
+        \item The program focused on electrification through dams and transportation canals in order to improve the manufacturing economy
+        
+        \item Hundreds of dollars spent anually per person
+    \end{itemize}
 \end{frame}
 
+\begin{frame}{Identification}
+    \citet{Kline_Moretti_2014} run the county-level difference-in-differences  specification: 
+    \begin{equation}\label{eq:tva_spillover}
+        y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, 1940} \beta + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940})
+    \end{equation} 
 
+    \begin{itemize}
+        \item $y$ are outcomes for agricultural employment, manufacturing employment, and median family income.
+        \item $\text{TVA}_c$ is the treatment variable
+        \item $X_{c, 1940}$ allow for different long-term trends based on covariates in 1940. 
+    \end{itemize}
+
+    They trim the sample using a logit regression to predict treatment using $X_{c,1940}$ and keep control units in the top 75\% of predicted probability.
+\end{frame}
+
+\begin{frame}{Spillovers in the TVA Context}
+    In our context, there is reason to believe spillovers can occur to nearby counties
+
+    \begin{itemize}
+        \item Agricultural employees might be drawn to hire wages for new manufacturing jobs in Tennessee Valley 
+        
+        \item Manufacturing jobs that would have been created in the control units in the absence of treatment might move to the Tennessee Valley
+        
+        \item Since manufacutring jobs pay higher than agricultural jobs, the above two spillover effects can cause changes in median family income
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Specification including spillovers}
+    \begin{equation}
+        \Delta y_c = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + \Delta \varepsilon_c
+    \end{equation} 
+
+    \begin{itemize}
+        \item $\text{Between}(d)$ is a set of indicators for being in the following distance bins (in miles) from the Tennessee Valley Authority: 
+        \[ d \in \left\{ (0, 50], (50, 100], (100, 150] \right\} \]
+    \end{itemize}
+\end{frame}
+
+\imageframe{../../figures/figure-tva-sample_slides.pdf}
 
 \begin{frame}
 \begin{table}[ht]
     \caption{Effects of Tennessee Valley Authority on Decadel Growth}
     \label{tab:tva}
-    \renewcommand{\arraystretch}{1}
+    \renewcommand{\arraystretch}{1.2}
 
     \begin{adjustbox}{width = 1\textwidth, center}
         \begin{threeparttable}
@@ -295,10 +342,10 @@
                 % Head
                 \toprule
 
-                & \multicolumn{1}{c}{\textbf{Kline \& Moretti (2011)}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
+                & \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
                 \cmidrule{2-2} \cmidrule{3-6} 
                 & & & TVA between & TVA between & TVA between \\ 
-                \textit{Dependent Var.} & TVA & TVA & 0-100 mi. & 100-250 mi. & 250-500 mi. \\ 
+                \textit{Dependent Var.} & TVA & TVA & 0-50 mi. & 50-100 mi. & 100-150 mi. \\ 
 
                 % Body
                 \midrule

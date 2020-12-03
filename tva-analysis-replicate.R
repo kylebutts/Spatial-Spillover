@@ -83,7 +83,7 @@ df_reg <- df_reg %>%
 ## Figure of counties and spillover variable -----------------------------------
 
 fips_in_sample <- df_reg %>%
-	drop_na(!!c(controls, y)) %>% 
+	drop_na(!!c(controls)) %>% 
 	filter(keep == TRUE) %>% 
 	pull(fips)
 
@@ -115,18 +115,25 @@ grey_palette <- c("grey30", "grey50", "grey70")
 		# Outline of TVA
 		geom_sf(data = tva, color = "Black", fill = NA, size = 1.1) + 
 		coord_sf(datum = NA) + 
-		theme_kyle(base_size = 14) +
+		theme_kyle(base_size = 14, slides = slides) +
 		theme(
 			legend.position = c(0.1, 0.15), 
 			legend.background = element_rect(colour = "grey40")
 		) +
-		labs(fill = "Spillover Bin") +
+		labs(fill = "Spillover Bin") + {
+			if(slides) labs(title = "Effective Sample and Spillover Variables")
+		} +
 		scale_fill_manual(values = nord_palette, na.translate = FALSE)) 
 		# scale_fill_manual(values = grey_palette, na.translate = FALSE)) 
 
 
-if(export) ggsave("figures/figure-tva-sample.pdf", spillover_map, 
+if(export & !slides) ggsave("figures/figure-tva-sample.pdf", spillover_map, 
 	   dpi= 300, width= 2400/300, height= 1350/300, bg= "white")
+
+if(export & slides) ggsave("figures/figure-tva-sample_slides.pdf", spillover_map, 
+						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+
+
 
 
 ## Regression -------------------------------------------------------------------
@@ -227,8 +234,8 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
+	# row_slides    <- paste0(row_slides, pt_str, "& ")
+	# row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]

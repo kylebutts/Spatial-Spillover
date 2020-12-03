@@ -26,7 +26,9 @@ source("helper-sim_function.R")
 source("https://raw.githubusercontent.com/kylebutts/templates/master/ggplot_theme/theme_kyle.R")
 
 # Is for slides or paper?
-slides <- FALSE
+slides <- TRUE
+# h_w_ratio <- 9/16
+h_w_ratio <- 3/4
 
 
 ## Load Parameters -------------------------------------------------------------
@@ -135,11 +137,11 @@ plot_te_spill_all <- ggplot(counties_treat) +
 
 # Export Maps for Beamer Slides
 ggsave("figures/figure-map_te.png", plot_te, 
-	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+	   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 ggsave("figures/figure-map_te_spill_control.png", plot_te_spill_control, 
-	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+	   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 ggsave("figures/figure-map_te_spill_all.png", plot_te_spill_all, 
-	   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+	   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 
 usethis::ui_done("Finished exporting no sp_corr maps")
 
@@ -228,9 +230,9 @@ plot_te_spill_all_low_zp <- ggplot() +
 )
 
 
-ggsave("figures/figure-spcorr_low_map_te.png", plot_te_low_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_low_map_te_spill_control.png", plot_te_spill_control_low_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_low_map_te_spill_all.png", plot_te_spill_all_low_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_low_map_te.png", plot_te_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_low_map_te_spill_control.png", plot_te_spill_control_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_low_map_te_spill_all.png", plot_te_spill_all_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 usethis::ui_done("Finished exporting low_zp maps")
 
 
@@ -311,9 +313,9 @@ plot_te_spill_all_high_zp <- ggplot() +
 )
 
 
-ggsave("figures/figure-spcorr_high_map_te.png", plot_te_high_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_high_map_te_spill_control.png", plot_te_spill_control_high_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_high_map_te_spill_all.png", plot_te_spill_all_high_zp, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_high_map_te.png", plot_te_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_high_map_te_spill_control.png", plot_te_spill_control_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+ggsave("figures/figure-spcorr_high_map_te_spill_all.png", plot_te_spill_all_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 usethis::ui_done("Finished exporting high_zp maps")
 
 
@@ -394,10 +396,10 @@ if(!slides) {
 
 plot_krig
 
-if(slides) ggsave("figures/figure-krig_slides.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+if(slides) ggsave("figures/figure-krig_slides.png", plot_krig, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 	
-if(!slides) ggsave("figures/figure-krig.png", plot_krig, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+if(!slides) ggsave("figures/figure-krig.png", plot_krig, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")
 
-if(!slides) ggsave("figures/figure-krig_lowzp.png", plot_krig_lowzp, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+if(!slides) ggsave("figures/figure-krig_lowzp.png", plot_krig_lowzp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")
 
-if(!slides) ggsave("figures/figure-krig_highzp.png", plot_krig_highzp, dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+if(!slides) ggsave("figures/figure-krig_highzp.png", plot_krig_highzp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")

@@ -26,13 +26,33 @@
 % ------------------------------------------------------------------------------
 
 \begin{frame}{Spatial Spillovers}
+    
+    Researchers use difference-in-differences to estimate the average treatment effect on the treated: 
+    \[
+        \mathbb{E} \{ Y_{i1}(1) - Y_{i1}(0) \ \vert \ D_{i} = 1 \}
+    \]
+        
     Effects of treatments at states, counties, etc. can spill over boundaries.
         
     \begin{itemize}
         \item e.g. large employer opening/closing in a county have positive or negative employment effects on nearby counties
     \end{itemize}
-    
-    Differences-in-differences that compare outcomes among treated units with ``control'' units are biased from the spillover of effects.
+\end{frame}
+
+\begin{frame}{Spatial Spillovers}
+    The difference-in-differences estimate is: 
+    \[ 
+        \hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - 
+        \hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]     
+    \]
+
+    Two problems in presence of spillover effects: 
+    \begin{itemize}
+        \item Nearby ``control'' units fail to estimate counterfactual trends because they are affected by treatment
+        
+        \item Treated units are also affected by nearby units and therefore combines ``direct'' effects with spillover effects
+    \end{itemize}
+
 \end{frame}
 
 \begin{frame}{Research Question}
@@ -180,6 +200,42 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{Partial Identification}
+    Now, I turn to formalizing the above example following the literature on partial identification for treatment effects: \begin{citecolor}
+        [\citet{Armstrong_Kolesár_2020}, \citet{Rambachan_Roth_2020}, and \citet{Manski_Pepper_2018}]
+    \end{citecolor}
+
+    In this framework, researchers need to specify bounds on spillovers in the context of their research question.
+\end{frame}
+
+\begin{frame}{Partially-identified Set}
+    Following \citet{Rambachan_Roth_2020} and \citet{Manski_Pepper_2018}, researchers can provide bounds to the maximum spillovers. 
+
+    Let $\Delta$ denote the interval of potential biases: 
+    \begin{align*}
+        \Delta &\equiv [\underline{\Delta}, \overline{\Delta}] \\
+        &= \left[ \min \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}, \ \max \tau_{\text{spill,treated}} - \tau_{\text{spill,control}} \right] 
+    \end{align*}
+
+    The partially identified set is formed by \[ 
+        \left[\hat{\tau} - \underline{\Delta} , \ \hat{\tau} + \overline{\Delta} \right]    
+    \]
+
+\end{frame}
+
+\begin{frame}{Bias-adjusted Inference}
+
+    Inference can be done following \citet{Rambachan_Roth_2020} by creating a Fixed-Length Confidence Interval: 
+    \[ 
+        \left[
+            \hat{\tau} - \underline{\Delta} - z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}, \ \hat{\tau} + \overline{\Delta} + z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}
+        \right]
+    \]
+
+    These standard errors should account for the spatial structure of outcomes following \citet{Conley_1999}.
+\end{frame}
+
+
 
 
 % ------------------------------------------------------------------------------
@@ -207,7 +263,7 @@
     \begin{itemize}
         \item The first simulation changes the probability of treatment, $D_{it}$.
         
-        \item Assume, for now, there is only spillover on the control.
+        \item Assume, for now, there is only spillover on the control, i.e. $\tau_{\text{spillover,treat}} = 0$.
         
         \item Estimate the following equation: \[ 
             y_{it} = \alpha + \mu_t + \mu_i + \tau D_{it} + \epsilon_{it}    
@@ -271,6 +327,9 @@
 
     To estimate the spillover effects, we have to parameterize $h_i(\vec{D})$ function and the potential outcomes function $Y_i(D_i, h_i(\vec{D}))$.
 \end{frame}
+
+
+% @kylebutts @TODO: show parametrization fixes biases.
 
 
 

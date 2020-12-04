@@ -61,7 +61,7 @@ treat_prob_percent <- paste0(round(treat_prob * 100, 1), "%")
 
 counties_treat <- sim_data(
 		treat_prob = treat_prob, treat_spillover_distance = 30, treat_effect = te, 
-		treat_effect_spill = te_spill, treat_effect_spill_treat = te_spill_treat, spill_type = "within", 
+		treat_effect_spill = te_spill, treat_effect_spill_treat = te_spill_treat, spill_type = "contig", 
 		spatial_autocorr = FALSE, zone_plus = 0, drop_geometry = FALSE
 	) %>% 
 	filter(year == 2019) %>% select(-centroid) %>% st_as_sf()
@@ -71,7 +71,6 @@ bias_treat <- round(te_spill_treat * sum(counties_treat$spill_within_treat) / su
 
 
 # Treatment Effect Maps
-(
 plot_te <- ggplot() +
 	geom_sf(data= counties_treat, aes(fill= factor(te)), color= "grey60", size= 0.2) + 
 	geom_sf(data= counties_treat %>% filter(treat == 1), fill = NA, color = "black") +
@@ -85,15 +84,13 @@ plot_te <- ggplot() +
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
 	theme(title = element_text(lineheight = 1.2))
 
-)
 
-(
 plot_te_spill_control <- ggplot(counties_treat) +
 	geom_sf(data= counties_treat, aes(fill= factor(te_spill + te)), color = "grey60", size = 0.1) + 
 	geom_sf(data= counties_treat %>% filter(treat == 1), fill = NA, color = "black") +
@@ -107,14 +104,12 @@ plot_te_spill_control <- ggplot(counties_treat) +
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	#theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
 	theme(title = element_text(lineheight = 1.2))
-)
 
-(
 plot_te_spill_all <- ggplot(counties_treat) +
 	geom_sf(data= counties_treat, aes(fill= factor(te + te_spill + te_spill_treat)), color= "grey60", size= 0.2) + 
 	geom_sf(data= counties_treat %>% filter(treat == 1), fill = NA, color = "black") +
@@ -128,12 +123,12 @@ plot_te_spill_all <- ggplot(counties_treat) +
 	) +
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	#theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
 	theme(title = element_text(lineheight = 1.2))
-)
+
 
 # Export Maps for Beamer Slides
 ggsave("figures/figure-map_te.png", plot_te, 
@@ -143,7 +138,7 @@ ggsave("figures/figure-map_te_spill_control.png", plot_te_spill_control,
 ggsave("figures/figure-map_te_spill_all.png", plot_te_spill_all, 
 	   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 
-usethis::ui_done("Finished exporting no sp_corr maps")
+cli::cli_alert_success("Finished exporting no sp_corr maps")
 
 
 
@@ -157,7 +152,7 @@ usethis::ui_done("Finished exporting no sp_corr maps")
 # Generate Treatment Variables
 counties_treat_low_zp <- sim_data(
 	treat_prob = treat_prob, treat_spillover_distance = 40, treat_effect = 2, 
-	treat_effect_spill = 1, treat_effect_spill_treat = -0.5, spill_type = "within", 
+	treat_effect_spill = 1, treat_effect_spill_treat = -0.5, spill_type = "contig", 
 	spatial_autocorr = TRUE, zone_plus = low_zone_plus, drop_geometry = FALSE
 ) %>% 
 	filter(year == 2019) %>% select(-centroid) %>% st_as_sf()
@@ -177,13 +172,13 @@ plot_te_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0; Spatial Autocorrelation Measure = {low_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0 \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
@@ -198,13 +193,13 @@ plot_te_spill_control_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control}; Spatial Autocorrelation Measure = {low_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	#theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A"))
 )
@@ -218,13 +213,13 @@ plot_te_spill_all_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control} = {bias_treat - bias_control}; Spatial Autocorrelation Measure = {low_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control} = {bias_treat - bias_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
@@ -241,7 +236,7 @@ usethis::ui_done("Finished exporting low_zp maps")
 # Generate Treatment Variables
 counties_treat_high_zp <- sim_data(
 	treat_prob = treat_prob, treat_spillover_distance = 40, treat_effect = 2, 
-	treat_effect_spill = 1, treat_effect_spill_treat = -0.5, spill_type = "within", 
+	treat_effect_spill = 1, treat_effect_spill_treat = -0.5, spill_type = "contig", 
 	spatial_autocorr = TRUE, zone_plus = high_zone_plus, drop_geometry = FALSE
 ) %>% 
 	filter(year == 2019) %>% select(-centroid) %>% st_as_sf()
@@ -259,13 +254,13 @@ plot_te_high_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0; Spatial Autocorrelation Measure = {high_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0 \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
@@ -280,13 +275,13 @@ plot_te_spill_control_high_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Large Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control}; Spatial Autocorrelation Measure = {high_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
@@ -301,13 +296,13 @@ plot_te_spill_all_high_zp <- ggplot() +
 	labs(
 		# title= "Direct Effect + Spillover on Control and Treated", 
 		title = "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control}  = {bias_treat - bias_control}; Spatial Autocorrelation Measure = {high_zone_plus} \n Treated units outlined in black"),
+		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control}  = {bias_treat - bias_control} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
-	theme(legend.position = "bottom") +
+	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
+	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
@@ -329,13 +324,18 @@ plot_krig <- ggplot() +
 	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
 	# Remove Coordinates, leaving just the map
 	coord_sf(datum = NA) +
-	labs(
-		fill= ""
-	) +
+	theme_kyle(base_size = 18, slides = slides) + {
+		if(slides) labs(
+			title = "Kriging Example"
+		)
+	} +
+	labs(fill= NULL) +
 	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1)) +
+	# guides(fill = guide_legend(title.position = "top", nrow = 4)) +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_distiller(palette = "Spectral")
+
+plot_krig
 
 plot_krig_highzp <- ggplot() +
 	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(treat)), color= "grey60", size= 0.2) + 
@@ -347,11 +347,9 @@ plot_krig_highzp <- ggplot() +
 		title = "Zone Plus = 1.4",
 		fill= "Treated Unit"
 	) +
-	theme_kyle() +
-	theme(legend.position = "bottom") +
-	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1))
+	theme_kyle(slides = slides) +
+	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) +
+	guides(fill = guide_legend(title.position = "top", nrow = 4))
 
 counties_treat_high_zp <- counties_treat_high_zp %>% mutate(
 	# `zone` has increased probability of treatment
@@ -373,28 +371,11 @@ plot_krig_lowzp <- ggplot() +
 		title = "Zone Plus = 0.4",
 		fill= "Treated Unit"
 	) +
-	theme_kyle() +
-	theme(legend.position = "bottom") +
+	theme_kyle(slides = slides) +
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 1))
+	guides(fill = guide_legend(title.position = "top", nrow = 4))
 
-if(slides) {
-	plot_krig <- plot_krig + 
-		labs(
-			title = "Kriging Example",
-			subtitle= glue::glue("Spatial Autocorrelation Measure = {high_zone_plus}")
-		) + 
-		theme_kyle(slides = TRUE) + 
-		theme(legend.position = "bottom")
-}
-if(!slides) {
-	plot_krig <- plot_krig + 
-		theme_kyle() + 
-		theme(legend.position = "bottom")
-}
 
-plot_krig
 
 if(slides) ggsave("figures/figure-krig_slides.png", plot_krig, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 	

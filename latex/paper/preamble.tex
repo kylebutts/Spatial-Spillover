@@ -58,12 +58,29 @@
     urlcolor= dark-maroon,
 }
 
+\newcommand{\doiorurl}{%
+  \iffieldundef{doi}
+    {\iffieldundef{url}
+       {}
+       {\strfield{url}}}
+    {http://dx.doi.org/\strfield{doi}}%
+}
+
+\newcommand{\bibdrivercontent}[1]{%
+ \ifboolexpr{%
+   test {\ifhyperref}
+   and
+   not test {\iftoggle{bbx:url}}
+   and
+   not test {\iftoggle{bbx:doi}}
+  }
+  {\href{\doiorurl}{#1}}
+  {#1}%
+}
+
 % Citations --------------------------------------------------------------------
-\usepackage[
-    style= authoryear, 
-    natbib= true, 
-    backend= biber
-]{biblatex}
+\usepackage[style= authoryear, natbib= true, backend= biber]{biblatex}
+
 
 
 % Enumerate/Itemize ------------------------------------------------------------

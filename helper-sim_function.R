@@ -145,21 +145,13 @@ sim_data <- function(
 	df <- counties_treat %>% 
 			expand_grid(year = 2000:2019) %>%
 			mutate(
-				treat_ind= case_when(
-					year >= 2010 ~ 1 * treat,
-					year <= 2009 ~ 0
-				),
-				spill_ind= case_when(
-					year >= 2010 ~ 1 * spill,
-					year <= 2009 ~ 0
-				),
-				spill_ind_treat= case_when(
-					year >= 2010 ~ 1 * spill_treat,
-					year <= 2009 ~ 0
-				),
-				te= treat_effect * treat_ind,
-				te_spill= treat_effect_spill * spill_ind,
-				te_spill_treat= treat_effect_spill_treat * spill_ind_treat
+				post = if_else(year >= 2010, 1, 0),
+				treat_ind = treat * post,
+				spill_ind = spill * post, 
+				spill_ind_treat = spill_treat * post, 
+				te = treat_effect * treat_ind,
+				te_spill = treat_effect_spill * spill_ind,
+				te_spill_treat = treat_effect_spill_treat * spill_ind_treat
 			) %>%
 			# Year FE
 			group_by(year) %>%

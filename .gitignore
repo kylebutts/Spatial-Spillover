@@ -39,3 +39,4 @@ latex/slides_research
 *.nav
 *.snm
 *.run.xml
+.Rproj.user

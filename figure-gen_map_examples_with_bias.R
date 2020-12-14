@@ -68,10 +68,12 @@ counties_treat <- sim_data(
 
 bias_control <- round(te_spill * sum(counties_treat$spill_within) / sum(counties_treat$treat == 0), 2)
 bias_treat <- round(te_spill_treat * sum(counties_treat$spill_within_treat) / sum(counties_treat$treat == 1), 2)
-
+estimate <- te
+estimate_control <- te - bias_control
+estimate_both <- te + bias_treat - bias_control
 
 # Treatment Effect Maps
-plot_te <- ggplot() +
+(plot_te <- ggplot() +
 	geom_sf(data= counties_treat, aes(fill= factor(te)), color= "grey60", size= 0.2) + 
 	geom_sf(data= counties_treat %>% filter(treat == 1), fill = NA, color = "black") +
 	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
@@ -79,7 +81,7 @@ plot_te <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Direct Effect of Treatment",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0 \n Treated units outlined in black"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate} \n Treated units outlined in black"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -88,7 +90,7 @@ plot_te <- ggplot() +
 	# theme(legend.position = "bottom") +
 	# Fill Scale, colors from R color Brewer
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) + 
-	theme(title = element_text(lineheight = 1.2))
+	theme(title = element_text(lineheight = 1.2)))
 
 
 plot_te_spill_control <- ggplot(counties_treat) +
@@ -99,7 +101,7 @@ plot_te_spill_control <- ggplot(counties_treat) +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Direct Effect + Spillover on Control", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control} \n Treated units outlined in black"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_control} \n Treated units outlined in black"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -118,7 +120,7 @@ plot_te_spill_all <- ggplot(counties_treat) +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Direct Effect + Spillover on Control and Treated", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob}; Bias = {bias_treat} - {bias_control} = {bias_treat - bias_control} \n Treated units outlined in black"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Treated units outlined in black"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
@@ -172,7 +174,7 @@ plot_te_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0 \n Spatial Autocorrelation Measure = {low_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -193,7 +195,7 @@ plot_te_spill_control_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -213,7 +215,7 @@ plot_te_spill_all_low_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control} = {bias_treat - bias_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
@@ -254,7 +256,7 @@ plot_te_high_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = 0 \n Spatial Autocorrelation Measure = {high_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -275,7 +277,7 @@ plot_te_spill_control_high_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		title= "Large Spatial Autocorrelation", 
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = -{bias_control} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) + 
 	theme_kyle(slides = TRUE) + 
@@ -296,7 +298,7 @@ plot_te_spill_all_high_zp <- ggplot() +
 	labs(
 		# title= "Direct Effect + Spillover on Control and Treated", 
 		title = "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Pr(treatment) = {treat_prob_percent}; Bias = {bias_treat} - {bias_control}  = {bias_treat - bias_control} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
+		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 

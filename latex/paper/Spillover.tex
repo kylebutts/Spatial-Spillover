@@ -306,7 +306,7 @@ The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats t
 
 
 % ------------------------------------------------------------------------------
-\section{Application in Urban Economics}
+\section{Application in Place-Based Policy Analysis}
 \label{sec:tva}
 % ------------------------------------------------------------------------------
 
@@ -324,7 +324,7 @@ where $c$ denotes county, $\text{TVA}_c$ is an indicator variable for being in t
     y_{c, 2000} - y_{c, 1940} = \alpha + \text{TVA}_c \tau + X_{c, 1940} \gamma + (\varepsilon_{c, 2000} - \varepsilon_{c, 1940}). 
 \]} Pre-treatment control variables, $X_{c,1940}$, are interacted with $\text{Post}_t$ to allow for places to be on different long-term trends.\footnote{See footnote 8 in \citet{Kline_Moretti_2014} for a full listing of control variables.} 
 
-\citet{Kline_Moretti_2014} estimate Equation \ref{eq:tva} to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes in TVA counties with changes in outcomes for neighboring counties that likely were impacted by the large-scale program. Their identification strategy depends \emph{explicitly} on a parallel counterfactual trends assumption after controlling for covariates and \emph{implicitly} on the SUTVA assumption. 
+\citet{Kline_Moretti_2014} estimate (\ref{eq:tva}) to identify the `local effect' of the TVA -- what I am calling the `direct effect'. However, their point estimates compare, in part, changes in outcomes in TVA counties with changes in outcomes for neighboring counties that likely were impacted by the large-scale program. Their identification strategy depends \emph{explicitly} on a parallel counterfactual trends assumption after controlling for covariates and \emph{implicitly} on the SUTVA assumption. 
 
 As described above and estimated below, the program likely induced manufacturing and agricultural employment effects in nearby counties. By comparing counties inside the Authroity to counties on the other side of the border, the authors likely underestimate the negative effect on agricultural employment while the bias in the manufacturing effect and median family income is theoretically ambiguous. The authors do recognize the problem of these comparisons and remove counties that share borders with the authority's, but due to the scale of the program, the spillovers are likely to extend further than this and appear to do so in the empirical analysis below.  
 
@@ -351,9 +351,9 @@ The specification with spillovers is given as follows:
 \begin{equation}\label{eq:tva_spillover}
     y_{i, 2000} - y_{i, 1940} = \alpha + \text{TVA}_i \tau + \sum_{d \in \text{Dist}} \text{Between}(d)\delta_d + X_{i, 1940} \beta + (\varepsilon_{i, 2000} - \varepsilon_{i, 1940})
 \end{equation} 
-The coefficients $\delta_d$ measure the spillover effect onto control units at different distances from the Authority. If specification \ref{eq:tva_spillover} is correctly specified, then $\hat{\tau}$ will be an unbiased estimate for what the authors call the `local' effect. As shown above, minor misspecification will remove some but not all of the bias from standard difference-in-differences estimates. 
+The coefficients $\delta_d$ measure the spillover effect onto control units at different distances from the Authority. If specification (\ref{eq:tva_spillover}) is correctly specified, then $\hat{\tau}$ will be an unbiased estimate for what the authors call the `local' effect. As shown above, minor misspecification will remove some but not all of the bias from standard difference-in-differences estimates. 
 
-The results of the analysis are presented in Table \ref{tab:tva}. The first column lists which dependent variable (measured in logs) was used in the row. The following columns contain point estimates for $\tau$ and $\delta_s$ in different specifications and can be interpreted as decadel growth rates in outcomes. The column labeled `Kline \& Moretti (2011)' use an Oaxaca-Blinder estimator while the column labeled difference-in-differences uses an ordinary least squares estimator for Equation \ref{eq:tva}. The two columns are very close in magnitude to each other. They find a decline in agricultural employment of about $5.6\%$ per decade, an increase in manufacturing employment of about $6.1\%$ per decade, and an increase in median family income of about $2.2\%$ per decade. 
+The results of the analysis are presented in Table \ref{tab:tva}. The first column lists which dependent variable (measured in logs) was used in the row. The following columns contain point estimates for $\tau$ and $\delta_s$ in different specifications and can be interpreted as decadel growth rates in outcomes. The column labeled `Kline \& Moretti (2011)' use an Oaxaca-Blinder estimator while the column labeled difference-in-differences uses an ordinary least squares estimator for (\ref{eq:tva}). The two columns are very close in magnitude to each other. They find a decline in agricultural employment of about $5.6\%$ per decade, an increase in manufacturing employment of about $6.1\%$ per decade, and an increase in median family income of about $2.2\%$ per decade. 
 
 
 % \begin{landscape}
@@ -369,7 +369,7 @@ The results of the analysis are presented in Table \ref{tab:tva}. The first colu
                 % Head
                 \toprule
 
-                & \multicolumn{1}{c}{\textbf{Kline \& Moretti (2011)}} &
+                & \multicolumn{1}{c}{\textbf{\citet{Kline_Moretti_2014}}} &
                 \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
                 \cmidrule{2-2} \cmidrule{3-3} \cmidrule{4-7} 
                 & & & & TVA between & TVA between & TVA between \\ 
@@ -388,7 +388,7 @@ The results of the analysis are presented in Table \ref{tab:tva}. The first colu
             
             % Notes 
             \begin{tablenotes}\footnotesize
-                \item \textit{Notes.} Each row corresponds to an outcome variable. Each cell is the point estimate and the standard error for the variable described in the column title. All standard errors are clustered at the state-level. The column labeled \citet{Kline_Moretti_2014} replicates the Oaxaca-Blinder estimator found in column (3) of Table III. The column labeled `Diff-in-Diff' estimates Equation \ref{eq:tva} by OLS. The final four columns labeled `Diff-in-Diff with Spillovers' are estimates from Equation \ref{eq:tva_spillover}.
+                \item \textit{Notes.} Each row corresponds to an outcome variable. Each cell is the point estimate and the standard error for the variable described in the column title. All standard errors are clustered at the state-level. The column labeled \citet{Kline_Moretti_2014} replicates the Oaxaca-Blinder estimator found in column (3) of Table III. The column labeled `Diff-in-Diff' estimates (\ref{eq:tva}) by OLS. The final four columns labeled `Diff-in-Diff with Spillovers' are estimates from (\ref{eq:tva_spillover}).
                 
                 \item $^{*} p< 0.1$; $^{**} p < 0.05$; $^{***} p < 0.01$.
             \end{tablenotes}
@@ -397,7 +397,7 @@ The results of the analysis are presented in Table \ref{tab:tva}. The first colu
 \end{table}
 %\end{landscape}
 
-Turning to the last four columns that estimate Equation \ref{eq:tva_spillover}, column (3) contains a point estimate for $\tau$ and and columns (4)-(6) contain point estimates of the spillover effects $\delta_d$. For agricultural employment, our point estimates show there was a decline in agriculture employment in control units near the Authority. For control units between 0 and 50 miles, column (4) indicates a decline in agricultural employment of $3.1\%$. Between 50 and 100 miles the point estimate is $-1.1\%$ and between 100 and 150 miles, the point estimate is $-2.5\%$. This is likely due to the fact that higher paying manufacturing jobs within the Authority drew migrants from nearby counties. Because the spillovers onto the control counties is negative, the original difference-in-differences estimator was positively biased. The new point estimate indicates a decline of agricultural employment of about $6.8\%$ per decade compared to $5.1\%$ in the standard difference-in-difference specification. 
+Turning to the last four columns that estimate (\ref{eq:tva_spillover}), column (3) contains a point estimate for $\tau$ and and columns (4)-(6) contain point estimates of the spillover effects $\delta_d$. For agricultural employment, our point estimates show there was a decline in agriculture employment in control units near the Authority. For control units between 0 and 50 miles, column (4) indicates a decline in agricultural employment of $3.1\%$. Between 50 and 100 miles the point estimate is $-1.1\%$ and between 100 and 150 miles, the point estimate is $-2.5\%$. This is likely due to the fact that higher paying manufacturing jobs within the Authority drew migrants from nearby counties. Because the spillovers onto the control counties is negative, the original difference-in-differences estimator was positively biased. The new point estimate indicates a decline of agricultural employment of about $6.8\%$ per decade compared to $5.1\%$ in the standard difference-in-difference specification. 
 
 For manufacturing, our point estimates for spillovers in column (4)-(6) are not statistically significant, but the signs on all three spillover estimates suggest that neighboring counties had a potentially negative spillover effect. Since there is little to no spillovers present, the new point estimate in column (3) of $4.6\%$ is not too far from the standard difference-in-differences estimate of $5.6\%$. Similarly, there is not a significant spillover on median family income. The point estimate therefore stays the same between the standard and spillover-adjusted difference-in-differences estimate of about $1.9\%$. 
 

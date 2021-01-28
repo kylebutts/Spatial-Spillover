@@ -4,7 +4,7 @@
 
 
 % Title ------------------------------------------------------------------------------
-\title{Differnces-in-Differences with Spatial Spillover}
+\title{Difference-in-Differences with Spatial Spillover}
 \date{\today}
 \author{Kyle Butts}
 % \institue{}
@@ -35,7 +35,7 @@
     Spillover effects are when effect of treatment extend over boundaries such as states, counties, etc.
     
     \begin{itemize}
-        \item e.g. large employer opening/closing in a county have positive or negative employment effects on nearby counties
+        \item e.g. large employer opening/closing in a county have positive employment effects on nearby counties
     \end{itemize}
 \end{frame}
 
@@ -53,6 +53,7 @@
         
         Nearby ``control'' units fail to estimate counterfactual trends because they are affected by treatment
         
+        \vspace{2.5mm}
         \item \textbf{Spillover onto other Treated Units:} 
         
         Treated units are also affected by nearby units and therefore combines ``direct'' effects with spillover effects
@@ -73,31 +74,55 @@
 \begin{frame}{Outline}
 
     \begin{itemize}
-        \item[1--] Using a potential outcomes framework, I derive the bias in the presence of spillovers
+        \item[1--] Using a potential outcomes framework, I decompose the difference-in-differences estimator in to three parts:
+        \begin{itemize}
+            \item Direct Effect of Treatment
+            \item Spillover onto Treated Units
+            \item Spillover onto Control Units
+        \end{itemize} 
         
-        \item[2--] Using Monte Carlo simulations, show when biases are large and analyze effectiveness of current adjustments done by applied researchers 
-        
+        \item[2--] Using Monte Carlo simulations:
+        \begin{itemize}
+            \item Show when biases are relatively large
+            \item Analyze effectiveness of current adjustments done by applied researchers 
+        \end{itemize}  
+
         \item[3--] Revisit \citet{Kline_Moretti_2014} analysis of the Tennessee Valley Authority
     \end{itemize} 
 \end{frame}
 
-\begin{frame}{Preview of Results}
-    There are two sources of bias:
-        \begin{itemize}
-            \item[1.] Treatment effects spillover onto control units
-            \item[2.] Treatment effects spillover onto also treated units
-        \end{itemize}
+% @TODO: Literature Review
+\begin{frame}{Contribution}
 
-    Solutions:
-        \begin{itemize}
-            \item Fixing bias 1 is relatively easy and works better when you have relatively few treated units
-            
-            \item Bias 2 worsens as treatment locations bunch more (spatial correlation of treatment increases)
-            
-            \item However, spatial correlation of treatment decreases bias 1
-        \end{itemize}
+    
+    
+    \underline{Difference-in-Differences Estimation with Spillovers} 
+    
+    \begin{citecolor}
+        [\citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}]
+    \end{citecolor}
+    
+    % \begin{itemize}
+    %     \item My derivation generalizes the above papers by being in the form of potential outcomes.
+    % \end{itemize}
+
+    \underline{Potential Outcome Framework for Spillovers}
+    
+    \begin{citecolor}
+        [\citet{Vazquez-Bare_2019}, \citet{Angelucci_DiMaro_2016}, \citet{Angrist_2014}]        
+    \end{citecolor}
+
+
+    \underline{Place-based Policies}
+
+    \begin{citecolor}
+        [\citet{Kline_Moretti_2014b} and \citet{Kline_Moretti_2014}]
+    \end{citecolor}
+
+    % \begin{itemize}
+    %     \item I highlight the need to control for spillovers to properly estimate local effects of policies.
+    % \end{itemize}
 \end{frame}
-
 
 
 % ------------------------------------------------------------------------------
@@ -127,6 +152,7 @@
         
         $h_i(\vec{D})$ equals 1 if there is a treated unit within $x$-miles of unit $i$ and equals 0 otherwise
             
+        \vspace{2.5mm}
         \item \textbf{Average treatment among $k$-nearest neighbors:}
         
         $h_i(\vec{D}) = \sum_{j = 1}^k D_{n(i,j)} / k$ where $n(i,j)$ represents the j-th closest neighbor to unit $i$. 
@@ -173,9 +199,9 @@
 
 \end{frame}
 
-\begin{frame}{Signing the Bias}
+\begin{frame}{Biased Estimate for $\tau_{\text{direct}}$}
     \[ 
-        \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}    
+        \mathbb{E}[\hat{\tau}_{\text{diff-in-diff}}] - \textcolor{green}{\tau_{\text{direct}}} = \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}    
     \]
 
     \begin{table}
@@ -197,7 +223,7 @@
         
     \textbf{Control Spillover:}
     
-    $Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 1$ if county $i$ shares a border with a treated county and $0$ otherwise.
+    $Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) = 1$ if county $i$ shares a border with a treated county and $0$ otherwise.
         
     Then, the bias term is 
     \begin{align*}
@@ -207,10 +233,9 @@
 \end{frame}
 
 \begin{frame}{Partial Identification}
-    Researchers can us the above method to create bounds for the biases resulting from spillovers. The choices should follow from the empirical context at hand.
+    Researchers can use the above method to create bounds for the biases resulting from spillovers. The choices should follow from the empirical context at hand.
 
-    To formalize this, I follow the literature on partial identification for treatment effects: 
-    
+    To formalize this, I follow the literature on partial identification for treatment effects
     \begin{citecolor}
         [\citet{Armstrong_Kolesár_2020}, \citet{Rambachan_Roth_2020}, and \citet{Manski_Pepper_2018}]
     \end{citecolor}
@@ -249,6 +274,7 @@
 % ------------------------------------------------------------------------------
 \section{Simulations}
 % ------------------------------------------------------------------------------
+
 
 \begin{frame}{Monte Carlo Simulations}
     \begin{itemize}

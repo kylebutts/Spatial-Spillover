@@ -49,6 +49,7 @@ counties_centpop <- sf::read_sf("data/2010_county_centpop/US_county_cenpop_2010.
 
 ## Create Distance Matrix ------------------------------------------------------
 
+counties$centroid <- counties_centpop$geometry
 
 # st_crs(counties) will show you that units are in meters
 dist <- st_distance(st_geometry(counties_centpop))

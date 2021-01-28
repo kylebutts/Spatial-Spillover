@@ -86,7 +86,7 @@ sim_data <- function(
 				zone = sim > quantile(sim, 1-treat_prob),
 				
 				# `zone` has increased probability of treatment
-				prob = 0.1 + zone_plus * zone,
+				prob = 0.05 + zone_plus * zone,
 				prob = prob * treat_prob/mean(prob),
 				
 				# Generate Treatment Variable

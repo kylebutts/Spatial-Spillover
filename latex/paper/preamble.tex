@@ -102,6 +102,20 @@
   {1em}
   {#1}
 
+
+% Table and Figure labelling ---------------------------------------------------
+\usepackage{caption}
+
+\DeclareCaptionLabelSeparator{threedash}{\,---\,}
+\DeclareCaptionFont{navyblue}{\color{navyblue}}
+\captionsetup[table]{format=plain, labelsep=threedash, font=bf}
+\captionsetup[figure]{format=plain, labelsep=threedash, font=bf}
+% Left align captions
+% \captionsetup[figure]{labelfont={it}, textfont={navyblue,bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+% \captionsetup[table]{labelfont={it}, textfont={navyblue,bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+
+
+
 % Footnote ---------------------------------------------------------------------
 % Spacing between footnotes on same page
 \addtolength{\footnotesep}{1mm}
@@ -125,18 +139,6 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{graphicx}
-
-
-% Table and Figure labelling ---------------------------------------------------
-\usepackage{caption}
-
-\DeclareCaptionLabelSeparator{threesdash}{\,---\,}
-\DeclareCaptionLabelSeparator{period}{\,---\,}
-\captionsetup[table]{format=plain,labelsep=threesdash, font=bf}
-\captionsetup[figure]{format=plain, labelsep=period, font=bf}
-% Left align captions
-% \captionsetup[table]{labelfont=it, textfont={bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
-% \captionsetup[figure]{labelfont=it, textfont={bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
 
 
 % Tables -----------------------------------------------------------------------

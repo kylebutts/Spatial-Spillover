@@ -72,24 +72,24 @@ The rest of the paper is structured as follows. Section \ref{sec:po_framework} p
 \label{sec:po_framework}
 % ------------------------------------------------------------------------------
 
-Following the canonical difference-in-difference framework, there is a time $t_0$ where treatment turns on and remains on afterwards. As in \citet{Vazquez-Bare_2019}, potential outcomes for unit $i$ at time $t$, denoted $Y_{i,t}(D_i, h(\vec{D}, i)$), are a function of own treatment-status $D_i$ and,  departing from the standard potential outcomes framework, of a function of the entire vector of treatment assignments $h(\vec{D}, i)$ where $\vec{D} \in \{0,1 \}^n$ denotes the $n$-dimensional vector of all unit treatments. The function $h(\vec{D}, i)$ is referred to as an `exposure mapping' and is a non-negative scalar- or vector- valued function. The `exposure mapping' measures the intensity at which unit $i$ is affected by spatial spillovers. When unit $i$ is sufficiently `far' away, it has no exposure to spatial spillovers and $h(\vec{D}, i) = 0$. The exposure mapping formalizes the SUTVA violation in that potential outcomes are affected by other unit's treatment assignment which are summarized by $h(\vec{D}, i)$. 
+Following the canonical difference-in-difference framework, there is a time $t_0$ where treatment turns on and remains on afterwards. This framework can be extended in section \ref{sec:event_study}. As in \citet{Vazquez-Bare_2019}, potential outcomes for unit $i$ at time $t$ are a function of own treatment-status $D_i$ and, departing from the standard potential outcomes framework, of a function of the entire vector of treatment assignments $h(\vec{D}, i)$ where $\vec{D} \in \{0,1 \}^n$ denotes the $n$-dimensional vector of all unit treatments. The potential outcomes are denoted $Y_{i,t}(D_i, h(\vec{D}, i)$). The function $h(\vec{D}, i)$ is referred to as an `exposure mapping' and is a non-negative scalar- or vector- valued function. The exposure mapping measures the intensity at which unit $i$ is affected by spatial spillovers. When unit $i$ is sufficiently `far' away, it has no exposure to spatial spillovers and $h(\vec{D}, i) = 0$. The exposure mapping formalizes the SUTVA violation in that potential outcomes are affected by other unit's treatment assignment as summarized by $h(\vec{D}, i)$. To help better understand the exposure mapping function, I give three examples of $h(\vec{D}, i)$ that are commonly used in the literature.
 
-To help better understand the exposure mapping function, I give three examples of $h(\vec{D}, i)$ that are commonly used in the literature. First, $h(\vec{D}, i)$ can be a 0/1 variable that equals one only if there is a treated unit within $\bar{d}$-miles of unit $i$.\footnote{Similarly a dummy for counties that share borders is commonly used.} Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$.  In this case \[
+First, $h(\vec{D}, i)$ can be a 0/1 variable that equals one only if there is a treated unit within $\bar{d}$-miles of unit $i$.\footnote{Similarly a dummy for counties that share borders is commonly used.} Let $d(i,j)$ be a geographic distance measure which tells the distance unit $i$ is from unit $j$.  In this case \begin{equation}\label{eq:h_within}
     h(\vec{D}, i) = \max_{i \neq j} D_j * 1[ d(i,j) < \bar{d} ] 
-\] 
-This exposure mapping is useful when it is assumed that spillovers do not decay over distance until $\bar{d}$ and the number of neighboring units treated do not impact the intensity of spillovers. For example, this exposure mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the maximum distance people would travel to a nearby library. Access to a neighboring town library likely does not depend on whether you can access 1 or more nearby libraries, so the binary value is a good approximation to spillovers in this context.  
+\end{equation}
+This exposure mapping is useful when it is assumed that spillovers do not decay over distance until $\bar{d}$ and the number of neighboring units treated do not impact the intensity of spillovers. For example, this exposure mapping likely applies in the context of new library creation \citep{Berkes_Nencka_2020}. In this case the distance $\bar{d}$ would be the maximum distance people would travel to a nearby library. Access to a neighboring town library is binary in nature, so it does not matter whether you can access 1 or more nearby libraries, so the binary exposure mapping is a good approximation to spillovers in this context.  
 
-Second, $h(\vec{D}, i)$ can be a function that equals the proportion of the k-nearest neighbors that are treated, i.e. \[
+Second, $h(\vec{D}, i)$ can be a function that equals the proportion of the k-nearest neighbors that are treated, i.e. \begin{equation}\label{eq:h_within}
     h(\vec{D}, i) = 1/k \sum_{j \in K(i)} D_j,
-\]
-where $K(i)$ is the index of unit $i$'s k-nearest neighbors. This exposure mapping is no longer binary, so the intensity of spillovers depend on the number of units treated. In the context of large store openings, this exposure mapping captures the additive nature of agglomeration economies. As more nearby counties receive new factories, the agglomeration forces increase \citep{Basker_2005}.
+\end{equation}
+where $K(i)$ is the index of unit $i$'s k-nearest neighbors. This exposure mapping is no longer binary, so the intensity of spillovers depend on the number of units treated. In the context of large store openings, this exposure mapping captures the additive nature of agglomeration economies. As more nearby counties receive new stores, the agglomeration forces increase \citep{Basker_2005}.
 
-Last, is the spatial decay function where exposure decreases with distance. In this case, spillover intensity is the sum across all treated observations' decay term, i.e. \[ 
+Last, is the spatial decay function where exposure decreases with distance. In this case, spillover intensity is the sum across all treated observations' decay term, i.e. \begin{equation}\label{eq:h_decay}
     h(\vec{D}, i) = \sum_{j \neq i} D_j e^{-\alpha d(i,j)}.
-\] 
-This exposure mapping allows for the intensity of spillovers to depend on distance to treatment and also is additive in the number of nearby units treated.\footnote{However, this specification assumes that all units are affected by all other units. This creates problems with inference because it implies potential correlation between all units' error terms. For this reason, this function often is summed over only the $k$-nearest neighbors or over units within $\bar{d}$ miles.} The speed of spillover decay over distance depends on the parameter $\alpha$ that can be decided by the researcher or estimated using non-linear least squares. In the literature on R\&D investment, \citet{Keller_2002} uses a modified version of this exposure mapping where $D_j$ is country $j$'s R\&D expenditure. 
+\end{equation} 
+This exposure mapping allows for the intensity of spillovers to depend on distance to treatment and also is additive in the number of nearby units treated.\footnote{However, this specification assumes that all units are affected by all other units. This creates problems with inference because it implies potential correlation between all units' error terms. For this reason, this function often is summed over only the $k$-nearest neighbors or over units within $\bar{d}$ miles.} The speed of spillover decay over distance depends on the parameter $\alpha$ that can be calibrated by the researcher or estimated using non-linear least squares. In the literature on R\&D investment, \citet{Keller_2002} uses a modified version of this exposure mapping where $D_j$ is country $j$'s R\&D expenditure. 
 
-The last thing a researcher must do is specify the functional form of the potential outcomes. Typically, the spillover function enters into the regression linearly and potentially the coefficient is allowed to differ by treatment status. 
+After chosing an exposure mapping that makes sense in the economic context, a researcher must also specify the functional form of the potential outcomes. Typically, the spillover function enters into the regression linearly and potentially the coefficient is allowed to differ by treatment status. 
 
 
 
@@ -110,12 +110,12 @@ Similarly, we define the average spillover effect onto also treated units as: \[
     \tau_{\text{spill,treated}} \equiv \mathbb{E} \left[ Y_{it}(1, h(\vec{D}, i)) - Y_{it}(1, 0) \ \vert \ D_i = 1 \right].
 \] 
 
-It is important to clarify what I am assuming is the estimand of interest researchers would like to estimate when using difference-in-differences. I assume that what the `Average Treatment Effect' is trying to measure in this context is what I will call the `direct effect of treatment': \[
+It is important to clarify what I am assuming is the estimand of interest researchers would like to estimate when using difference-in-differences. I assume that what the `average treatment effect' is trying to measure in this context is what I will call the `direct effect of treatment': \[
     \tau_{\text{direct}} = \mathbb{E} \left[ Y_{it}(1, 0) - Y_{it}(0, 0) \ \vert \ D_i = 1 \right],
 \] 
 which measures the effect of being treated in the absence of exposure to spillovers. This effect does not include the general equilibrium effects of multiple treated areas near one-another.
 
-My definition of the direct effect of treatment differs from \citet{Sävje_Aronow_Hudgens_2019} where they define the Average Treatment Effect as \[ 
+My definition of the direct effect of treatment differs from \citet{Sävje_Aronow_Hudgens_2019} where they define the average treatment effect as \[ 
     \mathbb{E} \left[ Y_{it}(1, h(\vec{D}, i)) - Y_{it}(0, h(\vec{D}, i)) \ \vert \ D_i = 1 \right],
 \] 
 where the expectation is over individuals and their exposures. I prefer the former because it allows for seperate identification of the direct effect of treatment and the spillover effects themselves. For example, a county deciding whether to implement a policy will want to consider the treatment effect plus the spillover at their current level of exposure. The estimand proposed by \citet{Sävje_Aronow_Hudgens_2019} returns the average of spillovers across levels of exposure and can not be used to predict spillovers at different levels.\footnote{Estimation of the direct effect and spillover effect can be combined to estimate the ATE as defined by \citet{Sävje_Aronow_Hudgens_2019}.}
@@ -125,14 +125,14 @@ where the expectation is over individuals and their exposures. I prefer the form
 \subsection{Bias in Difference-in-Differences Estimation}
 % ------------------------------------------------------------------------------
 
-In this section, I identify the two sources of bias in difference-in-differences estimation. For exposition, I will refer to one pre- and post-period, $t = 0$ and $t = 1$, but this can be replaced by averages across $Y$ in the pre-period and the post-period respectively. To estimate the `direct effect of treatment', researchers estimate the canonical two-way fixed effects model, 
+In this section, I identify the two sources of bias in difference-in-differences estimation of the direct effect of treatment. For exposition, I will refer to one pre- and post-period, $t = 0$ and $t = 1$, but this can be replaced by averages across $Y$ in the pre-period and the post-period respectively. To estimate the `direct effect of treatment', researchers estimate the canonical two-way fixed effects model, 
 \begin{equation}\label{eq:twfe}    
     y_{it} = \tau D_{it} + \mu_i + \mu_t + \epsilon_{it}.
 \end{equation}
 
 The estimator $\hat{\tau}$ is a biased estimate for $\tau_{\text{direct}}$ in the presence of spillovers. To show this, I first present the equivalent to the parallel counterfactual trends assumption in the context of the new potential outcome framework. 
 
-\begin{assumption}[Parallel Counterfactual Trends]\label{parallel}
+\begin{assumption}[Parallel Counterfactual Trends]\label{eq:parallel}
     \[ 
         \mathbb{E}\left[ Y_{i1}(0, 0) - Y_{i0}(0, 0) \ \vert \ D_i = 1 \right] = 
         \mathbb{E}\left[ Y_{i1}(0, 0) - Y_{i0}(0, 0) \ \vert \ D_i = 0 \right]
@@ -140,10 +140,10 @@ The estimator $\hat{\tau}$ is a biased estimate for $\tau_{\text{direct}}$ in th
 \end{assumption}
 This assumption states that in the absence of treatment and with zero exposure (not just the absence of individual $i$'s treatment), the change in potential outcomes from period 0 to 1 would not depend on treatment status. This generalizes to the classic parallel counterfactual trends when SUTVA is satisfied because then every unit has zero exposure.
 
-Given that Assumption \ref{parallel} holds, the estimate $\hat{\tau}$ from Equation \ref{eq:twfe} can be decomposed as the direct effect and the two sources of spillover bias. The proof is given in Appendix \ref{sec:proofs}.
+Given that Assumption (\ref{eq:parallel}) holds, the estimate $\hat{\tau}$ from (\ref{eq:twfe}) can be decomposed as the direct effect and the two sources of spillover bias. The proof is given in Appendix \ref{sec:proofs}.
 
 \begin{theorem}[Bias from Difference-in-Differences Estimation]\label{thm:bias}\ \\    
-    If Assumption \ref{parallel} holds, the expectation of the estimate $\hat{\tau}$ from Equation \ref{eq:twfe} is
+    If Assumption (\ref{eq:parallel}) holds, the expectation of the estimate $\hat{\tau}$ from (\ref{eq:twfe}) is
     \begin{align*}
         \mathbb{E}[\hat{\tau}] &= \underbrace{\mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right]}_{\text{Difference-in-Differences}} \\ 
         &= 
@@ -163,7 +163,7 @@ Readers that are judging estimates in the presence of spillovers can use the fol
 \subsection{Bounding the Bias}
 % ------------------------------------------------------------------------------
 
-The previous section finds an explicit form of the bias when estimating Equation \ref{eq:twfe}. The explicit form of bias can be used by researchers to provide bounds on the bias in a manner simmilar to \citet{Rambachan_Roth_2020}. To provide bounds on the bias, researchers must identify the set $\Delta = [\underline{\Delta}, \overline{\Delta}]$ such that it contains the bias \[ 
+The previous section finds an explicit form of the bias when estimating (\ref{eq:twfe}). The explicit form of bias can be used by researchers to provide bounds on the bias in a manner simmilar to \citet{Rambachan_Roth_2020}. To provide bounds on the bias, researchers must identify the set $\Delta = [\underline{\Delta}, \overline{\Delta}]$ such that it contains the bias \[ 
     \tau_{\text{spill,treated}} - \tau_{\text{spill, control}} \in \Delta
 \]
 
@@ -172,7 +172,7 @@ Choosing this set requires considerations of the economic context. It is guided 
     \label{eq:example_exposure}
     h(\vec{D}, i) \equiv \text{Near}_{it} = \max_{i \neq j} D_j * 1[ d(i,j) < \bar{d} ].
 \end{align}
-This specification is a simple one in that the spillover is not additive in the number of nearby treated counties and does not decay over distance before reaching $\bar{d}$. Since treated counties have access to their own library, I will assume that no spillovers exist. The potential outcome is assumed to be additive in both treatment and in the exposure mapping:
+This specification is a simple one in that the spillover is not additive in the number of nearby treated counties and does not decay over distance before reaching $\bar{d}$. Since treated counties have access to their own library, I will assume that no spillovers on to treated units exist. The potential outcome is assumed to be additive in both treatment and in the exposure mapping:
 \begin{align}
     \label{eq:example_po}
     \begin{split}
@@ -181,12 +181,12 @@ This specification is a simple one in that the spillover is not additive in the 
 \end{align}
 where $\mu_t$ and $\mu_i$ are unit and time fixed effects respectively. In this case, the spillover on an individual control unit is given by $\tau_{\text{spill,control}}$. 
 
-If a researcher estimates Equation \ref{eq:twfe}, then the bias will be \[ 
+If a researcher estimates (\ref{eq:twfe}), then the bias will be \[ 
     - \tau_{\text{spill,control}} = - \beta_{\text{spill,control}} \frac{\sum_{i: D_{it} = 0} \text{Near}_{it}}{N_C},
 \] 
-where $N_C$ are the number of control units respectively. Simply put, the bias will be negative one times the proportion of control units that receive spillover effects time the size of the effect on control units. Then the bound can be created by conservatively set by bounding $\beta_{\text{spill,control}}$ and the proportion of control units that receive spillovers.
+where $N_C$ are the number of control units respectively. Simply put, the bias will be negative one times the proportion of control units that receive spillover effects time the size of the effect on control units. Then the bound can be created by bounding $\beta_{\text{spill,control}}$ and the proportion of control units that receive spillovers.
 
-With a chosen $\Delta$, the partially identified set is given by $[\hat{\tau} + \underline{\Delta}, \hat{\tau} + \overline{\Delta}]$. Inference on this set can be done using Fixed-Length Confidence Intervals as in \citet{Rambachan_Roth_2020}. The confidence interval can be formed using critical values from the Z-distribution and  standard normal critical values since we are assuming a specific spatial relationship between outcomes, spatially adjusted standard errors following \citet{Conley_1999}: \[ 
+With a chosen $\Delta$, the partially identified set is given by $[\hat{\tau} + \underline{\Delta}, \hat{\tau} + \overline{\Delta}]$. Inference on this set can be done using Fixed-Length Confidence Intervals as in \citet{Rambachan_Roth_2020}. The confidence interval can be formed using standard normal critical values and spatially adjusted standard errors following \citet{Conley_1999} since we are assuming a specific spatial relationship between outcomes: \[ 
     \left[ \hat{\tau} - \underline{\Delta} - z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}, \ \hat{\tau} + \overline{\Delta} + z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}\right].  
 \]
 
@@ -195,16 +195,17 @@ With a chosen $\Delta$, the partially identified set is given by $[\hat{\tau} + 
 \subsection{Improving Estimation by Parameterizing Spillovers}
 % ------------------------------------------------------------------------------
 
-The previous section shows how to estimate the magnitude of potential bias in the estimation of Equation \ref{eq:twfe}. However, parameterization of the potential outcomes and exposure mapping allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
+The previous section shows how to estimate the magnitude of potential bias in the estimation of (\ref{eq:twfe}). However, parameterization of the potential outcomes and exposure mapping allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
 
 First, controlling for exposure mapping allows for unbiased estimates of the direct effect of treatmnet if the potential outcomes are correctly specified. In the case where potential outcomes are `somewhat' incorrectly specified, this can remove some of the bias in estimation. Simulations below highlight that since spillovers are likely to decay over distance, controlling for immediate neighbors removes a large portion of the average spillover effects.
 
-Second, the spillover effects themselves are potentially relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will double-understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' beneift will be \emph{double undercounted}. Similarly, the net benefits for a treated location depend on the direct effect and the spillover effect onto treated units. Therefore the size of benefits created by the treatment depend on the number of treated units nearby.
+Second, the spillover effects themselves are potentially relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will double-understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' benefit will be \emph{double undercounted}. Similarly, a policy maker trying to determine the net benefits for a treated location must consider the direct effect and the spillover effect onto treated units. This is because the size of benefits created by the treatment depend on the number of treated units nearby.
 
-There are a few practical considerations researchers should make when parametrizing the spillovers. 
-% @TODO: Expand upon considerations in the introduction
+There are a few practical considerations researchers should make when parametrizing the spillovers and the answers to the questions will depend ultimately on the economic context being studied. First, researchers should consider whether control units and/or treated units experience effects from the treatment status of other units. For example, in the context of library construction, treated units likely do not experience spillovers while close control units do. In the context of factory openings, both control and treated units likely experience spillovers. 
 
-In a set of Monte Carlo simulations, I check the sensitivity of estimates to misspecification of spillovers.
+Second, a researcher must decide how far the spillovers can reasonably be experience and whether the effect decays over distance. Things such as driving distance or access via public transportation can be helpful in deciding which units are `close enough' to experience spillovers. There are two commonly used techniques to model treatment effect decay.\footnote{If the spillovers is due to crossing borders into the treated area, then a reasonable decision about whether the effect decays is the frequency in which people use the good. For example, libraries whose benefit is only experienced from frequent usage would suggest that the effect decays over distance. On the other hand, abortion clinics opening are used infrequently and therefore the effect likely doesn't decay over distance within a certain cutoff.} First, as seen above is to use an exponential decay function with regards to distance. The other option is to use a set of `cocentric donut' indicators which are easy to interpret. An example of this is shown in the empirical application in Section \ref{sec:tva}. 
+
+Last, it is important for estimation to know if the spillovers are additive or non-additive in nature. If the number of nearby treated units matter, then the exposure mapping should sum over nearby treated units in some way. For example, in the context of library construction, the number of neighbors with libraries does not change the size of the spillover for it is access to \textit{any} library that matters. In the context of factory openings, though, agglomeration economies imply that the spillovers are additive in nature.
 
 
 

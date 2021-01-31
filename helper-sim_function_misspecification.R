@@ -40,9 +40,9 @@ sim_data_misspecification <- function(
 	within_large <- (dist_mi > 0 & dist_mi <= treat_spillover_distance_large)
 	within_100 <- (dist_mi > 0 & dist_mi <= 100)
 	
-	within_0_10 = (dist_mi > 0 & dist_mi <= 10)
-	within_10_20 = (dist_mi > 10 & dist_mi <= 20)
-	within_20_40 = (dist_mi > 20 & dist_mi <= 40)
+	within_0_20 = (dist_mi > 0 & dist_mi <= 20)
+	within_20_30 = (dist_mi > 20 & dist_mi <= 30)
+	within_30_40 = (dist_mi > 30 & dist_mi <= 40)
 	within_40_60 = (dist_mi > 40 & dist_mi <= 60)
 	within_60_80 = (dist_mi > 60 & dist_mi <= 80)
 	within_80_100 = (dist_mi > 60 & dist_mi <= 80)
@@ -50,7 +50,7 @@ sim_data_misspecification <- function(
 	
 	# Spatial Decay
 	# Following https://fmwww.bc.edu/repec/bocode/s/spgen.pdf
-	spatial_decay <- exp(-.01 * dist_mi) 
+	spatial_decay <- exp(-.02 * dist_mi) 
 	
 	# Cutoff by element-wise multiplication & no self-spillover
 	spatial_decay <- spatial_decay * within_large
@@ -104,12 +104,12 @@ sim_data_misspecification <- function(
 			spill_decay_additive_treat = (treat == 1) * spatial_decay %*% treat,
 			spill_decay_additive_treat = as.numeric(spill_decay_additive_treat),
 			# Spillover Rings
-			spill_0_10 = (treat == 0) * within_0_10 %*% treat,
-			spill_0_10 = as.numeric(spill_0_10 > 0),
-			spill_10_20 = (treat == 0) * within_10_20 %*% treat,
-			spill_10_20 = as.numeric(spill_10_20 > 0),
-			spill_20_40 = (treat == 0) * within_20_40 %*% treat,
-			spill_20_40 = as.numeric(spill_20_40 > 0),
+			spill_0_20 = (treat == 0) * within_0_20 %*% treat,
+			spill_0_20 = as.numeric(spill_0_20 > 0),
+			spill_20_30 = (treat == 0) * within_20_30 %*% treat,
+			spill_20_30 = as.numeric(spill_20_30 > 0),
+			spill_30_40 = (treat == 0) * within_30_40 %*% treat,
+			spill_30_40 = as.numeric(spill_30_40 > 0),
 			spill_40_60 = (treat == 0) * within_40_60 %*% treat,
 			spill_40_60 = as.numeric(spill_40_60 > 0),
 			spill_60_80 = (treat == 0) * within_60_80 %*% treat,
@@ -117,11 +117,11 @@ sim_data_misspecification <- function(
 			spill_80_100 = (treat == 0) * within_80_100 %*% treat,
 			spill_80_100 = as.numeric(spill_80_100 > 0),
 			# Make rings only the closest
-			spill_10_20 = as.numeric(spill_10_20 == 1 & (spill_0_10 == 0)), 
-			spill_20_40 = as.numeric(spill_20_40 == 1 & (spill_10_20 == 0) & (spill_0_10 == 0)), 
-			spill_40_60 = as.numeric(spill_40_60 == 1 & (spill_20_40 == 0) & (spill_10_20 == 0) & (spill_0_10 == 0)),
-			spill_60_80 = as.numeric(spill_60_80 == 1 & (spill_40_60 == 0) & (spill_20_40 == 0) & (spill_10_20 == 0) & (spill_0_10 == 0)),
-			spill_80_100 = as.numeric(spill_80_100 == 1 & (spill_60_80 == 0) & (spill_40_60 == 0) & (spill_20_40 == 0) & (spill_10_20 == 0) & (spill_0_10 == 0)),
+			spill_20_30 = as.numeric(spill_20_30 == 1 & (spill_0_20 == 0)), 
+			spill_30_40 = as.numeric(spill_30_40 == 1 & (spill_20_30 == 0) & (spill_0_20 == 0)), 
+			spill_40_60 = as.numeric(spill_40_60 == 1 & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
+			spill_60_80 = as.numeric(spill_60_80 == 1 & (spill_40_60 == 0) & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
+			spill_80_100 = as.numeric(spill_80_100 == 1 & (spill_60_80 == 0) & (spill_40_60 == 0) & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
 		)
 	
 	## Spillover Variables Have Same Average Effect ----------------------------

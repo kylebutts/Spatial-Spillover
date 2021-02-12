@@ -494,6 +494,83 @@ These results show that including spillovers in the estimation of direct treatme
 
 
 
+% ------------------------------------------------------------------------------
+\section{Event Study with Spillovers}
+\label{sec:event_study}
+% ------------------------------------------------------------------------------
+
+The intuition from how spillovers cause biases in estimates of the direct effect of treatment extend into the setting where there is staggered adoption in treatment. Two-way fixed effects estimates can be viewed as a weighted sum of $2 \times 2$ difference-in-differences estimates and therefore the bias terms will be identically weighted of the bias terms from the $2 \times 2$ estimates, assuming the parallel counterfactual trends assumption (\ref{eq:parallel}).\footnote{Various forms for these weights are described in \citet{Goodman-Bacon_2018}, \citet{Callaway_Sant’Anna_2020}, \citet{Sun_Abraham_2020}, and \citet{deChaisemartin_D’Haultfoeuille_2019}. I won't recharacterize the weights in this article and guide interested readers to the source articles themselves.} 
+
+Now, I will propose an estimation strategy that follows \citet{Callaway_Sant’Anna_2020} (C\&S) while incorporating spillovers directly into estimation. However, I won't cover all the technical details and point the reader to the main text for these details. To begin, C\&S define a `cohort' $g$ as the set of units that recevie treatment starting in period $g$. Let $G_g$ be an idicator equal to one for all units where treatment starts at period $g$ and $C$ an indicator equal to one if the unit never receives treatment. Each cohort will serve as the treated group for a set of $2\times 2$ difference-in-differences. For each period $t$ they define the `group-time average treatment effect', $ATT(g,t) = \mathbb{E}\left[ Y_t(g) - Y_t(0) \ \vert \ G_g = 1 \right]$, where $G_g$ is an indicator for starting treatment in year $g$. The potential outcome is indexed by $g$ to allow for treatment effects to differ depending on the initial treatment year.
+
+Therefore in the context of spillovers, our equivalent term is the `group-time average direct effect' which will be defined as $$ 
+    ATT_{\text{direct}}(g,t) = \mathbb{E}\left[ Y_t(g, 0) - Y_t(0, 0) \ \vert \ G_g = 1 \right],
+$$ where the second term in potential outcomes represents an exposure mapping of $h(\vec{D}, i) = 0$. Similar to above, we modify the parallel trends assumptions given by CS to hold in the absence of exposure. 
+
+\begin{assumption}[Parallel Counterfactual Trends on a ``Never-Treated'' Group]\label{eq:parallel_es_never}
+    $$
+        \mathbb{E}\left[ Y_t(0, 0) - Y_{t-1}(0, 0) \ \vert \ G_g = 1 \right] = \mathbb{E}\left[ Y_t(0, 0) - Y_{t-1}(0, 0) \ \vert \ C = 1 \right] 
+    $$ 
+\end{assumption}
+
+\begin{assumption}[Parallel Counterfactual Trends on ``Not-Yet-Treated'' Groups]\label{eq:parallel_es_notyet}
+    $$ 
+        \mathbb{E}\left[ Y_t(0, 0) - Y_{t-1}(0, 0) \ \vert \ G_g = 1 \right] = \mathbb{E}\left[ Y_t(0, 0) - Y_{t-1}(0, 0) \ \vert \ D_s = 0, G_g = 0 \right]
+    $$ 
+\end{assumption}
+
+
+
+% ------------------------------------------------------------------------------
+\subsection{Estimating Direct Effects}
+% ------------------------------------------------------------------------------
+
+The group-time average direct effect is the building block of analysis in the framework proposed by C\&S. Estimation of the group-time average direct treatment effect, $ATT_{\text{direct}}(g,t)$ depends on which parallel trends assumption a researcher use. If a researcher is using Assumption \ref{eq:parallel_es_never}, then estimation will be done using a supsample containing only control units and units in group $g$. The difference-in-difference estimate uses period $t$ outcomes as the post-period and some period $g - \delta$ as the pre-period where $\delta$ is the number of periods before initial treatment. In the context of spillovers, the canoncial difference-in-differences estimation will have to be adjusted using a parameterized exposure mapping to prevent the bias detailed in the $2 \times 2$ setting. As shown in Section \ref{sec:monte_carlo}, this can be done using a set of donut indicators that is wide enough to capture all of the spillovers. 
+
+If a researcher is using Assumption \ref{eq:parallel_es_notyet}, then estimation will be done with a subsample containing treated units from group $g$ and all units that are in groups $g' > t$. Again, estimation of the group-time direct effect will have to include controls for spillovers.
+
+Then, as detailed in C\&S, these ATT can be aggregated using different weights depending on the pararmeter of interest (see Table 1 of \citet{Callaway_Sant’Anna_2020}). These aggregations take the form of
+\begin{equation*}
+    \theta = \sum_{g} \sum_{t} w(g,t) ATT_{\text{direct}}(g,t)    
+\end{equation*} 
+These weights include the option to make event study estimates, or group-level average treatment effects (across time). Estimation and different aggregation of the direct effects can be done using the `did' package produced by CS where the measure of spillovers are included as covariates. 
+
+
+% ------------------------------------------------------------------------------
+\subsection{Estimating Spillover Effects}
+% ------------------------------------------------------------------------------
+
+Estimation of the spillover effects is potentially much more difficult as estimation of continuous variables in the presence of staggered treatment is still a work in progress and past the scope of this article. However, for indicator variables, estimation can be done in much the same way as the direct effect. 
+
+Since a set of donut indicators captures non-additive spillovers generally, I will focus on estimation of these donut indicators. For a given ring indicator, you would define groups by the period that a unit's ring indicator turns on. However, treated units can always move to more inner rings as treatment turns on over time, so control units should only enter estimation for the most inner indicator they enter. 
+
+Then, estimation can be done assuming that all control units are on the same counterfactual trends in the absence of spillovers. For a given ring, the `treated' units consist of units that have that ring be the most inner spillovers they experience and the `control' units consist of all control units whose spillover status remains constant between the pre-period, $g - \delta$ and $t$. As above, estimation of the group-time average spillover effect should include the other spillover indicators to avoid biases from other spillover effects. 
+
+Therefore, for each spillover donut, estimation and aggregation can be done in much the same way as for the direct effect. However, estimation and aggregation can not be done using the `did' program as subsamples have to be constructed more specifically for each group-time average spillover effect. 
+
+
+
+
+
+
+
+% ------------------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+% ------------------------------------------------------------------------------
+
+This paper has considered the common environment where treatment is assigned via administrative boundary while the effects of treatment spread across these borders. In this context, difference-in-differences estimation will identify a combination of the direct effect of treatment and two additional terms resulting from spillovers. I have proposed a potential outcomes framework that is used to express each of these spillover terms as a function of potential outcomes and the exposure mapping. 
+
+Further, I show that parameterizing these spillovers can remove most of the biases even in the presence of some misspecification. In particular, I find that specifications with a set of `Donuts' are the best at capturing the spatial structure of spillovers. When estimating spillover effects themselves, I find that it is important to correctly identify is spillovers are additive or non-additive in the number of nearby treated units.  
+
+Then, I show that these approaches can change estimates significantly in the context of estimating the effects of place-based policies. Since place-based policies change the nature of agglomeration in the local and surrounding area --that is cause spillovers--local effects of these policies can be misestimated without controlling for spillovers.
+
+Finally, I show how researchers can include spillovers in settings with variation in treatment timing following \citet{Callaway_Sant’Anna_2020}.
+
+
+
+
+
 
 
 

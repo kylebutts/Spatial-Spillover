@@ -27,8 +27,8 @@ source("https://raw.githubusercontent.com/kylebutts/templates/master/ggplot_them
 
 # Is for slides or paper?
 slides <- TRUE
-# h_w_ratio <- 9/16
-h_w_ratio <- 3/4
+h_w_ratio <- 9/16
+# h_w_ratio <- 3/4
 
 
 ## Load Parameters -------------------------------------------------------------
@@ -158,53 +158,6 @@ counties_treat_low_zp <- sim_data(
 	spatial_autocorr = TRUE, zone_plus = low_zone_plus, drop_geometry = FALSE
 ) %>% 
 	filter(year == 2019) %>% select(-centroid) %>% st_as_sf()
-	
-
-bias_control <- round(te_spill * sum(counties_treat_low_zp$spill_within) / sum(counties_treat_low_zp$treat_ind == 0), 2)
-bias_treat <- round(te_spill_treat * sum(counties_treat_low_zp$spill_within_treat) / sum(counties_treat_low_zp$treat_ind == 1), 2)
-
-
-# Treatment Effect Maps, spcorr_low_zp
-(
-plot_te_low_zp <- ggplot() +
-	geom_sf(data= counties_treat_low_zp, aes(fill= as.factor(te)), color= "grey60", size= 0.2) + 
-	geom_sf(data= counties_treat_low_zp %>% filter(treat_ind == 1), fill = NA, color = "black") +
-	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
-	# Remove Coordinates, leaving just the map
-	coord_sf(datum = NA) +
-	labs(
-		title= "Small Spatial Autocorrelation",
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
-		fill= "Effect Size"
-	) + 
-	theme_kyle(slides = TRUE) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
-	# theme(legend.position = "bottom") +
-	# Fill Scale, colors from R color Brewer
-	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
-)
-
-
-(
-plot_te_spill_control_low_zp <- ggplot() +
-	geom_sf(data= counties_treat_low_zp, aes(fill= as.factor(te_spill + te)), color= "grey60", size= 0.2) + 
-	geom_sf(data= counties_treat_low_zp %>% filter(treat_ind == 1), fill = NA, color = "black") +
-	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
-	# Remove Coordinates, leaving just the map
-	coord_sf(datum = NA) +
-	labs(
-		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate_control} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
-		fill= "Effect Size"
-	) + 
-	theme_kyle(slides = TRUE) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
-	#theme(legend.position = "bottom") +
-	# Fill Scale, colors from R color Brewer
-	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A"))
-)
 
 (
 plot_te_spill_all_low_zp <- ggplot() +
@@ -214,8 +167,7 @@ plot_te_spill_all_low_zp <- ggplot() +
 	# Remove Coordinates, leaving just the map
 	coord_sf(datum = NA) +
 	labs(
-		title= "Small Spatial Autocorrelation", 
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {low_zone_plus}"),
+		title= glue::glue("Spatial Autocorrelation Measure = {low_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
@@ -226,9 +178,6 @@ plot_te_spill_all_low_zp <- ggplot() +
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
 
-
-ggsave("figures/figure-spcorr_low_map_te.png", plot_te_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_low_map_te_spill_control.png", plot_te_spill_control_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 ggsave("figures/figure-spcorr_low_map_te_spill_all.png", plot_te_spill_all_low_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 usethis::ui_done("Finished exporting low_zp maps")
 
@@ -243,51 +192,6 @@ counties_treat_high_zp <- sim_data(
 ) %>% 
 	filter(year == 2019) %>% select(-centroid) %>% st_as_sf()
 
-bias_control <- round(te_spill * sum(counties_treat_high_zp$spill_within) / sum(counties_treat_high_zp$treat == 0), 2)
-bias_treat <- round(te_spill_treat * sum(counties_treat_high_zp$spill_within_treat) / sum(counties_treat_high_zp$treat == 1), 2)
-
-# Treatment Effect Maps, spcorr_high_zp
-(
-plot_te_high_zp <- ggplot() +
-	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(te)), color= "grey60", size= 0.2) + 
-	geom_sf(data= counties_treat_high_zp %>% filter(treat_ind == 1), fill = NA, color = "black") +
-	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
-	# Remove Coordinates, leaving just the map
-	coord_sf(datum = NA) +
-	labs(
-		title= "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
-		fill= "Effect Size"
-	) + 
-	theme_kyle(slides = TRUE) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
-	# theme(legend.position = "bottom") +
-	# Fill Scale, colors from R color Brewer
-	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
-)
-
-
-(
-plot_te_spill_control_high_zp <- ggplot() +
-	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(te_spill + te)), color= "grey60", size= 0.2) + 
-	geom_sf(data= counties_treat_high_zp %>% filter(treat_ind == 1), fill = NA, color = "black") +
-	geom_sf(data= us, fill = NA, color= "grey30", size= 0.2) + 
-	# Remove Coordinates, leaving just the map
-	coord_sf(datum = NA) +
-	labs(
-		title= "Large Spatial Autocorrelation", 
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
-		fill= "Effect Size"
-	) + 
-	theme_kyle(slides = TRUE) + 
-	# Put Legend on Bottom
-	guides(fill = guide_legend(title.position = "top", nrow = 4)) +
-	# theme(legend.position = "bottom") +
-	# Fill Scale, colors from R color Brewer
-	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
-)
-
 (
 plot_te_spill_all_high_zp <- ggplot() +
 	geom_sf(data= counties_treat_high_zp, aes(fill= as.factor(te + te_spill + te_spill_treat)), color= "grey60", size= 0.2) + 
@@ -297,8 +201,7 @@ plot_te_spill_all_high_zp <- ggplot() +
 	coord_sf(datum = NA) +
 	labs(
 		# title= "Direct Effect + Spillover on Control and Treated", 
-		title = "Large Spatial Autocorrelation",
-		subtitle= glue::glue("Treatment Effect Estimate: {estimate_both} \n Spatial Autocorrelation Measure = {high_zone_plus}"),
+		title = glue::glue("Spatial Autocorrelation Measure = {high_zone_plus}"),
 		fill= "Effect Size"
 	) +
 	theme_kyle(slides = TRUE) + 
@@ -309,9 +212,6 @@ plot_te_spill_all_high_zp <- ggplot() +
 	scale_fill_manual(values= c("0" = "#ffffff", "1" = "#FBB4B9", "1.5" = "#F768A1", "2" = "#C51B8A")) 
 )
 
-
-ggsave("figures/figure-spcorr_high_map_te.png", plot_te_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
-ggsave("figures/figure-spcorr_high_map_te_spill_control.png", plot_te_spill_control_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 ggsave("figures/figure-spcorr_high_map_te_spill_all.png", plot_te_spill_all_high_zp, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 usethis::ui_done("Finished exporting high_zp maps")
 

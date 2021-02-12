@@ -27,9 +27,10 @@ source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd4
 
 # Export
 export <- TRUE
-
-# Produce figures for slides?
 slides <- TRUE
+h_w_ratio <- 9/16
+# h_w_ratio <- 3/4
+
 
 ## Load Spatial Data -----------------------------------------------------------
 # From data-prepare_counties.R
@@ -196,10 +197,10 @@ bias_plot
 
 
 if(export & slides) ggsave("figures/figure-bias_from_spatial_autocorr_slides.png", plot= bias_plot, 
-						   dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 
 if(export & !slides) ggsave("figures/figure-bias_from_spatial_autocorr.png", plot= bias_plot, 
-							dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+							dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")
 
 
 
@@ -275,7 +276,7 @@ bias_fix_plot
 
 
 if(export & slides)  ggsave("figures/figure-bias_fix_spatial_autocorr_slides.png", plot= bias_fix_plot, 
-							dpi= 300, width= 2400/300, height= 1800/300, bg= "#ECECEC")
+							dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 
 if(export & !slides)  ggsave("figures/figure-bias_fix_spatial_autocorr.png", plot= bias_fix_plot, 
-							 dpi= 300, width= 2400/300, height= 1800/300, bg= "transparent")
+							 dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")

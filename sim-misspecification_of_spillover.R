@@ -136,13 +136,14 @@ estimate_treatment_effect <- function(df, formula, treat_var){
 }
 
 
-n_trials <- 250
+n_trials <- 100
 doParallel::registerDoParallel(10)
 
 dgp_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
-	"Within (Additive)" = "spill_within_additive", 
+	"Within 40mi. (Additive)" = "spill_within_additive", 
+	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive"
 )
@@ -152,11 +153,13 @@ estimation_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
 	"Within 100mi." = "spill_within_100",
-	"Within (Additive)" = "spill_within_additive", 
+	"Within 40mi. (Additive)" = "spill_within_additive", 
+	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive",
 	"Donuts (0-20, 20-30, 30-40)" = "donuts_small",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts"
+	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
+	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
 results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
@@ -172,6 +175,9 @@ results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 			} else if(x == "donuts") {
 				formula <- as.formula(glue("y_{y} ~ treat_ind + spill_0_20:post + spill_20_30:post + spill_30_40:post ", 
 										   "+ spill_40_60:post + spill_60_80:post | state_county + year"))
+			} else if(x == "donuts_additive") {
+				formula <- as.formula(glue("y_{y} ~ treat_ind + spill_0_20_additive:post + spill_20_30_additive:post + spill_30_40_additive:post ", 
+										   "+ spill_40_60_additive:post + spill_60_80_additive:post | state_county + year"))
 			} else {
 				formula <- as.formula(glue("y_{y} ~ treat_ind + ({x}:post) | state_county + year"))
 			}
@@ -216,10 +222,10 @@ results_tbl <- results %>%
 results_tbl %>% 
 	gt::gt() %>%
 	gt::fmt_number(
-		columns = 2:6,
+		columns = 2:7,
 		decimals = 3
 	) %>%
-	# extract_body() %T>% cat(., file="tables/misspecification.tex") %>% cat()
+	extract_body() %T>% cat(., file="tables/misspecification.tex") %>% cat()
 	{.}
 
 
@@ -229,13 +235,14 @@ results_tbl %>%
 ## Simulation: MSPE of Spillovers ----------------------------------------------
 
 
-n_trials <- 250
+n_trials <- 150
 doParallel::registerDoParallel(10)
 
 dgp_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
-	"Within (Additive)" = "spill_within_additive", 
+	"Within 40mi. (Additive)" = "spill_within_additive", 
+	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive"
 )
@@ -245,14 +252,17 @@ estimation_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
 	"Within 100mi." = "spill_within_100",
-	"Within (Additive)" = "spill_within_additive", 
+	"Within 40mi. (Additive)" = "spill_within_additive", 
+	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive",
 	"Donuts (0-20, 20-30, 30-40)" = "donuts_small",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts"
+	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
+	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
-results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
+
+results_mspe <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	df <- sim_data_misspecification()
 	results_trial <- NULL
 	
@@ -294,6 +304,23 @@ results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 						te_spill_hat = b_0_20 * spill_0_20 + b_20_30 * spill_20_30 + b_30_40 * spill_30_40 + b_40_60 * spill_40_60 + b_60_80 * spill_60_80
 					)
 				
+			} else if(x == "donuts_additive") {
+				formula <- as.formula(glue("y_{y} ~ treat_ind + post:spill_0_20_additive + spill_20_30_additive:post + spill_30_40_additive:post ", 
+										   "+ spill_40_60_additive:post + spill_60_80_additive:post | state_county + year"))
+				
+				reg <- feols(formula, data= df) 
+				
+				coef <- reg %>% coefficients()
+				b_0_20 <- coef[2]
+				b_20_30 <- coef[3]
+				b_30_40 <- coef[4]
+				b_40_60 <- coef[5]
+				b_60_80 <- coef[6]
+				
+				df <- df %>% 
+					mutate(
+						te_spill_hat = b_0_20 * spill_0_20_additive + b_20_30 * spill_20_30_additive + b_30_40 * spill_30_40_additive + b_40_60 * spill_40_60_additive + b_60_80 * spill_60_80_additive
+					)
 			} else {
 				formula <- as.formula(glue("y_{y} ~ treat_ind + ({x}:post) | state_county + year"))
 				
@@ -331,8 +358,10 @@ results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	
 }
 
+# save(results_mspe, file="data/sim_misspecification_mspe.RData")
+# load("data/sim_misspecification_mspe.RData")
 
-results_tbl <- results %>% 
+results_tbl <- results_mspe %>% 
 	group_by(spec, dgp) %>% 
 	summarize(
 		# Makes 1 the best, 0 the worst
@@ -351,16 +380,16 @@ results_tbl <- results %>%
 results_tbl %>% 
 	gt::gt() %>%
 	gt::fmt_number(
-		columns = 2:6,
+		columns = 2:7,
 		decimals = 3
 	) %>%
-	#extract_body() %T>% cat(., file="tables/misspecification_mspe.tex") %>% cat()
+	# extract_body() %T>% cat(., file="tables/misspecification_mspe.tex") %>% cat()
 	{.}
 
 results_tbl %>% 
 	gt::gt() %>%
 	gt::fmt_percent(
-		columns = 2:6,
+		columns = 2:7,
 		decimals = 1
 	) %>%
 	# extract_body() %T>% cat(., file="tables/misspecification_mspe_percent.tex") %>% cat()

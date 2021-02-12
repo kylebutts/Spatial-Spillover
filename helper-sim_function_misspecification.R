@@ -93,6 +93,11 @@ sim_data_misspecification <- function(
 			spill_within_additive = as.numeric(spill_within_additive),
 			spill_within_additive_treat = (treat == 1) * within %*% treat,
 			spill_within_additive_treat = as.numeric(spill_within_additive_treat),
+			# Within Large Additive
+			spill_within_large_additive = (treat == 0) * within_large %*% treat,
+			spill_within_large_additive = as.numeric(spill_within_large_additive),
+			spill_within_large_additive_treat = (treat == 1) * within_large %*% treat,
+			spill_within_large_additive_treat = as.numeric(spill_within_large_additive_treat),
 			# Decay (Closest) w/ Cutoff Length 
 			spill_decay = (treat == 0) * apply(spatial_decay * kronecker(matrix(1,n(),1), t(treat)), 1, max),
 			spill_decay = as.numeric(spill_decay),
@@ -122,6 +127,13 @@ sim_data_misspecification <- function(
 			spill_40_60 = as.numeric(spill_40_60 == 1 & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
 			spill_60_80 = as.numeric(spill_60_80 == 1 & (spill_40_60 == 0) & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
 			spill_80_100 = as.numeric(spill_80_100 == 1 & (spill_60_80 == 0) & (spill_40_60 == 0) & (spill_30_40 == 0) & (spill_20_30 == 0) & (spill_0_20 == 0)),
+			# Spillover Rings Additive
+			spill_0_20_additive = (treat == 0) * within_0_20 %*% treat,
+			spill_20_30_additive = (treat == 0) * within_20_30 %*% treat,
+			spill_30_40_additive = (treat == 0) * within_30_40 %*% treat,
+			spill_40_60_additive = (treat == 0) * within_40_60 %*% treat,
+			spill_60_80_additive = (treat == 0) * within_60_80 %*% treat,
+			spill_80_100_additive = (treat == 0) * within_80_100 %*% treat
 		)
 	
 	## Spillover Variables Have Same Average Effect ----------------------------
@@ -132,6 +144,7 @@ sim_data_misspecification <- function(
 			spill_within = 1/4 * treat_effect_spill * spill_within / mean(spill_within),
 			spill_within_large = 1/4 * treat_effect_spill * spill_within_large / mean(spill_within_large),
 			spill_within_additive = 1/4 * treat_effect_spill * spill_within_additive / mean(spill_within_additive),
+			spill_within_large_additive = 1/4 * treat_effect_spill * spill_within_large_additive / mean(spill_within_large_additive),
 			spill_decay = 1/4 * treat_effect_spill * spill_decay / mean(spill_decay),
 			spill_decay_additive = 1/4 * treat_effect_spill * spill_decay_additive / mean(spill_decay_additive)
 		)
@@ -150,6 +163,7 @@ sim_data_misspecification <- function(
 			te_spill_within = treat_effect_spill * post * spill_within,
 			te_spill_within_large = treat_effect_spill * post * spill_within_large,
 			te_spill_within_additive = treat_effect_spill * post * spill_within_additive,
+			te_spill_within_large_additive = treat_effect_spill * post * spill_within_large_additive,
 			te_spill_decay = treat_effect_spill * post * spill_decay,
 			te_spill_decay_additive = treat_effect_spill * post * spill_decay_additive,
 			# Spill onto Also Treated
@@ -177,6 +191,7 @@ sim_data_misspecification <- function(
 			y_spill_within = -2 + year_fe + county_fe + te + te_spill_within + epsilon,
 			y_spill_within_large = -2 + year_fe + county_fe + te + te_spill_within_large + epsilon,
 			y_spill_within_additive = -2 + year_fe + county_fe + te + te_spill_within_additive + epsilon,
+			y_spill_within_large_additive = -2 + year_fe + county_fe + te + te_spill_within_large_additive + epsilon,
 			y_spill_decay = -2 + year_fe + county_fe + te + te_spill_decay + epsilon,
 			y_spill_decay_additive = -2 + year_fe + county_fe + te + te_spill_decay_additive + epsilon,
 		)

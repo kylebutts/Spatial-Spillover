@@ -4,13 +4,37 @@
 % Line Spacing -----------------------------------------------------------------
 \renewcommand{\baselinestretch}{1.5}
 
+% AMS --------------------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{graphicx}
+
+% Define Theorems --------------------------------------------------------------
+% note, theorem is the name that goes in \begin{} and Theorem is the name displayed as Theorem 1
+
+\newtheoremstyle{break}% name
+{}%          Space above, empty = `usual value'
+{}%          Space below
+{\itshape}%  Body font
+{}%          Indent amount (empty = no indent, \parindent = para indent)
+{\bfseries\color{navyblue}}% Thm head font
+{.}%         Punctuation after thm head
+{2.5mm}%  Space after thm head
+{}%          Thm head spec
+
+\theoremstyle{break}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{example}{Example}
+
+
 % Font -------------------------------------------------------------------------
 \usepackage{utopia}
 \usepackage[utopia, smallerops, varg]{newtxmath}
-% \usepackage[poorman]{fourier}
 % \usepackage{cabin}
 % \usepackage[libertine]{newtxmath}
-
 
 % Small adjustments to text kerning
 \usepackage{microtype}
@@ -58,29 +82,9 @@
     urlcolor= dark-maroon,
 }
 
-\newcommand{\doiorurl}{%
-  \iffieldundef{doi}
-    {\iffieldundef{url}
-       {}
-       {\strfield{url}}}
-    {http://dx.doi.org/\strfield{doi}}%
-}
-
-\newcommand{\bibdrivercontent}[1]{%
- \ifboolexpr{%
-   test {\ifhyperref}
-   and
-   not test {\iftoggle{bbx:url}}
-   and
-   not test {\iftoggle{bbx:doi}}
-  }
-  {\href{\doiorurl}{#1}}
-  {#1}%
-}
 
 % Citations --------------------------------------------------------------------
 \usepackage[style= authoryear, natbib= true, backend= biber]{biblatex}
-
 
 
 % Enumerate/Itemize ------------------------------------------------------------
@@ -110,6 +114,7 @@
 \DeclareCaptionFont{navyblue}{\color{navyblue}}
 \captionsetup[table]{format=plain, labelsep=threedash, font=bf}
 \captionsetup[figure]{format=plain, labelsep=threedash, font=bf}
+
 % Left align captions
 % \captionsetup[figure]{labelfont={it}, textfont={navyblue,bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
 % \captionsetup[table]{labelfont={it}, textfont={navyblue,bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
@@ -124,6 +129,7 @@
 \let\oldfootnote\footnote
 \renewcommand\footnote[1]{\oldfootnote{\ #1}}
 
+
 % Better Abstract --------------------------------------------------------------
 \renewenvironment{abstract}
 {
@@ -135,10 +141,6 @@
   \end{quote}
 }
 
-% AMS --------------------------------------------------------------------------
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{graphicx}
 
 
 % Tables -----------------------------------------------------------------------
@@ -192,9 +194,5 @@
 }
 
 
-% Define Theorems --------------------------------------------------------------
-% note, theorem is the name that goes in \begin{} and Theorem is the name displayed as Theorem 1
-\newtheorem{theorem}{Theorem}
-\newtheorem{assumption}{Assumption}
 
 % ------------------------------------------------------------------------------

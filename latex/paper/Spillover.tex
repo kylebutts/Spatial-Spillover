@@ -292,16 +292,105 @@ To change the spatial autocorrelation of treatment, I use a variable `Zone Plus'
 \end{equation}
 The second term normalizes probabilities so the unconditional probability stays at five percent. In our simulations, Zone Plus ranges from 0 which is the case where $P(D_i \vert \text{Zone}_i) = P(D_i) = 0.05$ to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.01 + 0.41 * \text{Zone}_i$.
 
-The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias surprisingly decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular DGP, the effect of fewer control units on the bias is larger than the bias from more treated units. 
+The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias surprisingly decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular data-generating process, the effect of fewer control units on the bias is larger than the bias from more treated units. 
 
 The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy. 
 
 
 % ------------------------------------------------------------------------------
-% \subsection{Misspecification of Spillovers}
+\subsection{Misspecification of Spillovers}
 % ------------------------------------------------------------------------------
 
-% @TODO
+Now we turn to simulations where we include potentially incorrectly specified exposure mappings and see their performance in a set of different data generating processes. In the general form, I generate data with the same fixed effects and error term as before, but for many different exposure mappings $h(\vec{D}, i)$ 
+\begin{equation}\label{eq:dgp_general}
+    y_{it} = \mu_t + \mu_i + 2 D_{it} + \beta_{\text{spill, control}} (1-D_{it}) h(\vec{D}, i) + \varepsilon_{it}   
+\end{equation}
+
+In order to keep the magnitude of bias constant across specifications, I normalize the average spillover magnitude to be equal across specifications.\footnote{This results in a constant bias for TWFE estimates across data-generating processes.} For simplicity, I also remove spillovers onto treated units, but the results of which specifications perform best in the simulation are qualitatively the same. For each true data-generating process, I estimate (\ref{eq:dgp_general}) with the correct spillover and misspecified alternatives $\tilde{h}(\vec{D}, i)$. The goal of this exercise is to see which specifications perform well under broad classes of spillovers.
+
+The set of spillover specifications include `Within $x$mi.' which equals 1 if the counties' center of population is within $x$ miles to a treated county's center of population, and `Within $x$mi. (Additive)' is the number of treated county's within $x$ miles of the control county. `Decay' is given by $\max_j D_j e^{-0.02 d(i,j)} * 1(d(i,j) < 80)$ and `Decay (Additive)' is given by Equation (\ref{eq:h_decay}) with $\alpha = 0.02$. 
+
+The last set of spillover specifications is commonly used in the literature as a semi-parametric estimator and are referred to as `Donuts` or `Rings'. These consist of a set of indicators for falling within distance bins from the nearest treated unit (e.g. indicators for being between 0-20, 20-40, and 40-60 miles to closest treated unit). This approach is worth discussing in more detail because it will turn out to be the most consistent approach. These donuts are able to trace out all of the non-additive spillovers so long as the distance bins are numerous enough. For example, the donuts indicators add up to all the `Within xmi.' specifications if there are enough rings. The donuts can also trace out the decaying spillovers with the coefficients on each indicator decreasing in an exponential way. Donuts that go further than the maximum spillover distance will be estimated near zero, so adding too many rings is not a large concern. The last specification is an additive version of `Donuts' which is the number of treated units within each distance bin.
+
+\begin{table}[!tb]
+    \caption{Bias from Misspecification of Spillovers}
+    \label{tab:misspecification}
+
+    \begin{adjustbox}{width = 1.1\textwidth, center}
+        \begin{threeparttable}
+            \begin{tabular}{@{} l rrrrrr @{}}
+                % Head
+                \toprule
+                & \multicolumn{6}{c}{Data-Generating Process} \\
+                \cmidrule{2-7}
+
+                & \multicolumn{1}{c}{\textbf{Within 40mi}} & \multicolumn{1}{c}{\textbf{Within 80mi}} & \multicolumn{1}{c}{\textbf{Within 40mi.}} & \multicolumn{1}{c}{\textbf{Within 80mi.}} & \multicolumn{1}{c}{\textbf{Decay}} & \multicolumn{1}{c}{\textbf{Decay}} \\
+                Specification & & & \multicolumn{1}{c}{\textbf{(Additive)}} & \multicolumn{1}{c}{\textbf{(Additive)}} & & \multicolumn{1}{c}{\textbf{(Additive)}} \\
+
+ 
+                % Body
+                \midrule
+                
+                
+                \input{../../tables/misspecification.tex}
+                
+                \bottomrule
+            \end{tabular}
+            
+            % Notes 
+            \begin{tablenotes}\footnotesize
+                \item \textit{Notes.} Each cell corresponds to the mean bias from 1000 simulations of the data generating process specified by the column header and under the specification given by Equation (\ref{eq:dgp_general}) by the row label. 
+            \end{tablenotes}
+        \end{threeparttable}
+    \end{adjustbox}
+\end{table}
+
+The results of the simulations are produced in Table \ref{tab:misspecification}. For each entry in the table, the column label corresponds to the true exposure mapping used in the data-generating process and the row label corresponds to the exposure mapping, $\tilde{h}(\vec{D}, i)$, used in estimation.  The corresponding cell gives the mean bias from estimating Equation (\ref{eq:dgp_general}) with the $\tilde{h}(\vec{D}, i)$.
+
+The first thing to note is that all specifications remove a large portion of the bias relative to traditional two-way fixed effect estimate and in particular, correctly specifying the data-generating process removes almost all the bias. The second result is that both the `Donuts' and the `Within' specification do the best amongst all the misspecified spillovers in terms of removing bias, so long as they are wide enough to capture all the spillovers. This is due to the fact that indicator variables will correctly identify the average spillovers onto control units if they cover all the affected control units. If researchers are primarily interested in identifying the direct effect, then either `Donuts' or `Within' specifications with a large cutoff distance are preferred as they remove almost all bias in all settings. 
+
+However, we will now turn to seeing how these misspecifications are able to capture the spillovers themselves, and we will see that `Donuts' are superior to `Within' indicators in their ability to trace out spillovers, so they should be the default used by researchers unless there is theoretical motivation to use any specific parametrization for exposure mapping. For the next table, for each control county, I will predict their spillover value from the point estimates on $\tilde{h}(\vec{D}, i)$. Then as a measure for how well spillovers are estimated, I will calculate one minus the mean squared prediction error normalized by the sum of squared spillovers (to make numbers comparable across data-generating processes), \[ 
+    1 - \frac{\sum_{i: D_i = 0} (\beta_{\text{spill, control}} h(\vec{D}, i) - \hat{\beta}_{\text{spill, control}} \tilde{h}(\vec{D}, i))^2}{\sum_{i: D_i = 0} (\beta_{\text{spill, control}} h(\vec{D}, i))^2}.
+\] This will produce a percentage of spillovers that are explained by the specification, so numbers closer to 1 represent better modelling of the spillovers. 
+
+
+\begin{table}[!tb]
+    \caption{Percent of Spillovers Predicted by Specification}
+    \label{tab:misspecification_mspe}
+
+    \begin{adjustbox}{width = 1.1\textwidth, center}
+        \begin{threeparttable}
+            \begin{tabular}{@{} l rrrrrr @{}}
+                % Head
+                \toprule
+                & \multicolumn{6}{c}{Data-Generating Process} \\
+                \cmidrule{2-7}
+
+                & \multicolumn{1}{c}{\textbf{Within 40mi}} & \multicolumn{1}{c}{\textbf{Within 80mi}} & \multicolumn{1}{c}{\textbf{Within 40mi.}} & \multicolumn{1}{c}{\textbf{Within 80mi.}} & \multicolumn{1}{c}{\textbf{Decay}} & \multicolumn{1}{c}{\textbf{Decay}} \\
+                Specification & & & \multicolumn{1}{c}{\textbf{(Additive)}} & \multicolumn{1}{c}{\textbf{(Additive)}} & & \multicolumn{1}{c}{\textbf{(Additive)}} \\
+ 
+                % Body
+                \midrule
+                
+                
+                \input{../../tables/misspecification_mspe_percent.tex}
+                
+                \bottomrule
+            \end{tabular}
+            
+            % Notes 
+            \begin{tablenotes}\footnotesize
+                \item \textit{Notes.} Each cell corresponds to the mean square prediction error of the spillover effect for each control unit normalized by the total variance of spillover effects from 1000 simulations of the data generating process specified by the column header and under the specification given by Equation (\ref{eq:dgp_general}) by the row label. 
+            \end{tablenotes}
+        \end{threeparttable}
+    \end{adjustbox}
+\end{table}
+
+Results are presented in Table \ref{tab:misspecification_mspe}. For each specification, correctly specifying the spillovers produces the best estimates for spillovers as expected. Among misspecified exposure mapping, `Donuts' that are large enough to caputre all the spillovers perform better than all other specifications in all non-additive data-generating processes. When the spillovers are additive, the predicted spillovers from the non-additive donut specifications do not as accurately measure these spillovers as they did before. 
+
+For additive data-generating processes, `Within (Additive)' and `Decay (Additive)' don't do a great job at predicting spillovers for the other data-generating process. On the other hand, the additive version of donuts sucessfully predicts spillovers in both additive data-generating processes.  Therefore, the most important aspect of correctly estimating spillovers is to consider whether they are additive in the number of treated units or not. Researchers should use a version of donuts either way. 
+
+
 
 
 

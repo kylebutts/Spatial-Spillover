@@ -52,8 +52,8 @@ More recently, a new strand of literature exploring estimation of direct and spi
 
 I also contribute to the literature that focuses on estimation of treatment effects with spatial spillovers using the difference-in-differences framework \citep{Clarke_2017,Berg_Streitz_2019,Verbitsky-Savitz_Raudenbush_2012,Delgado_Florax_2015}. I contribute to this literature in two ways. First, my paper derives an explicit form for this bias in terms of general potential outcomes which allows my results to capture many different forms of spillovers. For the above papers, if I assume the particular functional forms for potential outcomes, I arrive at the same bias equation as theirs if they have one derived explicitly. Second, my paper also advances the literature by considering estimation of direct effects and spillover effects in event-study framework which allows for the common occurence of staggered treatment adoption.
 
-The rest of the paper is structured as follows. Section \ref{sec:po_framework} presents the potential outcomes framework, defines the estimand of interest, and shows the resulting bias from estimating a classical difference-in-differences model. Section \ref{sec:monte_carlo} presents Monte Carlo simulations to illlustrate the bias result and to evaluate currently used solutions in the literature. Section \ref{sec:tva} presents an application for evaluating the Tennessee Valley Authority program. Section \ref{sec:event_study} discusses briefly how to incorporate spillovers into event-study estimation following the insights from \citet{Callaway_Sant’Anna_2020}.
-
+The rest of the paper is structured as follows. Section \ref{sec:po_framework} presents the potential outcomes framework, defines the estimand of interest, and shows the resulting bias from estimating a classical difference-in-differences model. Section \ref{sec:estimation} presents Monte Carlo simulations to illlustrate the bias result and to evaluate currently used solutions in the literature. Section \ref{sec:tva} presents an application for evaluating the Tennessee Valley Authority program. Section \ref{sec:event_study} discusses briefly how to incorporate spillovers into event-study estimation following the insights from \citet{Callaway_Sant’Anna_2020}.
+% @TODO Fix this
 
 % ------------------------------------------------------------------------------
 \section{Potential Outcomes Framework}
@@ -80,7 +80,7 @@ Following the canonical difference-in-difference framework, there is a time $t_0
     Last, is the spatial decay function where exposure decreases with distance. In this case, spillover intensity is the sum across all treated observations' decay term, i.e. \begin{equation}\label{eq:h_decay}
         h(\vec{D}, i) = \sum_{j \neq i} D_j e^{-\alpha d(i,j)}.
     \end{equation} 
-    This exposure mapping allows for the intensity of spillovers to depend on distance to treatment and also is additive in the number of nearby units treated.\footnote{However, this specification assumes that all units are affected by all other units. This creates problems with inference because it implies potential correlation between all units' error terms. For this reason, this function often is summed over only the $k$-nearest neighbors or over units within $\bar{d}$ miles.} The speed of spillover decay over distance depends on the parameter $\alpha$ that can be calibrated by the researcher or estimated using non-linear least squares. In the literature on R\&D investment, \citet{Keller_2002} uses a modified version of this exposure mapping where $D_j$ is country $j$'s R\&D expenditure. 
+    This exposure mapping allows for the intensity of spillovers to depend on distance to treatment and also is additive in the number of nearby units treated.\footnote{However, this specification assumes that all units are affected by all other units. This creates problems with inference because it implies potential correlation between all units' error terms. For this reason, this function often is summed over only the $k$-nearest neighbors or over units within $\bar{d}$ miles.} The speed of spillover decay over distance depends on the parameter $\alpha$ that can be calibrated by the researcher or estimated using non-linear least squares. In the literature on R\&D investment, for example, \citet{Keller_2002} uses a modified version of this exposure mapping where $D_j$ is country $j$'s R\&D expenditure. 
 \end{example}
 
 After chosing an exposure mapping that makes sense in the economic context, a researcher must also specify the functional form of the potential outcomes. Typically, the spillover function enters into the regression linearly and potentially the coefficient is allowed to differ by treatment status. 
@@ -136,7 +136,7 @@ This assumption states that in the absence of treatment and with zero exposure (
 
 Given that Assumption \ref{eq:parallel} holds, the estimate $\hat{\tau}$ from (\ref{eq:twfe}) can be decomposed as the direct effect and the two sources of spillover bias. The proof is given in Appendix \ref{sec:proofs}.
 
-\begin{proposition}[Bias from Difference-in-Differences Estimation]\label{thm:bias}\ \\    
+\begin{proposition}[Decomposition of Difference-in-Differences Estimate]\label{thm:bias}\ \\    
     If Assumption \ref{eq:parallel} holds, the expectation of the estimate $\hat{\tau}$ from (\ref{eq:twfe}) is
     \begin{align*}
         \mathbb{E}[\hat{\tau}] &= \underbrace{\mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 1 \right] - \mathbb{E}\left[ Y_{i1} - Y_{i0} \ \vert \ D_i = 0 \right]}_{\text{Difference-in-Differences}} \\ 
@@ -150,7 +150,6 @@ Given that Assumption \ref{eq:parallel} holds, the estimate $\hat{\tau}$ from (\
 The intuition behind the biases are as follows. First, the change in outcomes among treated units combines the direct effect and the spillover from nearby treated units. Therefore the first difference adds the average spillover effect onto the treated units, $\tau_{\text{spill,treated}}$. Second, the change in outcomes among control units combines the parallel counterfactual trend with the average spillover effect onto control units. Since $\hat{\tau}$ is found by subtracting this second difference, we subtract the average spillover effect onto the control, $\tau_{\text{spill,control}}$. 
 
 Readers that are judging estimates in the presence of spillovers can use the following heuristics to sign the bias. If they suspect spillovers onto control units, the bias is the opposite sign of the spillover. If they suspect spillovers onto treated units, the bias is in the same sign of the spillover. The overall bias is the sum of the two.
-
 
 
 % ------------------------------------------------------------------------------
@@ -186,116 +185,40 @@ With a chosen $\Delta$, the partially identified set is given by $[\hat{\tau} + 
 
 
 % ------------------------------------------------------------------------------
-\subsection{Improving Estimation by Parameterizing Spillovers}
+\section{Estimation of Treatment Effects with Spillovers}
+\label{sec:estimation}
 % ------------------------------------------------------------------------------
 
-The previous section shows how to estimate the magnitude of potential bias in the estimation of (\ref{eq:twfe}). However, parameterization of the potential outcomes and exposure mapping allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
+In this section, I analyze methods that have been used by researchers for estimation of the direct and spillover effects. I provide practical guidance on when the methods are effective and in particular propose a method that is most robust.
 
-First, controlling for exposure mapping allows for unbiased estimates of the direct effect of treatment if the potential outcomes are correctly specified. In the case where potential outcomes are `somewhat' incorrectly specified, this can remove some of the bias in estimation. Simulations below highlight that since spillovers are likely to decay over distance, controlling for immediate neighbors removes a large portion of the average spillover effects even under misspecification.
+% ------------------------------------------------------------------------------
+\subsection{Removing Bias by Dropping Control Units}
+% ------------------------------------------------------------------------------
 
-Second, the spillover effects themselves are potentially relevant for policy makers. If treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will double-understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' benefit will be \emph{double undercounted}. Similarly, a policy maker trying to determine the net benefits for a treated location must consider the direct effect and the spillover effect onto treated units. This is because the size of benefits created by the treatment depend on the number of treated units nearby.
+A common approach in the literature is to drop control units neighboring treated units to avoid the problems of spillovers in identification. The above proposition would suggest that this can be effective in removing (at least part of) the average spillover effect on control units. However, since researchers do not know how far the spillovers spread there is difficulty in this method. On the one hand, removal of too few units will keep some control units that are experiencing spillover effects which would leave the treatment effect biased. On the other hand, removing too many units will leave few observations and therefore make the estimate have high variance. There is therefore a bias-variance trade off inherit to this method that can be readily improved by the method proposed in Section \ref{sec:parameterize}.
+
+The second problem with this approach is that removal of control problems will not remove spillovers onto also treated units. Therefore if treated units are affected by the treatment status of nearby units, then the average spillover effect on treated untis which would remain as a source of bias. Appendix \ref{sec:monte_carlo} contains a set of Monte Carlo simulations that highlight the problems more rigorously.
+
+% ------------------------------------------------------------------------------
+\subsection{Parameterization of Spillovers}
+\label{sec:parameterize}
+% ------------------------------------------------------------------------------
+
+While some researchers try to remove untis that are most likely to experience spillover effects in order to estimate the direct effects, another common approach is to directly parameterize the spillovers themselves. Parameterization of the potential outcomes allows for unbiased estimates of $\tau_{\text{direct}}$ by controlling for the exposure mapping directly. This is recommended for two reasons. 
+
+First, controlling for exposure mapping allows for unbiased estimates of the direct effect of treatment if the potential outcomes are correctly specified. However, the functional form of spillovers is not observed by the researcher. I show in simulations below that information on the exact functional form is not required for unbiased estimates of the treatment effect. Therefore, estimation can occur without dropping units which will improve efficiency.
+
+Second, the spillover effects themselves are potentially relevant for policy makers. For example, if treatment for a given area is positive and there are positive benefits to neighboring regions, the estimated benefits will double-understate the true effect of treatment. First, it will not include the neighboring units' benefit in the calculation. Second, since the treatment effect will subtract the neighboring units' benefit, the neighboring units' benefit will be \emph{double undercounted}. Similarly, a policy maker trying to determine the net benefits for a treated location must consider the direct effect and the spillover effect onto treated units. This is because the size of benefits created by the treatment depend on the number of treated units nearby.
 
 There are a few practical considerations researchers should make when parametrizing the spillovers and the answers to the questions will depend ultimately on the economic context being studied. First, researchers should consider whether control units and/or treated units experience effects from the treatment status of other units. For example, in the context of library construction, treated units likely do not experience spillovers while close control units do. In the context of factory openings, both control and treated units likely experience spillovers. 
 
-Second, a researcher must decide how far the spillovers can reasonably be experience and whether the effect decays over distance. Things such as driving distance or access via public transportation can be helpful in deciding which units are `close enough' to experience spillovers. There are two commonly used techniques to model treatment effect decay.\footnote{If the spillovers is due to crossing borders into the treated area, then a reasonable decision about whether the effect decays is the frequency in which people use the good. For example, libraries whose benefit is only experienced from frequent usage would suggest that the effect decays over distance. On the other hand, abortion clinics opening are used infrequently and therefore the effect likely doesn't decay over distance within a certain cutoff.} First, as seen above is to use an exponential decay function with regards to distance. The other option is to use a set of `concentric donut' indicators which are easy to interpret. An example of this is shown in the empirical application in Section \ref{sec:tva}. 
+Second, a researcher must decide how far the spillovers extend and whether the effect decays over distance. Things such as driving distance or access via public transportation can be helpful in deciding which units are `close enough' to experience spillovers. There are two commonly used techniques to model treatment effect decay.\footnote{If the spillovers is due to crossing borders into the treated area, then a reasonable decision about whether the effect decays is the frequency in which people use the good. For example, libraries whose benefit is only experienced from frequent usage would suggest that the effect decays over distance. On the other hand, abortion clinics opening are used infrequently and therefore the effect likely doesn't decay over distance within a certain cutoff.} First, as seen above is to use an exponential decay function with regards to distance. The parameter $\alpha$ in Equation (\ref{eq:h_decay}) determines the rate of decline over distance. 
 
-Last, it is important for estimation to know if the spillovers are additive or non-additive in nature. If the number of nearby treated units matter, then the exposure mapping should sum over nearby treated units in some way. For example, in the context of library construction, the number of neighbors with libraries does not change the size of the spillover for it is access to \textit{any} library that matters. In the context of factory openings, though, agglomeration economies imply that the spillovers are additive in nature.
+The other option is to use a set of `concentric rings' which are a semi-parametric way to estimate spillovers. If the spillovers do decay over distance, then the coefficients on the indicators should decrease as they move out. On the other hand, they are robust in estimating spillovers that do not decay, whereas exponential decay is not. In the simulations below, we will see that the rings are very flexible across forms of spillovers. An example of this is shown in the empirical application in Section \ref{sec:tva}. 
 
+Last, it is important for estimation to know if the spillovers are additive or non-additive in nature. If the number of nearby treated units matter, then the exposure mapping should sum over nearby treated units in some way. For example, in the context of library construction, the number of neighbors with libraries does not change the size of the spillover for it is access to \textit{any} library that matters. In the context of factory openings, though, agglomeration economies imply that the spillovers are additive in nature. The simulations below show that in order to accurately estimate spillovers requires correctly using a additive or non-additive version of the concentric rings. 
 
-
-
-% ------------------------------------------------------------------------------
-\section{Monte Carlo Simulations}
-\label{sec:monte_carlo}
-% ------------------------------------------------------------------------------
-
-% ------------------------------------------------------------------------------
-\subsection{Spillover on Controls Only}
-% ------------------------------------------------------------------------------
-
-I now turn to a series of Monte Carlo Simulations to highlight the importance for controlling for spillovers in simulations. I use the set of counties in the contiguous United States and the data generating process used is defined by the exposure mapping given in (\ref{eq:example_exposure}) with cutoff distance $\bar{d} = 40$ miles and the data generating process given in (\ref{eq:example_po}). A unit of observation is a US county and the periods are $t \in \{1, \dots, 20\}$ with treatment turning on after period $t = 10$. The unit and time fixed effects are generated by $\mu_t \sim N(0.2t, 0.1^2)$ and $\mu_i \sim N(6, 2^2)$ respectively, and the error term is $\varepsilon \sim N(0, 2^2)$. Last, the size of treatment and spillovers are as follows: $\beta_{\text{direct}} = 2$, $\beta_{\text{spill, control}} = 1$ and $\beta_{\text{spill, treat}} = 0$.
-
-For the first simulation, I restrict spillovers only to occur among control units, i.e. $\beta_{\text{spill, treat}} = 0$, and estimate the two-way fixed effects model, (\ref{eq:twfe}). This data generating process where spillovers only occur onto control units matches what has been typically assumed in the literature. I assign treatment among counties randomly with various unconditional probabilities between 3 percent and 50 percent. The data-generating process is therefore 
-\begin{equation}
-    \label{eq:dgp1} 
-    y_{it} = \mu_t + \mu_i + \beta_{\text{direct}} D_{it} + \beta_{\text{spill, control}} (1-D_{it}) \text{Near}_{it} + \varepsilon_{it}   
-\end{equation}
-
-\begin{figure}[tb!]
-    \caption{Bias of $\hat{\tau}$ with Spillovers Effects \emph{only} on Control Units}
-    \label{fig:bias_as_treat_prob}
-    {\centering
-        \includegraphics[width=\textwidth]{../../figures/figure-bias_fix.png}
-    } 
-    {\footnotesize
-        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating (\ref{eq:twfe}) for data generated as described in the text and Equation \ref{eq:dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
-    }
-\end{figure}
-
-The size of the bias from estimating the two-fixed effects model, (\ref{eq:twfe}), at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. Each point represents a set of 10,000 simulation and displays the mean bias as well as a 95 percent empirical confidence interval. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. The slow increase in bias is in part due to the assumption that spillovers are not additive in the number of nearby units treated.
-
-A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. To do this, I remove contiguous control counties which is a close, but misspecificied, measure of $h(\vec{D}, i)$. The results are shown in Figure \ref{fig:bias_as_treat_prob} by the line with circle markers. Even though the exposure mapping is misspecified, contiguous counties approximates the true exposure mapping well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. However, if the distance cutoff $\bar{d}$ were larger, more control units would remain in the sample that experience non-zero exposures. In this case, the bias would fall between the two lines.
-
-There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields a more variable estimator as seen in the wider 95 percent empirical confidence intervals in Figure \ref{fig:bias_as_treat_prob}. This trade-off can be avoided altogether by parameterizing the spillovers and including them in estimation directly.
-
-
-% -----------------------------------------------------------------------------
-\subsection{Spillovers onto Control and Treated Units}
-% ------------------------------------------------------------------------------
-
-For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spill, treat}} = -0.5$. The DGP is as follows 
-\begin{equation}\label{eq:dgp2} 
-    y_{it} = \mu_t + \mu_i + 2 D_{it} + (1-D_{it}) \text{Near}_{it} - 0.5 D_{it} \text{Near}_{it} + \varepsilon_{it}   
-\end{equation} 
-The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
-
-\begin{figure}[tbh!]
-    \caption{Example of Kriging Field}
-    \label{fig:kriging}
-    \begin{center}
-        \resizebox{0.8\textwidth}{!}{
-            \includegraphics{../../figures/figure-krig.png}
-        } 
-    \end{center}
-
-    {\footnotesize
-        \textit{Notes:} This figure plots an example of a kriging simulation using the `gstat' package in R using an exponential variogram. The outlined counties are in the top ten percent of values for this simulation. 
-    }
-\end{figure}
-
-\begin{figure}[tbh!]
-    \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
-    \label{fig:bias_spatial_autocorr}
-    {\centering
-        \resizebox{\textwidth}{!}{
-            \includegraphics{../../figures/figure-bias_fix_spatial_autocorr.png}
-        } 
-    }
-
-    {\footnotesize
-        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating (\ref{eq:twfe}) for data generated as described in the text and Equation \ref{eq:dgp2}. Treatment probability is assigned according to the method described by the text and (\ref{eq:cond_prob}). Each point corresponds to the average bias for the given Zone Plus and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
-    }
-\end{figure}
-
-In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. Kriging generates a Gaussian field for a large grid of points across the entire United States where the spatial autocorrelation of the points is described by a set of parameters. One such field is depicted in Figure \ref{fig:kriging}. For a given field, I find the counties in the top ten percent of values and give these counties a value of $\text{Zone}_i = 1$. Then I assign treatment with a probability that differs based on $\text{Zone}_i$. To avoid changes in bias due to a difference in the number of treated units, the unconditional probability is equal to 5 percent in all simulations. To increase the spatial autocorrelation of treatment, I increase the probability of treatment for units with $\text{Zone}_i = 1$ and hence lower the probability for units with $\text{Zone}_i = 0$. \footnote{
-    To change the spatial autocorrelation of treatment, I use a variable `Zone Plus' to adjust the relative probability of receiving treatment: 
-    \begin{equation}
-        \label{eq:cond_prob}
-        P(D_i \ \vert \ \text{Zone}_i) = (.05 + \text{Zone Plus} * \text{Zone}_i) \times \underbrace{\frac{.05}{.05 * .9 + (.05 + \text{Zone Plus}) * .1}}_{\text{Normalize } P(D_i) = 0.05}
-    \end{equation}
-    The second term normalizes probabilities so the unconditional probability stays at five percent. In our simulations, Zone Plus ranges from 0 which is the case where $P(D_i \vert \text{Zone}_i) = P(D_i) = 0.05$ to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.01 + 0.41 * \text{Zone}_i$.
-}
-
-The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias surprisingly decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular data-generating process, the effect of fewer control units on the bias is larger than the bias from more treated units. 
-
-The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy. 
-
-
-% ------------------------------------------------------------------------------
-\subsection{Misspecification of Spillovers}
-% ------------------------------------------------------------------------------
-
-Now we turn to simulations where we include potentially incorrectly specified exposure mappings and see their performance in a set of different data generating processes. In the general form, I generate data with the same fixed effects and error term as before, but for many different exposure mappings $h(\vec{D}, i)$ 
+To highlight the importance of these considerations, we turn to simulations where we include potentially incorrectly specified exposure mappings and see their performance in a set of different data generating processes. In the general form, I generate data with the same fixed effects and error term as before, but for many different exposure mappings $h(\vec{D}, i)$ 
 \begin{equation}\label{eq:dgp_general}
     y_{it} = \mu_t + \mu_i + 2 D_{it} + \beta_{\text{spill, control}} (1-D_{it}) h(\vec{D}, i) + \varepsilon_{it}   
 \end{equation}
@@ -519,7 +442,7 @@ $$ where the second term in potential outcomes represents an exposure mapping of
 \subsection{Estimating Direct Effects}
 % ------------------------------------------------------------------------------
 
-The group-time average direct effect is the building block of analysis in the framework proposed by C\&S. Estimation of the group-time average direct treatment effect, $ATT_{\text{direct}}(g,t)$ depends on which parallel trends assumption a researcher use. If a researcher is using Assumption \ref{eq:parallel_es_never}, then estimation will be done using a supsample containing only control units and units in group $g$. The difference-in-difference estimate uses period $t$ outcomes as the post-period and some period $g - \delta$ as the pre-period where $\delta$ is the number of periods before initial treatment. In the context of spillovers, the canoncial difference-in-differences estimation will have to be adjusted using a parameterized exposure mapping to prevent the bias detailed in the $2 \times 2$ setting. As shown in Section \ref{sec:monte_carlo}, this can be done using a set of donut indicators that is wide enough to capture all of the spillovers. 
+The group-time average direct effect is the building block of analysis in the framework proposed by C\&S. Estimation of the group-time average direct treatment effect, $ATT_{\text{direct}}(g,t)$ depends on which parallel trends assumption a researcher use. If a researcher is using Assumption \ref{eq:parallel_es_never}, then estimation will be done using a supsample containing only control units and units in group $g$. The difference-in-difference estimate uses period $t$ outcomes as the post-period and some period $g - \delta$ as the pre-period where $\delta$ is the number of periods before initial treatment. In the context of spillovers, the canoncial difference-in-differences estimation will have to be adjusted using a parameterized exposure mapping to prevent the bias detailed in the $2 \times 2$ setting. As shown in Section \ref{sec:estimation}, this can be done using a set of donut indicators that is wide enough to capture all of the spillovers. 
 
 If a researcher is using Assumption \ref{eq:parallel_es_notyet}, then estimation will be done with a subsample containing treated units from group $g$ and all units that are in groups $g' > t$. Again, estimation of the group-time direct effect will have to include controls for spillovers.
 
@@ -608,6 +531,82 @@ Finally, I show how researchers can include spillovers in settings with variatio
 
 
 
+% ------------------------------------------------------------------------------
+\section{Details on Monte Carlo Simulations}
+\label{sec:monte_carlo}
+% ------------------------------------------------------------------------------
+
+I use the set of counties in the contiguous United States and the data generating process used is defined by the exposure mapping given in (\ref{eq:example_exposure}) with cutoff distance $\bar{d} = 40$ miles and the data generating process given in (\ref{eq:example_po}). A unit of observation is a US county and the periods are $t \in \{1, \dots, 20\}$ with treatment turning on after period $t = 10$. The unit and time fixed effects are generated by $\mu_t \sim N(0.2t, 0.1^2)$ and $\mu_i \sim N(6, 2^2)$ respectively, and the error term is $\varepsilon \sim N(0, 2^2)$. Last, the size of treatment and spillovers are as follows: $\beta_{\text{direct}} = 2$, $\beta_{\text{spill, control}} = 1$ and $\beta_{\text{spill, treat}} = 0$.
+
+This data generating process where spillovers only occur onto control units matches what has been typically assumed in the literature. I assign treatment among counties randomly with various unconditional probabilities between 3 percent and 50 percent. The data-generating process is therefore 
+\begin{equation}
+    \label{eq:dgp1} 
+    y_{it} = \mu_t + \mu_i + \beta_{\text{direct}} D_{it} + \beta_{\text{spill, control}} (1-D_{it}) \text{Near}_{it} + \varepsilon_{it}   
+\end{equation}
+
+\begin{figure}[tb!]
+    \caption{Bias of $\hat{\tau}$ with Spillovers Effects \emph{only} on Control Units}
+    \label{fig:bias_as_treat_prob}
+    {\centering
+        \includegraphics[width=\textwidth]{../../figures/figure-bias_fix.png}
+    } 
+    {\footnotesize
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating (\ref{eq:twfe}) for data generated as described in the text and Equation \ref{eq:dgp1}. Each point corresponds to the average bias for the given treatment probability and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
+    }
+\end{figure}
+
+The size of the bias from estimating the two-fixed effects model, (\ref{eq:twfe}), at different treatment probabilities are presented in Figure \ref{fig:bias_as_treat_prob} as the line with diamond markers. Each point represents a set of 10,000 simulation and displays the mean bias as well as a 95 percent empirical confidence interval. As displayed in the figure, even for a low treatment probability of three percent, the bias is quite large with a 95 percent empirical confidence interval between -0.28 and -0.75. As treatment frequency increases, the bias increases as well but at a slower rate due to fewer additional control units receiving spillover units. The slow increase in bias is in part due to the assumption that spillovers are not additive in the number of nearby units treated.
+
+A common solution in the literature is to remove control units from the estimated sample that are most likely to be affected by spillovers. To do this, I remove contiguous control counties which is a close, but misspecificied, measure of $h(\vec{D}, i)$. The results are shown in Figure \ref{fig:bias_as_treat_prob} by the line with circle markers. Even though the exposure mapping is misspecified, contiguous counties approximates the true exposure mapping well enough such that the bias stays centered constantly around zero as most control units experiencing spillovers are removed. However, if the distance cutoff $\bar{d}$ were larger, more control units would remain in the sample that experience non-zero exposures. In this case, the bias would fall between the two lines.
+
+There is a trade-off between the bias and the variance of the estimator when using this methodolgy. As the treatment probability increases, the number of control units removed increases as well. This naturally yields a more variable estimator as seen in the wider 95 percent empirical confidence intervals in Figure \ref{fig:bias_as_treat_prob}. This trade-off can be avoided altogether by parameterizing the spillovers and including them in estimation directly.
+
+For the following simulation, I will add in spillovers onto also treated units with $\beta_{\text{spill, treat}} = -0.5$. The DGP is as follows 
+\begin{equation}\label{eq:dgp2} 
+    y_{it} = \mu_t + \mu_i + 2 D_{it} + (1-D_{it}) \text{Near}_{it} - 0.5 D_{it} \text{Near}_{it} + \varepsilon_{it}   
+\end{equation} 
+The proportion of treated units affected by the spillover depends on the spatial autocorrelation of the treatment assignment. In empirical applications, it is often the case that treatment assignment is concentrated in specific areas which yields higher proportion of treated units receiving spillover effects.
+
+\begin{figure}[tbh!]
+    \caption{Example of Kriging Field}
+    \label{fig:kriging}
+    \begin{center}
+        \resizebox{0.8\textwidth}{!}{
+            \includegraphics{../../figures/figure-krig.png}
+        } 
+    \end{center}
+
+    {\footnotesize
+        \textit{Notes:} This figure plots an example of a kriging simulation using the `gstat' package in R using an exponential variogram. The outlined counties are in the top ten percent of values for this simulation. 
+    }
+\end{figure}
+
+\begin{figure}[tbh!]
+    \caption{Bias of $\hat{\tau}$ at Different Levels of Spatial Autocorrelation}
+    \label{fig:bias_spatial_autocorr}
+    {\centering
+        \resizebox{\textwidth}{!}{
+            \includegraphics{../../figures/figure-bias_fix_spatial_autocorr.png}
+        } 
+    }
+
+    {\footnotesize
+        \textit{Notes:} This figure plots the bias of $\hat{\tau}$ found from estimating (\ref{eq:twfe}) for data generated as described in the text and Equation \ref{eq:dgp2}. Treatment probability is assigned according to the method described by the text and (\ref{eq:cond_prob}). Each point corresponds to the average bias for the given Zone Plus and the band is the 95 percent empirical confidence interval over 1000 simulations. The line with diamond markers estimates with all control units. The line with circle markers removes control units that share a border with a treated county. 
+    }
+\end{figure}
+
+In order to model spatial autocorrelation of treatment, I turn to a method from geosciences called `kriging'. Kriging generates a Gaussian field for a large grid of points across the entire United States where the spatial autocorrelation of the points is described by a set of parameters. One such field is depicted in Figure \ref{fig:kriging}. For a given field, I find the counties in the top ten percent of values and give these counties a value of $\text{Zone}_i = 1$. Then I assign treatment with a probability that differs based on $\text{Zone}_i$. To avoid changes in bias due to a difference in the number of treated units, the unconditional probability is equal to 5 percent in all simulations. To increase the spatial autocorrelation of treatment, I increase the probability of treatment for units with $\text{Zone}_i = 1$ and hence lower the probability for units with $\text{Zone}_i = 0$. \footnote{
+    To change the spatial autocorrelation of treatment, I use a variable `Zone Plus' to adjust the relative probability of receiving treatment: 
+    \begin{equation}
+        \label{eq:cond_prob}
+        P(D_i \ \vert \ \text{Zone}_i) = (.05 + \text{Zone Plus} * \text{Zone}_i) \times \underbrace{\frac{.05}{.05 * .9 + (.05 + \text{Zone Plus}) * .1}}_{\text{Normalize } P(D_i) = 0.05}
+    \end{equation}
+    The second term normalizes probabilities so the unconditional probability stays at five percent. In our simulations, Zone Plus ranges from 0 which is the case where $P(D_i \vert \text{Zone}_i) = P(D_i) = 0.05$ to 2 which has $P(D_i \ \vert \ \text{Zone}_i) = 0.01 + 0.41 * \text{Zone}_i$.
+}
+
+The results for the bias of $\hat{\tau}$ are in Figure \ref{fig:bias_spatial_autocorr}. The line with diamond markers is run on the full sample. As the level of spatial autocorrelation increases, the bias surprisingly decreases. The reason for this is that as treatment becomes more concentrated in the `Zones', the number of control units receiving spillovers decreases while the number of treated units receiving spillovers increases. In this particular data-generating process, the effect of fewer control units on the bias is larger than the bias from more treated units. 
+
+The line with circle markers in Figure \ref{fig:bias_spatial_autocorr} repeats the exercise of dropping control units that share a border with treated units. In the case where spillovers occur on treated units, all bias is not removed when dropping control units. That is because we only remove $\tau_{\text{spill,control}}$ but $\tau_{\text{spill,treated}}$ remains. To remove the second source of bias, it is necessary to acount directly for spillovers in the estimation strategy. 
 
 
 

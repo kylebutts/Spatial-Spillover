@@ -70,7 +70,7 @@ df <- sim_data_misspecification(drop_geometry=FALSE) %>%
 y <- "spill_decay"
 x <- "spill_within_large"
 
-# Donuts 80
+# Rings 80
 formula <- as.formula(glue("y_{y} ~ treat_ind + post:spill_0_20 + spill_20_30:post + spill_30_40:post ", 
 						   "+ spill_40_60:post + spill_60_80:post | state_county + year"))
 
@@ -142,9 +142,9 @@ doParallel::registerDoParallel(10)
 dgp_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
+	"Decay" = "spill_decay", 
 	"Within 40mi. (Additive)" = "spill_within_additive", 
 	"Within 80mi. (Additive)" = "spill_within_large_additive", 
-	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive"
 )
 
@@ -152,14 +152,13 @@ estimation_types <- c(
 	"TWFE (No Spillovers)" = "twfe",
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
-	"Within 100mi." = "spill_within_100",
 	"Within 40mi. (Additive)" = "spill_within_additive", 
 	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive",
-	"Donuts (0-20, 20-30, 30-40)" = "donuts_small",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
+	"Rings (0-20, 20-30, 30-40)" = "donuts_small",
+	"Rings (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
+	"Rings (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
 results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
@@ -241,9 +240,9 @@ doParallel::registerDoParallel(10)
 dgp_types <- c(
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
+	"Decay" = "spill_decay", 
 	"Within 40mi. (Additive)" = "spill_within_additive", 
 	"Within 80mi. (Additive)" = "spill_within_large_additive", 
-	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive"
 )
 
@@ -251,14 +250,13 @@ estimation_types <- c(
 	"TWFE (No Spillovers)" = "twfe",
 	"Within 40mi." = "spill_within", 
 	"Within 80mi." = "spill_within_large", 
-	"Within 100mi." = "spill_within_100",
 	"Within 40mi. (Additive)" = "spill_within_additive", 
 	"Within 80mi. (Additive)" = "spill_within_large_additive", 
 	"Decay" = "spill_decay", 
 	"Decay (Additive)" = "spill_decay_additive",
-	"Donuts (0-20, 20-30, 30-40)" = "donuts_small",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
-	"Donuts (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
+	"Rings (0-20, 20-30, 30-40)" = "donuts_small",
+	"Rings (0-20, 20-30, 30-40, 40-60, 60-80)" = "donuts",
+	"Rings (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
 

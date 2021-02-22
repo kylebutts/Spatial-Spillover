@@ -18,6 +18,7 @@
 #' @param spatial_autocorr Should there be spatial autocorrelation of treament
 #' @param zone_plus Value >= 0 and tells you how much to favor counties with values in the top 10% of the generated field
 #' @param remove_spill Should control units with spillover effects be removed
+#' @param normalize Should the treatment effects be normalized across specifications
 #' 
 #' @return a tibble of estimates of treatment effect under different scenarios. This will be used with dplyr::add_row
 #'
@@ -31,7 +32,8 @@ sim_data_misspecification <- function(
 	spill_type = "contig",
 	spatial_autocorr = FALSE,
 	zone_plus = 0.4,
-	drop_geometry = TRUE
+	drop_geometry = TRUE,
+	normalize = TRUE
 ){
 	## Create Treatment and Spillover Variables --------------------------------
 	
@@ -138,6 +140,8 @@ sim_data_misspecification <- function(
 	
 	## Spillover Variables Have Same Average Effect ----------------------------
 	
+	if(normalize) {
+		
 	counties_treat <- counties_treat %>% 
 		mutate(
 			spill_contig = 1/4 * treat_effect_spill * spill_contig / mean(spill_contig),
@@ -148,6 +152,7 @@ sim_data_misspecification <- function(
 			spill_decay = 1/4 * treat_effect_spill * spill_decay / mean(spill_decay),
 			spill_decay_additive = 1/4 * treat_effect_spill * spill_decay_additive / mean(spill_decay_additive)
 		)
+	}
 	
 	
 	## Create Panel Data -------------------------------------------------------

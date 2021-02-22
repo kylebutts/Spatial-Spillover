@@ -63,7 +63,8 @@ treatment_effect_simulation <- function(
 	spill_type = "contig",
 	spatial_autocorr = FALSE,
 	zone_plus = 0.4,
-	drop_geometry = TRUE
+	drop_geometry = TRUE,
+	spill_on_treat = FALSE
 ) {
 	# Display what the function is doing
 	usethis::ui_todo("Running simulation with parameters: (n_trials= {n_trials}, treat_prob= {treat_prob}).")
@@ -84,23 +85,40 @@ treatment_effect_simulation <- function(
 			drop_geometry = drop_geometry
 		)
 		
-		te_hat <- feols(y_spill ~ treat_ind | state_county + year, data= df) %>%
-			coefficients() %>% .[["treat_ind"]]
-		
-		te_hat_drop_control <- feols(y_spill ~ treat_ind | state_county + year, 
-										   data= df %>% filter(spill_ind != 1)) %>% 
-			coefficients() %>% .[["treat_ind"]]
-		
-		te_hat_control_spill <- feols(y_spill ~ treat_ind + spill_ind | state_county + year, 
-									  data= df) %>%
-			coefficients() %>% .[["treat_ind"]]
-		
-		te_hat_all_spill <- feols(y_spill ~ treat_ind + spill_ind + spill_ind_treat | state_county + year, 
-								  data= df) %>%
-			coefficients() %>% .[["treat_ind"]]
+		if(spill_on_treat) {
+			te_hat <- feols(y_spill_treat ~ treat_ind | state_county + year, data= df) %>%
+				coefficients() %>% .[["treat_ind"]]
+			
+			te_hat_drop_control <- feols(y_spill_treat ~ treat_ind | state_county + year, 
+										 data= df %>% filter(spill_ind != 1)) %>% 
+				coefficients() %>% .[["treat_ind"]]
+			
+			# te_hat_control_spill <- feols(y_spill_treat ~ treat_ind + spill_ind | state_county + year, 
+			# 							  data= df) %>%
+			# 	coefficients() %>% .[["treat_ind"]]
+			# 
+			# te_hat_all_spill <- feols(y_spill_treat ~ treat_ind + spill_ind + spill_ind_treat | state_county + year, 
+			# 						  data= df) %>%
+			# 	coefficients() %>% .[["treat_ind"]]
+		} else {
+			te_hat <- feols(y_spill ~ treat_ind | state_county + year, data= df) %>%
+				coefficients() %>% .[["treat_ind"]]
+			
+			te_hat_drop_control <- feols(y_spill ~ treat_ind | state_county + year, 
+										 data= df %>% filter(spill_ind != 1)) %>% 
+				coefficients() %>% .[["treat_ind"]]
+			
+			# te_hat_control_spill <- feols(y_spill ~ treat_ind + spill_ind | state_county + year, 
+			# 							  data= df) %>%
+			# 	coefficients() %>% .[["treat_ind"]]
+			# 
+			# te_hat_all_spill <- feols(y_spill ~ treat_ind + spill_ind + spill_ind_treat | state_county + year, 
+			# 						  data= df) %>%
+			# 	coefficients() %>% .[["treat_ind"]]
+		}
 		
 		return(
-			tibble(te_hat = te_hat, te_hat_drop_control = te_hat_drop_control, te_hat_control_spill = te_hat_control_spill, te_hat_all_spill = te_hat_all_spill)
+			tibble(te_hat = te_hat, te_hat_drop_control = te_hat_drop_control) #, te_hat_control_spill = te_hat_control_spill, te_hat_all_spill = te_hat_all_spill)
 		)
 		
 	}
@@ -155,7 +173,7 @@ sim_results <- sims %>%
 	unnest(cols = c(ret))
 
 # Export Simulations
-# if(export) save(sim_results, file = "data/sim-bias_as_treat_increase.RData")
+if(export) save(sim_results, file = "data/sim-bias_as_treat_increase.RData")
 
 
 ## Plot of Bias as a function of Treatment Probability -------------------------
@@ -285,3 +303,150 @@ if(export & slides) ggsave("figures/figure-bias_fix_slides.png", plot= bias_fix_
 
 if(export & !slides) ggsave("figures/figure-bias_fix.png", plot= bias_fix_plot, 
 		dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Treated Spillovers as well --------------------------------------------------
+
+
+sims <- tribble(
+	~n_trials, ~cl, ~treat_prob, ~treat_spillover_distance, ~treat_effect, ~treat_effect_spill, ~treat_effect_spill_treat, ~spill_type, ~spatial_autocorr, ~zone_plus, ~drop_geometry, ~spill_on_treat,
+	100, 14,  0.03, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.06, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.09, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.12, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.15, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.18, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.21, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.24, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.27, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.30, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.33, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.36, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.39, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.42, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.45, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	#100, 14,  0.48, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+	100, 14,  0.50, 40, 2, 1, 0.5, "within", FALSE, 0, TRUE, TRUE, 
+)
+
+
+sim_results <- sims %>%
+	rowwise() %>%
+	mutate(
+		ret= list(treatment_effect_simulation(
+			# Simulation Parameters
+			n_trials= n_trials, cl = cl, 
+			# sim_data parameters
+			treat_prob= treat_prob, 
+			treat_spillover_distance= treat_spillover_distance,
+			treat_effect= treat_effect,
+			treat_effect_spill= treat_effect_spill,
+			treat_effect_spill_treat= treat_effect_spill_treat,
+			spill_type = spill_type, 
+			spatial_autocorr = spatial_autocorr, zone_plus = zone_plus, 
+			drop_geometry = drop_geometry,
+			spill_on_treat = spill_on_treat
+		))
+	) %>% 
+	unnest(cols = c(ret))
+
+
+
+# Export Simulations
+if(export) save(sim_results, file = "data/sim-bias_as_treat_increase_spill_treat.RData")
+
+
+
+
+## Plot Bias with and without removing spillover -------------------------------
+
+bias_by_method <- sim_results %>% 
+	rename(te_hat_keep_control = te_hat) %>% 
+	pivot_longer(
+		cols = starts_with("te_hat_"),
+		names_to = "method",
+		values_to = "te"
+	) %>% 
+	mutate(
+		method = case_when(
+			method == "te_hat_keep_control" ~ "Keep Contiguous Controls",
+			method == "te_hat_drop_control" ~ "Drop Contiguous Controls",
+			TRUE ~ "other"
+		)
+	) %>% 
+	filter(method != "other") %>%
+	group_by(treat_prob, method) %>% 
+	summarize(
+		bias = mean(te - treat_effect),
+		se = sd(te), 
+		bias_lower = quantile(te - treat_effect, 0.025),
+		bias_upper = quantile(te - treat_effect, 0.975)
+	) %>% 
+	ungroup()
+
+bias_fix_plot <- ggplot(bias_by_method, aes(x = treat_prob, y = bias)) +
+	geom_line(aes(color = method)) +
+	geom_point(aes(color = method, shape = method), size = 2) + 
+	geom_ribbon(aes(ymin = bias_lower, ymax = bias_upper, fill = method), color = "white", alpha = 0.2) + 
+	xlim(0, 0.5) + 
+	labs(
+		x = "Treatment Probability", 
+		y = "Bias of Tau hat",
+		color = "Estimation Strategy", fill = "Estimation Strategy", shape = "Estimation Strategy"
+		# caption = "spillovers: contiguous, tau = 2, tau_spill,control = 1, tau_spill,treat = 0.5"
+	) +
+	scale_shape_manual(values = c(16, 18)) + 
+	scale_fill_manual(values = c("#5E81AC", "#B48EAD")) +
+	scale_color_manual(values = c("#5E81AC", "#B48EAD")) +
+	# Put Legend on Bottom
+	guides(col = guide_legend(title.position = "top", label.position = "bottom", nrow = 1))
+
+
+if(slides) {
+	bias_fix_plot <- bias_fix_plot + 
+		labs(	
+			title = "With spillovers on treated, removing controls leave bias", 
+			subtitle = "Monte Carlo simulations with 100 trials per simulation"
+		) + 
+		theme_kyle(slides = TRUE, title_pos = "left", has_subtitle = TRUE) + 
+		theme(
+			plot.title = ggplot2::element_text(size = 14),
+			legend.position = "bottom",
+			legend.spacing.x = unit(5, "points")
+		)
+} else {
+	bias_fix_plot <- bias_fix_plot +
+		theme_kyle() +
+		theme(
+			plot.title = ggplot2::element_text(size = 14),
+			legend.position = "bottom",
+			legend.spacing.x = unit(5, "points")
+		)
+}
+
+bias_fix_plot
+
+
+
+if(export & slides) ggsave("figures/figure-bias_fix_treat_slides.png", plot= bias_fix_plot, 
+						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+
+
+if(export & !slides) ggsave("figures/figure-bias_fix_treat.png", plot= bias_fix_plot, 
+							dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")
+
+

@@ -84,7 +84,7 @@
 
 
 % Citations --------------------------------------------------------------------
-\usepackage[style= authoryear, natbib= true, backend= biber]{biblatex}
+\usepackage[style= authoryear, natbib= true, backend= bibtex]{biblatex}
 
 
 % Enumerate/Itemize ------------------------------------------------------------
@@ -105,10 +105,16 @@
   {\thesubsection.}
   {1em}
   {#1}
-
+    
+\titleformat{\subsubsection}
+  {\fontsize{10}{9}\it}
+  {\thesubsubsection.}
+  {1em}
+  {#1}
 
 % Table and Figure labelling ---------------------------------------------------
 \usepackage{caption}
+\usepackage{subcaption}
 
 \DeclareCaptionLabelSeparator{threedash}{\,---\,}
 \DeclareCaptionFont{navyblue}{\color{navyblue}}

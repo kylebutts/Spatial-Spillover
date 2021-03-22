@@ -50,19 +50,22 @@
 % ------------------------------------------------------------------------------
 
 \begin{frame}{Spatial Spillovers}
-    Researchers aim to estimate the average treatment effect on the treated: 
+    Researchers aim to estimate the \textbf{average treatment effect on the treated}: 
     \[
         \tau \equiv \mathbb{E} \left[ Y_{i1}(1) - Y_{i1}(0) \ \vert \ D_{i} = 1 \right]
     \]
     
+    Estimation is complicated by \textbf{Spillover Effects}
+    
     \vspace{5mm}
-    Spillover effects are when effect of treatment extend over boundaries such as states, counties, etc.
+    \textbf{Spillover effects} are when effect of treatment extend over the treatment boundaries (states, counties, etc.)
     
     \begin{itemize}
-        \item e.g. large employer opening/closing in a county have positive employment effects on nearby counties
+        \item E.g. a large employer opening/closing in a \textbf{treated} county have positive employment effects on \textit{nearby counties}
+        
+        \item Having nearby counties with factories raises wages and reduces effect of \textbf{treated} counties
     \end{itemize}
 \end{frame}
-
 
 \begin{frame}{Bias from Spatial Spillovers}
     
@@ -109,154 +112,90 @@
 \end{frame}
 
 
+\begin{frame}{Econometric Contribution}
+
+    I formalize spillovers into a potential outcomes framework:
+ 
+    \begin{citecolor}
+        [\citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}]
+    \end{citecolor}
+
+    \begin{itemize}
+        \vspace{2.5mm}
+        \item I decompose the difference-in-differences estimator into three parts: Direct Effect of Treatment, Spillover onto Treated Units, Spillover onto Control Units
+        
+        \vspace{2.5mm}
+        \item Show that an indicator for being close to treated units remove \textit{all bias} so long as the indicator contains all units affected by spillovers
+        
+        \vspace{2.5mm}
+        \item `Rings' are able to estimate spillover effects non-parametrically while still removing all bias
+    \end{itemize} 
+
+\end{frame}
+
 
 % Grey out overlays
 \setbeamercovered{transparent}
 
-
-\begin{frame}{Contribution}
-
-    {\footnotesize
-    
-    \underline{Difference-in-Differences Estimation with Spillovers} 
-    
-    \begin{citecolor}
-        [\citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}]
-    \end{citecolor}
-    
-    \begin{itemize}
-        \item I generalize the work by deriving the bias in terms of potential outcomes and show how to estimate treatment effects by removing spillover effects
-    \end{itemize}
-
-
-    \pause
-    \underline{Potential Outcome Framework for Spillovers}
-    
-    \begin{citecolor}
-        [\citet{Miguel_Kremer_2004}, \citet{Vazquez-Bare_2019}, \citet{Angelucci_DiMaro_2016}, \citet{Angrist_2014}]        
-    \end{citecolor}
-
-    \begin{itemize}
-        \item I focus on a spatial setting whereas these papers consider spillovers in network clusters
-    \end{itemize}
-
-
-    \pause
-    \underline{Place-based Policies}
-
-    \begin{citecolor}
-        [\citet{Kline_Moretti_2014b}, \citet{Kline_Moretti_2014a}, \citet{Busso_Gregory_Kline_2013}, and \citet{Neumark_Kolko_2010}]
-    \end{citecolor}
-
-    \begin{itemize}
-        \item I highlight the need to control for general equilibrium effects to properly estimate local effects of policies
-    \end{itemize}
-    }
-\end{frame}
 
 
 % ------------------------------------------------------------------------------
 \section{Theory}
 % ------------------------------------------------------------------------------
 
-
 \begin{frame}{Potential Outcomes Framework}
-    For exposition, I will label units as counties. Assume all treatment occurs at the same time (2-periods or pre-post averages).\footnote{I extend this into an event study framework in the paper, but the intuition is the same as in the $2 \times 2$ setting.}
     
-    \begin{itemize}
-        \item $Y_{it}(D_i, \textcolor{blue}{h(\vec{D}, i)})$ is the potential outcome of county $i \in \{ 1, \dots, N \}$ at time $t$ with treatment status $D_i \in \{0, 1\}$.
-        
-        \pause
-        \item $\vec{D} \in \{0,1\}^N$ is the vector of all units treatments.
-        
-        \pause
-        \item The function $\textcolor{blue}{h(\vec{D}, i)}$ maps the entire treatment vector into an `exposure mapping' which can be a scalar or a vector.
-        
-        \pause
-        \item No exposure is when $\textcolor{blue}{h(\vec{D}, i)} = \vec{0}$.
-    \end{itemize}
+    $Y_{it}(D_i, \textcolor{blue}{h(\vec{D}, i)})$ is the potential outcome of county $i \in \{ 1, \dots, N \}$ at time $t$ with treatment status $D_i \in \{0, 1\}$.
+
+    The function $\textcolor{blue}{h(\vec{D}, i)}$ maps the entire treatment vector into an `exposure mapping'
 \end{frame}
 
-% Grey out
-% \setbeamercovered{transparent}
-
 \begin{frame}{Examples of $h_i(\vec{D})$}
-    
-    Examples of $h_i(\vec{D})$:
-    
-    \begin{itemize}
-        \item \textbf{Treatment within $x$ miles:}
+    \textbf{Treatment within $x$ miles:}
         
-        $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
+    $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
 
-        \begin{itemize}
-            \item e.g. library access where $x$ is the maximum distance people will travel
-            
-            \item Spillovers are non-additive
-        \end{itemize}
-
+    \begin{itemize}
+        \item e.g. library access where $x$ is the maximum distance people will travel
+        
+        \item Spillovers are non-additive
     \end{itemize}
 \end{frame}
 
 \imageframe{../../figures/figure-spill_within_large.png}
 
 \begin{frame}{Examples of $h_i(\vec{D})$}
-    
-    Examples of $h_i(\vec{D})$:
-    
+
+    \textbf{Treatment within $x$ miles:}
+        
+    $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
+
     \begin{itemize}
-        \item \textbf{Treatment within $x$ miles:}
+        \item e.g. library access where $x$ is the maximum distance people will travel
         
-        $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
-
-        \begin{itemize}
-            \item e.g. library access where $x$ is the maximum distance people will travel
-            
-            \item Spillovers are non-additive
-        \end{itemize}
-        
-        \vspace{2.5mm}
-        \item \textbf{Number of Treated within $x$ miles:}
-        
-        $\textcolor{blue}{h(\vec{D}, i)} = \sum_{j = 1}^k 1(d(i, j) \leq x)$. 
-
-        \begin{itemize}
-            \item e.g. large factories opening
-            
-            \item Agglomeration economies suggest spillovers are additive
-        \end{itemize}
-
+        \item Spillovers are non-additive
     \end{itemize}
+    
+    \vspace{2.5mm}
+    \textbf{Number of Treated within $x$ miles:}
+    
+    $\textcolor{blue}{h(\vec{D}, i)} = \sum_{j = 1}^k 1(d(i, j) \leq x)$. 
+
+    \begin{itemize}
+        \item e.g. large factories opening
+        
+        \item Agglomeration economies suggest spillovers are additive
+    \end{itemize}
+
+
 \end{frame}
 
 
 \imageframe{../../figures/figure-spill_within_large_additive.png}
 
 
-\begin{frame}{Estimand of Interest}
-    Estimand of Interest: \[ 
-        \textcolor{green}{\tau_{\text{direct}}} \equiv \textcolor{green}{\mathbb{E}\left[ Y_{i,1}(1, 0) - Y_{i,1}(0, 0) \mid D_i = 1\right]}
-    \]
-
-    \vspace{10mm}
-    This is the direct effect in the absense of exposure to spillovers.
-\end{frame}
-
-
-\begin{frame}{Parallel Trends}
-    I assume a modified version of the parallel counterfactual trends assumption: 
-    \begin{align*}
-        &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 1 \big] \\
-        = \ &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 0 \big],
-    \end{align*}
-
-    \vspace{5mm}
-    In the complete absence of treatment (not just the absence of individual $i$'s treatment), the change in potential outcomes from period 0 to 1 would not depend on treatment status
-    
-\end{frame}
-
 \begin{frame}{What does Diff-in-Diff identify?}
-    With the parallel trends assumption and random assignment of $D_i$, I decompose the diff-in-diff estimate as follows: 
+    With the parallel trends assumption and a random sample, I decompose the difference-in-differences estimate as follows: 
         
     \begin{align*}
         \mathbb{E}\left[\hat{\tau}\right] &= \underbrace{\mathbb{E} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\text{Difference-in-Differences}} \\[3mm]
@@ -268,34 +207,6 @@
         \textcolor{purple}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]} \\[3mm]
         &= \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}
     \end{align*}
-
-\end{frame}
-
-\begin{frame}{Biased Estimate for $\tau_{\text{direct}}$}
-    \[ 
-        \mathbb{E}[\hat{\tau}_{\text{diff-in-diff}}] - \textcolor{green}{\tau_{\text{direct}}} = \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}    
-    \]
-\end{frame}
-
-
-
-
-% ------------------------------------------------------------------------------
-\section{Estimation}
-% ------------------------------------------------------------------------------
-
-\begin{frame}{Problems with "Dropping Bad Controls"}
-    It is common in empirical applications to drop control units near the treated units when estimating the direct effect of treatment.
-
-    This is not recommended for two reasons:
-
-    \begin{itemize}
-        \item[1.] If not all control units that experience spillover effects are removed, then bias remains
-        
-        \item[2.] There is a second source of bias, the spillover effects on treated units, that still remains
-    \end{itemize}
-
-    
 
 \end{frame}
 
@@ -318,43 +229,62 @@
 \end{frame}
 
 \begin{frame}{Robustness to Misspecification}
-    Generate data using the same data-generating process as before but with different spillover functions:
+    I find that an indicator for being Within $x$ miles from treated area interacted with treatment status will remove \textbf{all bias} so long as the indicator contains all the affected units.
 
-    \[ 
-        y_{\it} = \mu_t + \mu_i + 2 D_{it} + \beta_{\text{spill,control}} * (1-D_{it}) h(\vec{D}, i) + \varepsilon_{it}
-    \]
-
-
-    Then, I estimate each data-generating process using (potentially) misspecified $\tilde{h}(\vec{D}, i)$ and report the average estimate bias.
-
-\end{frame}
-
-\begin{frame}{Results}
-    \textbf{I find that an indicator for being Within $x$ miles from treated area will remove all bias so long as the indicator contains all the affected units.}
-
+    \begin{itemize}
+        \item Indicator will estimate the average spillover effect on treated and control units and remove these from estimate, $\hat{\tau}$
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Estimation of Spillover Effects}
     In a lot of settings, estimating the spillover effects are also an estimand of interest.
 
-    I repeat the same exercise and estimate the spillover effects for each control unit, $\hat{\beta}_{\text{spill, control}} * \tilde{h}(\vec{D}, i)$.
-
-    Then calculate \[ 
-        1 - \frac{
-                \overbrace{\sum_{i: D_i = 0} (\beta_{\text{spill, control}} h(\vec{D}, i) - \hat{\beta}_{\text{spill, control}} \tilde{h}(\vec{D}, i))^2}^{\text{Mean Square Prediction Error}}
-            }{
-                \underbrace{\sum_{i: D_i = 0} (\beta_{\text{spill, control}} h(\vec{D}, i))^2}_{\text{Normalization}}
-            }    
-    \]
-
-    This gives the proportion of spillovers explained by $\tilde{h}(\vec{D}, i)$
-
+    A set of concentring `rings' around treatment perform best for estimating spillover effects
 \end{frame}
 
 \imageframe{../../figures/figure-spill_ring.png}
 
-\begin{frame}{Results}
-    \textbf{Rings perform best at estimating spillover effects.}
+\begin{frame}{Benefits of Rings}
+
+    \begin{itemize}
+        \item Still remove all bias from the treatment effect estimate
+        
+        \item Can trace out how spillovers spread over distance
+        
+        \item If spillovers are additive in the number of nearby treated units, then an additive version of rings should be used (but this loses the bias-removal property)
+    \end{itemize} 
+    
+
+\end{frame}
+
+
+\section{Application in Urban Economics}
+
+
+\begin{frame}{Urban Economics}
+
+    I apply framework to place-based analyses in Urban Economics
+
+    \begin{itemize}
+        \item Revisit \begin{citecolor}\citet{Kline_Moretti_2014a}\end{citecolor} analysis of the Tennessee Valley Authority
+        
+        \begin{itemize}
+            \vspace{2.5mm}
+            \item The local effect estimate is contaminated by spillover effects to neighboring counties \begin{citecolor}\citep{Kline_Moretti_2014b}\end{citecolor}
+            
+            \vspace{2.5mm}
+            \item Large scale manufacturing investment creates an `urban shadow' \begin{citecolor}\citep{Cuberes_Desmet_Rappaport_2021,Fujita_Krugman_Venables_2001}\end{citecolor}
+        \end{itemize}
+        
+        \vspace{2.5mm}
+        \item Discuss how framework can reconcile conflicting findings on effect of federal Empowerment Zones
+        
+        \begin{itemize}
+            \vspace{2.5mm}
+            \item Identification Strategy of using far-away rejected applicants \begin{citecolor}\citep{Busso_Gregory_Kline_2013} \end{citecolor} vs. census tracts within 1000 feet of empowerment zone \begin{citecolor}\citep{Neumark_Kolko_2010}\end{citecolor}
+        \end{itemize}
+    \end{itemize}
+
 \end{frame}
 
 

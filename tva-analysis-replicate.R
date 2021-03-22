@@ -170,7 +170,6 @@ dep_names <- c(
 
 
 table_tex <- ""
-table_tex_slides <- ""
 
 for(y in dep_names) {
 	outcome_name <- names(dep_names[dep_names == y])
@@ -182,13 +181,6 @@ for(y in dep_names) {
 		drop_na(!!c(controls, y, "tva_0_100")) %>% 
 		filter(keep == 1)
 	
-	
-	# Oaxcac-Blinder Estimate --------------------------------------------------
-	formula_oaxaca <- as.formula(paste0(y, " ~ ", paste(controls, collapse = " + ")))
-	# Remove bordering counties
-	reg_oaxaca <- oaxaca_estimate(temp %>% filter(is.na(border_county)), formula_oaxaca, "tva", cluster = "FIPSTAT1")
-	
-	
 	# Diff-in-Diff with Controls -----------------------------------------------
 	formula_controls <- as.formula(paste0(y, " ~ tva + ", paste(controls, collapse = " + ")))
 	reg_controls <- fixest::feols(formula_controls, data = temp, demeaned = TRUE)
@@ -198,7 +190,7 @@ for(y in dep_names) {
 	coords <- as.matrix(temp[, c("lat", "long")])
 	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
-	dist_cutoff <- 500 * 1.60934
+	dist_cutoff <- 200 * 1.60934
 	lag_cutoff <- 1
 	
 	# cov_controls <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4)$Spatial
@@ -212,35 +204,20 @@ for(y in dep_names) {
 	coords <- as.matrix(temp[, c("lat", "long")])
 	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
-	dist_cutoff <- 500 * 1.60934
+	dist_cutoff <- 200 * 1.60934
 	lag_cutoff <- 1
-	
+
 	# cov_spill <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4, time = time, id = time)$Spatial
 	
-	
-	keep_slides <- y %in% c("D_lnagr", "D_lnmanuf", "D_lnmedfaminc")
 	
 	# Create row
 	row    <- ""
 	row_se <- ""
-	row_slides    <- ""
-	row_slides_se <- ""
 	
 	# Outcome Variable
 	row    <- paste0(row, str_pad(outcome_name, 28, "right"), "& ")
 	row_se <- paste0(row_se, str_pad("", 28, "right"), "& " )
-	row_slides    <- paste0(row_slides, str_pad(outcome_name, 28, "right"), "& ")
-	row_slides_se <- paste0(row_slides_se, str_pad("", 28, "right"), "& " )
 	
-	# Oaxaca-Binder 
-	pt     <- reg_oaxaca[["te"]]
-	se     <- reg_oaxaca[["se"]]
-	pt_str <- str_pad(reg_format(pt, se), 15, "both")
-	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
-	row    <- paste0(row, pt_str, "& ")
-	row_se <- paste0(row_se, se_str, "& ")
-	# row_slides    <- paste0(row_slides, pt_str, "& ")
-	# row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]
@@ -250,8 +227,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Spillover TVA
 	pt     <- coef(reg_spill)[["tva"]]
@@ -261,8 +236,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_0_50TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_50TRUE", "tva_0_50TRUE"]])
@@ -270,8 +243,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_50_100TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_50_100TRUE", "tva_50_100TRUE"]])
@@ -279,8 +250,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_100_150TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_150TRUE", "tva_100_150TRUE"]])
@@ -288,8 +257,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_150_200TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_150_200TRUE", "tva_150_200TRUE"]])
@@ -297,20 +264,14 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "\\\\\n")
 	row_se <- paste0(row_se, se_str, "\\\\\n")
-	row_slides    <- paste0(row_slides, pt_str, "\\\\\n")
-	row_slides_se <- paste0(row_slides_se, se_str, "\\\\\n")
 	
 	cli::cat_line(row, row_se)
 	
-	if(keep_slides) table_tex <- paste(table_tex, row, row_se)
-	if(keep_slides) table_tex_slides <- paste(table_tex_slides, row_slides, row_slides_se)
+	table_tex <- paste(table_tex, row, row_se)
 }
 
 cat(table_tex)
 if(export) cat(table_tex, file = "tables/tva_replication.tex")
-
-cat(table_tex_slides)
-if(export) cat(table_tex_slides, file = "tables/tva_replication_slides.tex")
 
 
 
@@ -324,26 +285,17 @@ dep_names <- c(
 
 
 table_tex <- ""
-table_tex_slides <- ""
 
 for(y in dep_names) {
 	outcome_name <- names(dep_names[dep_names == y])
-	cli::cli_h2("Starting on var: {outcome_name}")
+	cli::cli_h2("{outcome_name}")
 	
 	
 	temp <- df_reg %>% 
 		# Drop NAs from data
 		drop_na(!!c(controls, y, "tva_0_100")) %>% 
 		filter(keep == 1)
-	
-	
-	# Oaxcac-Blinder Estimate --------------------------------------------------
-	formula_oaxaca <- as.formula(paste0(y, " ~ ", paste(controls, collapse = " + ")))
-	
-	# Remove bordering counties
-	reg_oaxaca <- oaxaca_estimate(temp %>% filter(is.na(border_county)), formula_oaxaca, "tva", cluster = "FIPSTAT1")
-	
-	
+
 	# Diff-in-Diff with Controls -----------------------------------------------
 	formula_controls <- as.formula(paste0(y, " ~ tva + ", paste(controls, collapse = " + ")))
 	reg_controls <- fixest::feols(formula_controls, data = temp, demeaned = TRUE)
@@ -353,9 +305,8 @@ for(y in dep_names) {
 	coords <- as.matrix(temp[, c("lat", "long")])
 	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
-	dist_cutoff <- 500 * 1.60934
+	dist_cutoff <- 200 * 1.60934
 	lag_cutoff <- 1
-	
 	# cov_controls <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4)$Spatial
 	
 	# Diff-in-Diff with Spillovers ---------------------------------------------
@@ -367,34 +318,18 @@ for(y in dep_names) {
 	coords <- as.matrix(temp[, c("lat", "long")])
 	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
-	dist_cutoff <- 500 * 1.60934
+	dist_cutoff <- 200 * 1.60934
 	lag_cutoff <- 1
-	
 	# cov_spill <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4, time = time, id = time)$Spatial
 	
-	keep_slides <- y %in% c("D_lnagr_short", "D_lnmanuf_short", "D_lnmedfaminc_short")
 	
 	# Create row
 	row    <- ""
 	row_se <- ""
-	row_slides    <- ""
-	row_slides_se <- ""
 	
 	# Outcome Variable
 	row    <- paste0(row, str_pad(outcome_name, 28, "right"), "& ")
 	row_se <- paste0(row_se, str_pad("", 28, "right"), "& " )
-	row_slides    <- paste0(row_slides, str_pad(outcome_name, 28, "right"), "& ")
-	row_slides_se <- paste0(row_slides_se, str_pad("", 28, "right"), "& " )
-	
-	# Oaxaca-Binder 
-	pt     <- reg_oaxaca[["te"]]
-	se     <- reg_oaxaca[["se"]]
-	pt_str <- str_pad(reg_format(pt, se), 15, "both")
-	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
-	row    <- paste0(row, pt_str, "& ")
-	row_se <- paste0(row_se, se_str, "& ")
-	# row_slides    <- paste0(row_slides, pt_str, "& ")
-	# row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]
@@ -404,8 +339,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	# Spillover TVA
 	pt     <- coef(reg_spill)[["tva"]]
@@ -415,8 +348,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_0_50TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_50TRUE", "tva_0_50TRUE"]])
@@ -424,8 +355,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_50_100TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_50_100TRUE", "tva_50_100TRUE"]])
@@ -433,8 +362,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_100_150TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_150TRUE", "tva_100_150TRUE"]])
@@ -442,8 +369,6 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
-	row_slides    <- paste0(row_slides, pt_str, "& ")
-	row_slides_se <- paste0(row_slides_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_150_200TRUE"]]
 	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_150_200TRUE", "tva_150_200TRUE"]])
@@ -451,21 +376,14 @@ for(y in dep_names) {
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "\\\\\n")
 	row_se <- paste0(row_se, se_str, "\\\\\n")
-	row_slides    <- paste0(row_slides, pt_str, "\\\\\n")
-	row_slides_se <- paste0(row_slides_se, se_str, "\\\\\n")
 	
 	cli::cat_line(row, row_se)
 	
-	if(keep_slides) table_tex <- paste(table_tex, row, row_se)
-	if(keep_slides) table_tex_slides <- paste(table_tex_slides, row_slides, row_slides_se)
+	table_tex <- paste(table_tex, row, row_se)
 }
 
 cat(table_tex)
 if(export) cat(table_tex, file = "tables/tva_replication_short.tex")
-
-cat(table_tex_slides)
-if(export) cat(table_tex_slides, file = "tables/tva_replication_short_slides.tex")
-
 
 
 

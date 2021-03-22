@@ -65,6 +65,19 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}{This Paper}
+    In this paper, I
+
+    \begin{itemize}
+        \item Present a potential outcomes framework to formalize spillover effects and evaluate ad-hoc adjustments done in the literature
+        
+        \item Propose an estimation strategy that improves on current practices by being more robust to spillovers
+        
+        \item Apply this framework to improve estimation of the local effect of place-based policies in Urban Economics 
+    \end{itemize}
+
+\end{frame}
+
 
 \begin{frame}{Bias from Spatial Spillovers}
     
@@ -117,68 +130,46 @@
 \begin{frame}{Outline}
 
     \begin{itemize}
-        \item[1--] Using a potential outcomes framework, I decompose the difference-in-differences estimator into three parts:
-        \begin{itemize}
-            \item Direct Effect of Treatment, Spillover onto Treated Units, Spillover onto Control Units
-        \end{itemize} 
-        
-        \pause
-        \item[2--] Analyze effectiveness of common ad-hoc adjustments done by researchers
-        \begin{itemize}
-            \item Show that an indicator for being close to treated units remove \textit{all bias} so long as the indicator contains all units affected by spillovers
-            \item `Rings' are able to estimate spillover effects while still removing all bias
-        \end{itemize}  
+        \item[1--] Formalize spillovers into a potential outcomes framework:
+ 
+        \begin{citecolor}
+            [\citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}]
+        \end{citecolor}
 
-        \pause
-        \item[3--] Apply framework to Urban Economics
         \begin{itemize}
-            \item Revisit \citet{Kline_Moretti_2014a} analysis of the Tennessee Valley Authority
+            \vspace{2.5mm}
+            \item I decompose the difference-in-differences estimator into three parts: Direct Effect of Treatment, Spillover onto Treated Units, Spillover onto Control Units
             
-            \item Discuss how framework can reconcile conflicting findings on effect of federal Empowerment Zones \citep{Busso_Gregory_Kline_2013,Neumark_Kolko_2010}
+            \vspace{2.5mm}
+            \item Show that an indicator for being close to treated units remove \textit{all bias} so long as the indicator contains all units affected by spillovers
+            
+            \vspace{2.5mm}
+            \item `Rings' are able to estimate spillover effects while still removing all bias
+        \end{itemize} 
+
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Outline}
+    \begin{itemize}
+        \item[2--] Apply framework to Urban Economics
+        \begin{itemize}
+            \item Revisit \begin{citecolor}\citet{Kline_Moretti_2014a}\end{citecolor} analysis of the Tennessee Valley Authority
+            
+            \begin{itemize}
+                \vspace{2.5mm}
+                \item The local effect estimate is contaminated by spillover effects to neighboring counties \begin{citecolor}\citep{Kline_Moretti_2014b}\end{citecolor}
+                
+                \vspace{2.5mm}
+                \item Large scale manufacturing investment creates an `urban shadow' \begin{citecolor}\citep{Cuberes_Desmet_Rappaport_2021,Fujita_Krugman_Venables_2001}\end{citecolor}
+            \end{itemize}
+            
+            \vspace{2.5mm}
+            \item Discuss how framework can reconcile conflicting findings on effect of federal Empowerment Zones \begin{citecolor}\citep{Busso_Gregory_Kline_2013,Neumark_Kolko_2010}\end{citecolor}
         \end{itemize}
     \end{itemize} 
 \end{frame}
 
-
-\begin{frame}{Contribution}
-
-    {\footnotesize
-    
-    \underline{Difference-in-Differences Estimation with Spillovers} 
-    
-    \begin{citecolor}
-        [\citet{Clarke_2017}, \citet{Berg_Streitz_2019}, and \citet{Verbitsky-Savitz_Raudenbush_2012}]
-    \end{citecolor}
-    
-    \begin{itemize}
-        \item I generalize the work by deriving the bias in terms of potential outcomes and show how to estimate treatment effects by removing spillover effects
-    \end{itemize}
-
-
-    \pause
-    \underline{Potential Outcome Framework for Spillovers}
-    
-    \begin{citecolor}
-        [\citet{Miguel_Kremer_2004}, \citet{Vazquez-Bare_2019}, \citet{Angelucci_DiMaro_2016}, \citet{Angrist_2014}]        
-    \end{citecolor}
-
-    \begin{itemize}
-        \item These papers consider spillovers in network clusters. I focus on spatial setting
-    \end{itemize}
-
-
-    \pause
-    \underline{Place-based Policies}
-
-    \begin{citecolor}
-        [\citet{Kline_Moretti_2014b}, \citet{Kline_Moretti_2014a}, \citet{Busso_Gregory_Kline_2013}, and \citet{Neumark_Kolko_2010}]
-    \end{citecolor}
-
-    \begin{itemize}
-        \item I highlight the need to control for general equilibrium effects to properly estimate local effects of policies
-    \end{itemize}
-    }
-\end{frame}
 
 
 % ------------------------------------------------------------------------------
@@ -259,12 +250,23 @@
 
 
 \begin{frame}{Estimand of Interest}
-    Estimand of Interest: \[ 
+    Estimand of Interest: 
+    \[ 
         \textcolor{green}{\tau_{\text{direct}}} \equiv \textcolor{green}{\mathbb{E}\left[ Y_{i,1}(1, 0) - Y_{i,1}(0, 0) \mid D_i = 1\right]}
     \]
 
-    \vspace{10mm}
-    This is the direct effect in the absense of exposure to spillovers.
+
+    \pause
+    \vspace{2.5mm}
+    Spillover Effects:
+
+    \[
+        \textcolor{red}{\tau_{\text{spillover, treated}}} \equiv \textcolor{red}{\mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right]}
+    \]
+
+    \[ 
+        \textcolor{purple}{\tau_{\text{spillover, control}}} = \textcolor{purple}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]}
+    \]
 \end{frame}
 
 
@@ -282,7 +284,7 @@
     
 \end{frame}
 
-\begin{frame}{What does Diff-in-Diff identify?}
+\begin{frame}{What does Difference-in-Differences identify?}
     With the parallel trends assumption and random assignment of $D_i$, I decompose the diff-in-diff estimate as follows: 
         
     \begin{align*}
@@ -296,12 +298,6 @@
         &= \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}
     \end{align*}
 
-\end{frame}
-
-\begin{frame}{Biased Estimate for $\tau_{\text{direct}}$}
-    \[ 
-        \mathbb{E}[\hat{\tau}_{\text{diff-in-diff}}] - \textcolor{green}{\tau_{\text{direct}}} = \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}    
-    \]
 \end{frame}
 
 \begin{frame}{Example of Bias: Large Factory Opening}\label{slide:example_bias}
@@ -547,6 +543,9 @@
         \end{adjustbox}
     \end{table}
 
+    \onslide<3->{
+        \textbf{Inidicator that captures all affected unit removes all bias}
+    }
 \end{frame}
 
 \begin{frame}{Spillovers as Estimand of Interest}
@@ -642,12 +641,12 @@
     \citet{Kline_Moretti_2014a} look at the long-run impacts of the Tennessee Valley Authority (TVA).
 
     \begin{itemize}
-        \item The TVA was a large-scale federal investment started in 1934 that focused on improving manufacturing economy.
+        \item The TVA was a large-scale federal investment started in 1934 that focused on improving manufacturing economy. (Hundreds of dollars spent anually per person)
         
-        \item The program focused on electrification through dams and transportation canals in order to improve the manufacturing economy
-        
-        \item Hundreds of dollars spent anually per person
+        \item The program focused on large-scale dam construction that brought cheap wholesale electricity to the region
     \end{itemize}
+
+    Research Question: What are the local effects of TVA on manufacturing and agricultural economies? Do these effects come at the cost of other counties?
 \end{frame}
 
 \begin{frame}{Identification}
@@ -669,11 +668,22 @@
     In our context, there is reason to believe spillovers can occur to nearby counties
 
     \begin{itemize}
-        \item Agricultural employees might be drawn to hire wages for new manufacturing jobs in Tennessee Valley (negative spillover on control units)
+        \item \textbf{Agriculture:} 
+        \begin{itemize}
+            \item Employees might be drawn to hire wages for new manufacturing jobs in Tennessee Valley (negative spillover on control units)
+        \end{itemize}
         
-        \item Manufacturing jobs that would have been created in the control units in the absence of treatment might move to the Tennessee Valley (negative spillover on control units)
+        \item \textbf{Manufacturing:}
+        \begin{itemize}
+            \item Cheap electricity might be available to nearby counties (positive spillover on control units) 
+            
+            \item Manufacturing jobs that would have been created in the control units in the absence of treatment might move to the Tennessee Valley (negative spillover on control units)
+        \end{itemize}
         
-        \item Since manufacutring jobs pay higher than agricultural jobs, the above two spillover effects can cause changes in median family income
+        \item \textbf{Income:} 
+        \begin{itemize}
+            \item Since manufacutring jobs pay higher than agricultural jobs, the above two spillover effects can cause changes in median family income
+        \end{itemize}
     \end{itemize}
 \end{frame}
 

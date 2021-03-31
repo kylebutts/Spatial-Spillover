@@ -238,6 +238,12 @@ ggplot(es_pts_spillover_effect) +
 	labs(y = NULL, x = "Years since CHC establishment")
 
 
+
+# Save att_gt objects
+# save(es_pts, es_1, es_spillover_control, es_spillover_effect, file = "data/chc-results.RData")
+
+
+
 # Export figures ---------------------------------------------------------------
 
 # treatment effect original
@@ -250,7 +256,7 @@ ggplot(es_pts_spillover_effect) +
  	theme(title = element_text(size = 12, margin = margin(b = 0, unit = "pt"))) + 
  	scale_x_continuous(minor_breaks = seq(-7, 14, 1)) + 
  	scale_y_continuous(minor_breaks = seq(-75, 40, 5), limits = c(-75, 40)) + 
- 	labs(y = NULL, x = "Years since CHC establishment", color = NULL) +
+ 	labs(y = "Deaths per 100,000 persons", x = "Years since CHC establishment", color = NULL) +
  	{ if(slides) labs(title = "Effect of CHC Establishment", subtitle = "(Bailey and Goodman-Bacon, 2015)") })
 
 
@@ -268,7 +274,7 @@ if(!slides) ggsave("figures/figure-chc-es_original.pdf", es_plot_original, width
  	theme_kyle(base_size = 16, slides = slides) + 
  	scale_x_continuous(minor_breaks = seq(-7, 14, 1)) + 
  	scale_y_continuous(minor_breaks = seq(-75, 25, 5), limits = c(-75, 25)) + 
- 	labs(y = NULL, x = "Years since CHC establishment", color = NULL) +
+ 	labs(y = "Deaths per 100,000 persons", x = "Years since CHC establishment", color = NULL) +
  	{ if(slides) labs(title = "Effect of CHC Establishment", subtitle = "(Controlling for Spillovers)") })
 
 
@@ -286,7 +292,7 @@ if(!slides) ggsave("figures/figure-chc-es_spillover_control.pdf", es_plot_spillo
 		theme_kyle(base_size = 16, slides = slides) + 
 		scale_x_continuous(minor_breaks = seq(-7, 14, 1)) + 
 		scale_y_continuous(minor_breaks = seq(-75, 25, 5), limits = c(-75, 25)) + 
-		labs(y = NULL, x = "Years since CHC establishment", color = NULL) +
+		labs(y = "Deaths per 100,000 persons", x = "Years since CHC establishment", color = NULL) +
 		{ if(slides) labs(title = "Spillover onto Control Units within 25 miles") })
 
 
@@ -313,10 +319,11 @@ es_pts_combined <- bind_rows(
 		legend.spacing.y = unit(0, "pt"),
 		legend.background = element_rect(fill = if_else(slides, "#ECECEC", "white"))
 	) +
+	scale_shape_manual(values = c(16, 18)) + 
 	scale_color_manual(values = c("#5e81ac", "#bf616a")) +
 	scale_x_continuous(minor_breaks = seq(-7, 14, 1)) + 
 	scale_y_continuous(minor_breaks = seq(-75, 25, 5), limits = c(-75, 25)) + 
-	labs(y = NULL, x = "Years since CHC establishment", color = NULL) +
+	labs(y = "Deaths per 100,000 persons", x = "Years since CHC establishment", color = NULL) +
 	{ if(slides) labs(title = "Effect of CHC Establishment") })
 
 

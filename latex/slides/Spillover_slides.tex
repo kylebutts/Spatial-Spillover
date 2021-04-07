@@ -58,10 +58,12 @@
     Estimation is complicated by \textbf{Spillover Effects}
     
     \vspace{5mm}
-    \textbf{Spillover effects} are when effect of treatment extend over the treatment boundaries such as states, counties, etc.
+    \textbf{Spillover effects} are when effect of treatment extend over the treatment boundaries (states, counties, etc.). Example:
     
     \begin{itemize}
-        \item e.g. large employer opening/closing in a \textbf{treated} county have positive employment effects on \textit{nearby counties}
+        \item A large employer opening/closing in a treated county have positive employment effects on \textbf{control counties}
+        
+        \item Having nearby counties with factories raises wages and reduces effect of \textbf{treated counties}
     \end{itemize}
 \end{frame}
 
@@ -121,6 +123,29 @@
         }
     \end{itemize}
 
+\end{frame}
+
+\begin{frame}{Remove Bias}
+    \only<1>{
+        \[ y_{it} = \mu_t + \mu_i + \tau D_{it} + \varepsilon_{it} \]
+    }
+    \only<2>{
+        \[ 
+            y_{it} = \mu_t + \mu_i + \tau D_{it} + \text{Within}_{it} * D_{it} + \text{Within}_{it} * (1-D_{it}) + \varepsilon_{it}
+        \]
+    }
+
+    \only<1>{ 
+        \[ 
+            \mathbb{E}\{\hat{\tau}\} = \tau + \text{\color{purple} Spillover on Control} + \text{\color{red}Spillover on Treated}
+        \]
+    }
+    \only<2>{
+        \[ 
+            \mathbb{E}\{\hat{\tau}\} = \tau,
+        \]
+        so long as $\text{Within}_{it}$ contains all the units with spillovers.
+    }
 \end{frame}
 
 
@@ -272,6 +297,8 @@
 
 \begin{frame}{Parallel Trends}
     I assume a modified version of the parallel counterfactual trends assumption: 
+
+    \textbf{Assumption:} \textit{Parallel Counterfactual Trends}
     \begin{align*}
         &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 1 \big] \\
         = \ &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 0 \big],
@@ -285,7 +312,7 @@
 \end{frame}
 
 \begin{frame}{What does Difference-in-Differences identify?}
-    With the parallel trends assumption and random assignment of $D_i$, I decompose the diff-in-diff estimate as follows: 
+    With the parallel trends assumption and random assignment of $D_i$, I decompose the difference-in-differences estimate as follows: 
         
     \begin{align*}
         \mathbb{E}\left[\hat{\tau}\right] &= \underbrace{\mathbb{E} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right] - \mathbb{E} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\text{Difference-in-Differences}} \\[3mm]
@@ -300,26 +327,30 @@
 
 \end{frame}
 
-\begin{frame}{Example of Bias: Large Factory Opening}\label{slide:example_bias}
-    \textbf{Control Spillover:}
-    
-    $Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) = 1$ if county $i$ is within 40 miles of a treated county and $0$ otherwise.
 
-    \textbf{Treated Spillover:}
-    
-    $Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) = 0.5$ if county $i$ is within 40 miles of a treated county and $0$ otherwise.
+\begin{frame}{Removing Bias}
+    \textbf{Assumption:} \textit{Spillovers are Local}
+
+    Let $d(i,j)$ be the distance between units $i$ and $j$. There exists a distance $\bar{d}$ such that 
         
-    \pause
-    Then, the bias term is 
-    \begin{align*}
-        &0.5 * \text{\% of treated counties within 40 miles of another treated county} \\
-        &-1 * \text{\% of treated counties within 40 miles of a treated county}
-    \end{align*}
-
-    \hyperlink{slide:partial_identification}{\beamerbutton{Partial Identification}}
+        (i) For all units $i$,
+        \[ 
+            \min_{j: \ D_j = 1} d(i,j) > \bar{d} \implies h(\vec{D}, i) = \vec{0}. 
+        \]
+    
+        (ii) There are treated and control units such that $\min_{j: \ D_j = 1} d(i,j) > \bar{d}$.
 \end{frame}
 
+\begin{frame}{Removing Bias}
+    With assumption that spillovers are local, define $S_i$ to be an indicator that contains all units with $h(\vec{D}, i) \neq \vec{0}$ (and potentially some units with $= \vec{0}$).
+    
+    Then $\hat{\tau}$ will be a consistent estimate for $\tau$ in this specification: 
+    \[ 
+        y_{it} = \mu_t + \mu_i + \tau D_{it} + \text{Within}_{it} * D_{it} + \text{Within}_{it} * (1-D_{it}) + \varepsilon_{it}
+    \]
+    
 
+\end{frame}
 
 
 
@@ -328,68 +359,22 @@
 % ------------------------------------------------------------------------------
 
 
-\begin{frame}{Monte Carlo Simulations}
-    \begin{itemize}
-        \item Data Generating Process 
-        \begin{align*}
-            y_{it} &= \mu_t + \mu_i + \textcolor{green}{\tau_{\text{direct}}} D_{it} + \textcolor{purple}{\tau_{\text{spillover, control}}} (1-D_{it}) \text{Within 40mi.}_{it} \\ 
-            &\quad + \textcolor{red}{\tau_{\text{spillover, treated}}} D_{it} \text{Within 40mi.}_{it} + \varepsilon_{it}
-        \end{align*}
-
-        \item Observation $i$ is a U.S. county, year $t \in \{2000, \dots, 2019\}$, treatment $D_{it}$ turns on in 2010 and is assigned randomly or through a spatial process.
-        
-        \item $\text{Within 40mi.}_{it}$ is an indicator for having your county center of population be within 40 miles of a treated unit. 
-        
-        \item $\textcolor{green}{\tau_{\text{direct}}} = 2$, $\textcolor{purple}{\tau_{\text{spillover, control}}} = 1$ and $\textcolor{red}{\tau_{\text{spillover, treat}}} \in \{0, 0.5\}$.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Source of Bias 1: Control Units}
-    Simulation 1: 
-    
-    \begin{itemize}
-        \item The first simulation changes the probability of treatment, $D_{it}$.
-        
-        \item Assume, for now, there is only spillover on the control, i.e. $\tau_{\text{spillover,treat}} = 0$.
-        
-        \item Estimate via TWFE: \begin{equation*}
-            y_{it} = \mu_t + \mu_i + \tau D_{it} + \epsilon_{it}    
-        \end{equation*}
-        
-        \item The bias of our estimate is \textit{Bias} $= \hat{\tau} - 2$
-    \end{itemize}
-
-
-    
-\end{frame}
-
-\imageframe{../../figures/figure-bias_from_prob_treat_slides.png}
-
-
-\begin{frame}{Solution: Removing ``contaminated'' controls}
+\begin{frame}{Common Solution: Removing ``contaminated'' controls}
     A common solution to the problem of spillover is to restimate on a subsample with neighboring control units removed.
 
-    This simulation drops only units with $\text{Within 40mi.}_{it} = 1$. The exact exposure mapping is typically not observable for researchers, so this is best case scenario.
-\end{frame}
+    This is not recommended for two reasons:
 
-\imageframe{../../figures/figure-bias_fix_slides.png}
-
-\begin{frame}{Why Removing Controls Doesn't Work Well}
     \begin{itemize}
-        \item[1.] Lose precision in treatment effect estimate by dropping control units
-        \item[2.] If there are spillovers on treated units, removing controls won't remove both sources of bias. 
+        \item Removing control units from the sample decreases precision of the estimates
+        
+        \item Spillover effects on treated units will still remain in the estimand. 
     \end{itemize}
-
-    I repeat the same simulations but with $\textcolor{red}{\tau_{\text{spillover, treat}}} = 0.5$
-    
 \end{frame}
-
-\imageframe{../../figures/figure-bias_fix_treat_slides.png}
 
 \begin{frame}{Solution: Parametrize potential outcomes}
     Another option is to directly control for spillovers by parametrizing the exposure mapping. 
     
-    This is not observable to a researcher which raises the question:
+    The corret exposure mapping is not observable to a researcher which raises the question:
 
     Are there specifications that work well even if the spillovers are misspecified?
 \end{frame}
@@ -401,9 +386,11 @@
         y_{\it} = \mu_t + \mu_i + 2 D_{it} + \beta_{\text{spill,control}} * (1-D_{it}) h(\vec{D}, i) + \varepsilon_{it}
     \]
 
+    \begin{itemize}
+        \item Observation $i$ is a U.S. county, year $t \in \{2000, \dots, 2019\}$, treatment $D_{it}$ turns on in 2010 and is assigned randomly.
+    \end{itemize}
 
     Then, I estimate each data-generating process using (potentially) misspecified $\tilde{h}(\vec{D}, i)$ and report the average estimate bias.
-
 \end{frame}
 
 \begin{frame}{Specifications of $h(\vec{D}, i)$}
@@ -411,7 +398,7 @@
     \begin{itemize}
         \item \textit{Within $40/80$mi.}:
         \begin{itemize}
-            \item Inidicator for nearest treated unit being within $40/80$ miles.
+            \item Indicator for nearest treated unit being within $40/80$ miles.
         \end{itemize}
         
         \item \textit{Within $40/80$mi. (Additive)}: 
@@ -431,7 +418,7 @@
     \begin{itemize}
         \item \textit{Within $40/80$mi.}:
         \begin{itemize}
-            \item Inidicator for nearest treated unit being within $40/80$ miles.
+            \item Indicator for nearest treated unit being within $40/80$ miles.
         \end{itemize}
         
         \item \textit{Within $40/80$mi. (Additive)}: 
@@ -464,7 +451,7 @@
     \begin{itemize}
         \item \textit{Within $40/80$mi.}:
         \begin{itemize}
-            \item Inidicator for nearest treated unit being within $40/80$ miles.
+            \item Indicator for nearest treated unit being within $40/80$ miles.
         \end{itemize}
         
         \item \textit{Within $40/80$mi. (Additive)}: 
@@ -544,7 +531,7 @@
     \end{table}
 
     \onslide<3->{
-        \textbf{Inidicator that captures all affected unit removes all bias}
+        \textbf{Indicator (or set of indicators) that captures all affected unit removes all bias}
     }
 \end{frame}
 
@@ -656,7 +643,7 @@
     \end{equation} 
 
     \begin{itemize}
-        \item $y$ are outcomes for agricultural employment, manufacturing employment, and median family income.
+        \item $y$ are outcomes for agricultural employment and manufacturing employment.
         \item $\text{TVA}_c$ is the treatment variable
         \item $X_{c, 1940}$ allow for different long-term trends based on covariates in 1940. 
     \end{itemize}
@@ -679,11 +666,6 @@
             
             \item Manufacturing jobs that would have been created in the control units in the absence of treatment might move to the Tennessee Valley (negative spillover on control units)
         \end{itemize}
-        
-        \item \textbf{Income:} 
-        \begin{itemize}
-            \item Since manufacutring jobs pay higher than agricultural jobs, the above two spillover effects can cause changes in median family income
-        \end{itemize}
     \end{itemize}
 \end{frame}
 
@@ -702,7 +684,7 @@
 
 \begin{frame}
 \begin{table}[ht]
-    \caption{Effects of Tennessee Valley Authority on Decadel Growth}
+    \caption{Effects of Tennessee Valley Authority on Decadel Growth, 1940-2000}
     \label{tab:tva}
     \renewcommand{\arraystretch}{1.2}
 
@@ -727,11 +709,6 @@
                     \\
                     Manufacturing employment    & $0.0560^{***}$ &  $0.0461^{**}$ &    $-0.0104$   &    $-0.0128$   &  $-0.0248^{*}$ \\
                     &   $(0.0187)$   &   $(0.0210)$   &   $(0.0205)$   &   $(0.0257)$   &   $(0.0147)$
-                }
-                \onslide<3->{
-                    \\
-                    Median family income        & $0.0191^{***}$ &  $0.0196^{**}$ &    $0.0056$    &    $-0.0062$   &    $-0.0011$   \\
-                    &   $(0.0067)$   &   $(0.0077)$   &   $(0.0079)$   &   $(0.0060)$   &   $(0.0032)$ 
                 }
                
                 \\ \bottomrule
@@ -786,49 +763,6 @@
 
 
 
-
-% ------------------------------------------------------------------------------
-\appendix\section{Appendix}
-% ------------------------------------------------------------------------------
-
-
-\begin{frame}{Partial Identification}\label{slide:partial_identification}
-    Researchers can use the above method to create bounds for the biases resulting from spillovers. The choices should follow from the empirical context at hand.
-
-    To formalize this, I follow the literature on partial identification for treatment effects
-    \begin{citecolor}
-        [\citet{Armstrong_Kolesár_2020}, \citet{Rambachan_Roth_2020}, and \citet{Manski_Pepper_2018}]
-    \end{citecolor}
-\end{frame}
-
-\begin{frame}{Partially-identified Set}
-    Following \citet{Rambachan_Roth_2020} and \citet{Manski_Pepper_2018}, researchers can provide bounds to the maximum spillovers. 
-
-    Let $\Delta$ denote the interval of potential biases: 
-    \begin{align*}
-        \Delta &\equiv [\underline{\Delta}, \overline{\Delta}] \\
-        &= \left[ \min \tau_{\text{spill,treated}} - \tau_{\text{spill,control}}, \ \max \tau_{\text{spill,treated}} - \tau_{\text{spill,control}} \right] 
-    \end{align*}
-
-    The partially identified set is formed by \[ 
-        \left[\hat{\tau} - \underline{\Delta} , \ \hat{\tau} + \overline{\Delta} \right]    
-    \]
-
-\end{frame}
-
-\begin{frame}{Bias-adjusted Inference}
-
-    Inference can be done following \citet{Rambachan_Roth_2020} by creating a Fixed-Length Confidence Interval: 
-    \[ 
-        \left[
-            \hat{\tau} - \underline{\Delta} - z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}, \ \hat{\tau} + \overline{\Delta} + z_{1 - \alpha/2} \text{SE}_{\hat{\tau}}
-        \right]
-    \]
-
-    These standard errors should account for the spatial structure of outcomes following \citet{Conley_1999}.
-
-    \hyperlink{slide:example_bias}{\beamerbutton{Back to Example of Bias}}
-\end{frame}
 
 
 

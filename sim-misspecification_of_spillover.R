@@ -27,12 +27,13 @@ source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd4
 
 # Export
 export <- TRUE
-slides <- FALSE
+run <- FALSE
 
 # extract_body()
 extract_body <- function(gt) {
 	if(inherits(gt, "gt_tbl")) gt <- as.character(gt::as_latex(gt))
-	stringr::str_match(gt, "(?s)\\\\midrule\\n(.*)\\\\bottomrule")[[2]]
+	gt <- stringr::str_match(gt, "(?s)\\\\midrule\\n(.*)\\\\bottomrule")[[2]]
+	stringr::str_remove(gt, " \\\\\\\\ \n$")
 }
 
 
@@ -46,88 +47,6 @@ source("helper-sim_function_misspecification.R")
 load(file= "data/counties_and_mat.RData")
 
 
-
-## Experimentation
-
-df <- sim_data_misspecification(drop_geometry=FALSE) %>% 
-	st_as_sf()
-
-# Check treatment effects with optional center of population dots
-ggplot(data = df %>% filter(year == 2019)) + 
-	geom_sf(mapping = aes(fill = te_spill_decay, color = as.factor(treat))) + 
-	# geom_sf(mapping = aes(geometry = centroid), color="white", size= 0.25) +
-	scale_color_manual(values = c("black", "red"))
-
-
-
-## Exerimentation
-
-for(i in 1:10) {
-	
-df <- sim_data_misspecification(drop_geometry=FALSE) %>% 
-	st_as_sf()
-	
-y <- "spill_decay"
-x <- "spill_within_large"
-
-# Rings 80
-formula <- as.formula(glue("y_{y} ~ treat_ind + post:spill_0_20 + spill_20_30:post + spill_30_40:post ", 
-						   "+ spill_40_60:post + spill_60_80:post | state_county + year"))
-
-reg <- feols(formula, data= df %>% st_drop_geometry()) 
-
-coef <- reg %>% coefficients()
-b_0_20 <- coef[2]
-b_20_30 <- coef[3]
-b_30_40 <- coef[4]
-b_40_60 <- coef[5]
-b_60_80 <- coef[6]
-
-var <- as.character(glue("te_{y}"))
-
-# Within 80
-formula <- as.formula(glue("y_{y} ~ treat_ind + ({x}:post) | state_county + year"))
-
-reg <- feols(formula, data= df %>% st_drop_geometry()) 
-coef <- reg %>% coefficients()
-b <- coef[2]
-
-var <- as.character(glue("te_{y}"))
-
-df <- df %>%
-	mutate(
-		te_spill_hat_within_large = b * !!rlang::sym(x),
-		te_spill_hat_donut = b_0_20 * spill_0_20 + b_20_30 * spill_20_30 + b_30_40 * spill_30_40 + b_40_60 * spill_40_60 + b_60_80 * spill_60_80
-	)
-
-temp1 <- df %>% filter(year == 2019 & treat == 0) %>% pull(te_spill_decay)
-temp2 <- df %>% filter(year == 2019 & treat == 0) %>% pull(te_spill_hat_within_large)
-temp3 <- df %>% filter(year == 2019 & treat == 0) %>% pull(te_spill_hat_donut)
-
-#hist(temp1 - temp2)
-#hist(temp1 - temp3)
-
-print(glue("MSPE within_large: {sum((temp1-temp2)^2)}"))
-print(glue("MSPE donut: {sum((temp1-temp3)^2)}"))
-}
-
-
-
-
-# sim %>% 
-# 	filter(year == 2019) %>% 
-# 	select(starts_with("te_")) %>% 
-# 	summary()
-# 
-# sim %>% 
-# 	filter(year == 2019) %>% 
-# 	select(starts_with("spill_")) %>% 
-# 	summary()
-
-
-
-
-
 ## Simulation: Bias ------------------------------------------------------------
 # Helper function estimate
 estimate_treatment_effect <- function(df, formula, treat_var){
@@ -136,7 +55,7 @@ estimate_treatment_effect <- function(df, formula, treat_var){
 }
 
 
-n_trials <- 100
+n_trials <- 1000
 doParallel::registerDoParallel(10)
 
 dgp_types <- c(
@@ -161,6 +80,7 @@ estimation_types <- c(
 	"Rings (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
+if(run){
 results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	df <- sim_data_misspecification()
 	results_trial <- NULL
@@ -198,34 +118,74 @@ results <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	return(results_trial)
 		
 }
+}
 
 ## Save results
-# save(results, file="data/sim_misspecification.RData")
-# load("data/sim_misspecification.RData")
+if(run) save(results, file="data/sim_misspecification.RData")
+
+## Load results if not running simulation
+if(!run) load("data/sim_misspecification.RData")
 
 results_tbl <- results %>% 
 	group_by(spec, dgp) %>% 
+	mutate(
+		bias = 2 - te_hat
+	) %>%
 	summarize(
-		te_hat = mean(te_hat)
+		# ci_lower = quantile(bias, probs = 0.05),
+		# ci_upper = quantile(bias, probs = 0.95),
+		mse = sum(bias^2)/n(),
+		bias = mean(bias)
 	) %>% 
 	ungroup() %>% 
-	mutate(bias = 2 - te_hat) %>%
-	select(spec, dgp, bias) %>%
-	pivot_wider(names_from = dgp, values_from = bias) %>%
-	# Order columns
-	select(spec, names(dgp_types)) %>%
-	# Order rows
-	arrange(match(spec, names(estimation_types)))
+	select(spec, dgp, bias, mse) 
 
 
-results_tbl %>% 
-	gt::gt() %>%
-	gt::fmt_number(
-		columns = 2:7,
-		decimals = 3
-	) %>%
-	extract_body() %T>% cat(., file="tables/misspecification.tex") %>% cat()
-	{.}
+table_tex <- ""
+
+for(spec in estimation_types) {
+	
+	# Create row
+	row    <- ""
+	row_se <- ""
+	
+	# Specification Name
+	spec_name <- names(estimation_types)[estimation_types == spec]
+	row    <- paste0(row, str_pad(spec_name, 55, "right"))
+	row_se <- paste0(row_se, str_pad("", 55, "right"))
+	
+	
+	for(dgp in dgp_types) {
+		row <- paste0(row, "& ")
+		row_se <- paste0(row_se, "& ")
+		
+		# DGP Names
+		dgp_name <- names(dgp_types)[dgp_types == dgp]
+		
+		temp <- results_tbl %>% filter(spec == spec_name & dgp == dgp_name) 
+		
+		bias <- temp %>% pull(bias)
+		bias <- round(bias, digits = 3) %>% format(., digits = 3, nsmall=3) %>% str_pad(., 8, side = "right")
+		mse  <- temp %>% pull(mse)
+		mse  <- paste0("[", format(round(mse, digits = 3), nsmall=3), "]") %>% str_pad(., 8, side = "right")
+		
+		row <- paste0(row, bias)
+		row_se <- paste0(row_se, mse)
+	}
+	
+	row <- paste0(row, "\\\\")
+	if(spec != estimation_types[length(estimation_types)]){
+		row_se <- paste0(row_se, "\\\\")
+	}
+	# cli::cat_line(row, "\n", row_se, "\n")
+	
+	table_tex <- paste(table_tex, row, row_se, sep="\n")
+} 
+
+cli::cli_h1("Misspecification Bias Results")
+cat(table_tex)
+
+if(export) cat(table_tex, file="tables/misspecification.tex")
 
 
 
@@ -234,7 +194,7 @@ results_tbl %>%
 ## Simulation: MSPE of Spillovers ----------------------------------------------
 
 
-n_trials <- 150
+n_trials <- 1000
 doParallel::registerDoParallel(10)
 
 dgp_types <- c(
@@ -259,7 +219,7 @@ estimation_types <- c(
 	"Rings (0-20, 20-30, 30-40, 40-60, 60-80) (Additive)" = "donuts_additive"
 )
 
-
+if(run){
 results_mspe <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	df <- sim_data_misspecification()
 	results_trial <- NULL
@@ -355,9 +315,10 @@ results_mspe <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 	return(results_trial)
 	
 }
+}
 
-# save(results_mspe, file="data/sim_misspecification_mspe.RData")
-# load("data/sim_misspecification_mspe.RData")
+if(run) save(results_mspe, file="data/sim_misspecification_mspe.RData")
+if(!run) load("data/sim_misspecification_mspe.RData")
 
 results_tbl <- results_mspe %>% 
 	group_by(spec, dgp) %>% 
@@ -381,8 +342,10 @@ results_tbl %>%
 		columns = 2:7,
 		decimals = 3
 	) %>%
-	# extract_body() %T>% cat(., file="tables/misspecification_mspe.tex") %>% cat()
-	{.}
+	extract_body() %T>% cat(., file="tables/misspecification_mspe.tex") %>% cat()
+	# {.}
+
+
 
 results_tbl %>% 
 	gt::gt() %>%
@@ -390,6 +353,6 @@ results_tbl %>%
 		columns = 2:7,
 		decimals = 1
 	) %>%
-	# extract_body() %T>% cat(., file="tables/misspecification_mspe_percent.tex") %>% cat()
-	{.}
+	extract_body() %T>% cat(., file="tables/misspecification_mspe_percent.tex") %>% cat()
+	# {.}
 

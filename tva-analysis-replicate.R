@@ -165,7 +165,6 @@ controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpo
 dep_names <- c(
 	"Agricultural employment" = "D_lnagr", 
 	"Manufacturing employment" = "D_lnmanuf"
-	# "Median family income" = "D_lnmedfaminc", 
 )
 
 
@@ -188,12 +187,10 @@ for(y in dep_names) {
 	X <- reg_controls$X_demeaned
 	e <- reg_controls$residuals
 	coords <- as.matrix(temp[, c("lat", "long")])
-	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
 	dist_cutoff <- 200 * 1.60934
-	lag_cutoff <- 1
 	
-	# cov_controls <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4)$Spatial
+	cov_controls <- conley_ses(X, e, coords, dist_cutoff)$Spatial
 	
 	# Diff-in-Diff with Spillovers ---------------------------------------------
 	formula_controls_spill <- as.formula(paste0(y, " ~ tva + tva_0_50 + tva_50_100 + tva_100_150 + tva_150_200 + ", paste(controls, collapse = " + ")))
@@ -202,12 +199,10 @@ for(y in dep_names) {
 	X <- reg_spill$X_demeaned
 	e <- reg_spill$residuals
 	coords <- as.matrix(temp[, c("lat", "long")])
-	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
 	dist_cutoff <- 200 * 1.60934
-	lag_cutoff <- 1
 
-	# cov_spill <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4, time = time, id = time)$Spatial
+	cov_spill <- conley_ses(X, e, coords, dist_cutoff)$Spatial
 	
 	
 	# Create row
@@ -221,8 +216,7 @@ for(y in dep_names) {
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_controls, temp$FIPSTAT1, "CR1S")[["tva", "tva"]])
-	# se     <- cov_controls[["tva", "tva"]]
+	se     <- sqrt(cov_controls[["tva", "tva"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
@@ -230,40 +224,43 @@ for(y in dep_names) {
 	
 	# Spillover TVA
 	pt     <- coef(reg_spill)[["tva"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva", "tva"]])
-	# se     <- cov_spill[["tva", "tva"]]
+	se     <- sqrt(cov_spill[["tva", "tva"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_0_50TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_50TRUE", "tva_0_50TRUE"]])
+	se     <- cov_spill[["tva_0_50TRUE", "tva_0_50TRUE"]]
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_50_100TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_50_100TRUE", "tva_50_100TRUE"]])
+	se     <- sqrt(cov_spill[["tva_50_100TRUE", "tva_50_100TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_100_150TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_150TRUE", "tva_100_150TRUE"]])
+	se     <- sqrt(cov_spill[["tva_100_150TRUE", "tva_100_150TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_150_200TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_150_200TRUE", "tva_150_200TRUE"]])
+	se     <- sqrt(cov_spill[["tva_150_200TRUE", "tva_150_200TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "\\\\\n")
-	row_se <- paste0(row_se, se_str, "\\\\\n")
+	if(y != dep_names[length(dep_names)]) {
+		row_se <- paste0(row_se, se_str, "\\\\\n")
+	} else {
+		row_se <- paste0(row_se, se_str, "\n")
+	}
 	
 	cli::cat_line(row, row_se)
 	
@@ -303,11 +300,9 @@ for(y in dep_names) {
 	X <- reg_controls$X_demeaned
 	e <- reg_controls$residuals
 	coords <- as.matrix(temp[, c("lat", "long")])
-	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
 	dist_cutoff <- 200 * 1.60934
-	lag_cutoff <- 1
-	# cov_controls <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4)$Spatial
+	cov_controls <- conley_ses(X, e, coords, dist_cutoff)$Spatial
 	
 	# Diff-in-Diff with Spillovers ---------------------------------------------
 	formula_controls_spill <- as.formula(paste0(y, " ~ tva + tva_0_50 + tva_50_100 + tva_100_150 + tva_150_200 + ", paste(controls, collapse = " + ")))
@@ -316,11 +311,9 @@ for(y in dep_names) {
 	X <- reg_spill$X_demeaned
 	e <- reg_spill$residuals
 	coords <- as.matrix(temp[, c("lat", "long")])
-	time <- rep(1, nrow(coords))
 	# 1 mi = 1.60934 km
 	dist_cutoff <- 200 * 1.60934
-	lag_cutoff <- 1
-	# cov_spill <- conley_ses(X, e, coords, dist_cutoff, lag_cutoff, cores = 4, time = time, id = time)$Spatial
+	cov_spill <- conley_ses(X, e, coords, dist_cutoff)$Spatial
 	
 	
 	# Create row
@@ -333,8 +326,7 @@ for(y in dep_names) {
 	
 	# Diff-in-Diff Controls TVA
 	pt     <- coef(reg_controls)[["tva"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_controls, temp$FIPSTAT1, "CR1S")[["tva", "tva"]])
-	# se     <- cov_controls[["tva", "tva"]]
+	se     <- sqrt(cov_controls[["tva", "tva"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
@@ -342,40 +334,43 @@ for(y in dep_names) {
 	
 	# Spillover TVA
 	pt     <- coef(reg_spill)[["tva"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva", "tva"]])
-	# se     <- cov_spill[["tva", "tva"]]
+	se     <- sqrt(cov_spill[["tva", "tva"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_0_50TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_0_50TRUE", "tva_0_50TRUE"]])
+	se     <- sqrt(cov_spill[["tva_0_50TRUE", "tva_0_50TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_50_100TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_50_100TRUE", "tva_50_100TRUE"]])
+	se     <- sqrt(cov_spill[["tva_50_100TRUE", "tva_50_100TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_100_150TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_100_150TRUE", "tva_100_150TRUE"]])
+	se     <- sqrt(cov_spill[["tva_100_150TRUE", "tva_100_150TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "& ")
 	row_se <- paste0(row_se, se_str, "& ")
 	
 	pt     <- coef(reg_spill)[["tva_150_200TRUE"]]
-	se     <- sqrt(clubSandwich::vcovCR(reg_spill, temp$FIPSTAT1, "CR1S")[["tva_150_200TRUE", "tva_150_200TRUE"]])
+	se     <- sqrt(cov_spill[["tva_150_200TRUE", "tva_150_200TRUE"]])
 	pt_str <- str_pad(reg_format(pt, se), 15, "both")
 	se_str <- str_pad(paste0("$(", sprintf("%0.4f", se), ")$"), 15, "both")
 	row    <- paste0(row, pt_str, "\\\\\n")
-	row_se <- paste0(row_se, se_str, "\\\\\n")
+	if(y != dep_names[length(dep_names)]) {
+		row_se <- paste0(row_se, se_str, "\\\\\n")
+	} else {
+		row_se <- paste0(row_se, se_str, "\n")
+	}
 	
 	cli::cat_line(row, row_se)
 	

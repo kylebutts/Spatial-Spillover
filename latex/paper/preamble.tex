@@ -182,11 +182,19 @@
 % col-types: X - center, L - left, R -right
 % If you want relative scale for columns: 
 % >{\hsize=.8\hsize}X/L/R
-
 \usepackage{tabularx}
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% Shorter multicolumn commands
+\newcommand{\mcc}[1]{\multicolumn{1}{c@{}}{#1}}
+\newcommand{\mcl}[1]{\multicolumn{1}{l@{}}{#1}}
+\newcommand{\mcr}[1]{\multicolumn{1}{r@{}}{#1}}
+
+% d column
+\usepackage{dcolumn}
+\newcolumntype{d}[1]{D..{#1}}
 
 % Table with easy to use footnotes
 % \begin{threeparttable}

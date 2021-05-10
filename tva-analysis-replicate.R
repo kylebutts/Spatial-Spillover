@@ -133,6 +133,12 @@ if(export & !slides) ggsave("figures/figure-tva-sample.pdf", spillover_map,
 if(export & slides) ggsave("figures/figure-tva-sample_slides.pdf", spillover_map, 
 						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
 
+if(export & !slides) ggsave("figures/figure-tva-sample.png", spillover_map, 
+							dpi= 300, width= 2400/300, height= 1350/300, bg= "white")
+
+if(export & slides) ggsave("figures/figure-tva-sample_slides.png", spillover_map, 
+						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+
 
 
 

@@ -160,11 +160,15 @@ line_within <- tribble(
 				  mapping = aes(x = x, y = y, label = label), size = 4, 
 				  hjust = 0L, vjust = 0L, family = "fira_sans", fontface = 3, inherit.aes = FALSE))
 
-ggpreview(plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
-ggpreview(plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
+# ggpreview(plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
+# ggpreview(plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
 
 ggsave("figures/figure-rings_example.pdf", plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
 ggsave("figures/figure-within_example.pdf", plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
+
+
+ggsave("figures/figure-rings_example.png", plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
+ggsave("figures/figure-within_example.png", plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
 
 
 

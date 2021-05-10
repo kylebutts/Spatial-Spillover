@@ -263,6 +263,8 @@ ggplot(es_pts_spillover_effect) +
 if(slides) ggsave("figures/figure-chc-es_original_slides.pdf", es_plot_original, width = 8, height = 8 * h_w_ratio, dpi = 300)
 if(!slides) ggsave("figures/figure-chc-es_original.pdf", es_plot_original, width = 8, height = 5, dpi = 300)
 
+if(slides) ggsave("figures/figure-chc-es_original_slides.png", es_plot_original, width = 8, height = 8 * h_w_ratio, dpi = 300)
+if(!slides) ggsave("figures/figure-chc-es_original.png", es_plot_original, width = 8, height = 5, dpi = 300)
 
 
 # treatment effect with controls
@@ -281,6 +283,9 @@ if(!slides) ggsave("figures/figure-chc-es_original.pdf", es_plot_original, width
 if(slides) ggsave("figures/figure-chc-es_spillover_control_slides.pdf", es_plot_spillover_control, width = 8, height = 8 * h_w_ratio, dpi = 300)
 if(!slides) ggsave("figures/figure-chc-es_spillover_control.pdf", es_plot_spillover_control, width = 8, height = 5, dpi = 300)
 
+if(slides) ggsave("figures/figure-chc-es_spillover_control_slides.png", es_plot_spillover_control, width = 8, height = 8 * h_w_ratio, dpi = 300)
+if(!slides) ggsave("figures/figure-chc-es_spillover_control.png", es_plot_spillover_control, width = 8, height = 5, dpi = 300)
+
 
 
 # spillover effect
@@ -298,6 +303,9 @@ if(!slides) ggsave("figures/figure-chc-es_spillover_control.pdf", es_plot_spillo
 
 if(slides) ggsave("figures/figure-chc-es_spillover_effect_slides.pdf", es_plot_spillover_effect, width = 8, height = 8 * h_w_ratio, dpi = 300)
 if(!slides) ggsave("figures/figure-chc-es_spillover_effect.pdf", es_plot_spillover_effect, width = 8, height = 5, dpi = 300)
+
+if(slides) ggsave("figures/figure-chc-es_spillover_effect_slides.png", es_plot_spillover_effect, width = 8, height = 8 * h_w_ratio, dpi = 300)
+if(!slides) ggsave("figures/figure-chc-es_spillover_effect.png", es_plot_spillover_effect, width = 8, height = 5, dpi = 300)
 
 
 
@@ -330,6 +338,8 @@ es_pts_combined <- bind_rows(
 if(slides) ggsave("figures/figure-chc-es_combined_slides.pdf", es_plot_combined, width = 8, height = 8 * h_w_ratio, dpi = 300)
 if(!slides) ggsave("figures/figure-chc-es_combined.pdf", es_plot_combined, width = 8, height = 5, dpi = 300)
 
+if(slides) ggsave("figures/figure-chc-es_combined_slides.png", es_plot_combined, width = 8, height = 8 * h_w_ratio, dpi = 300)
+if(!slides) ggsave("figures/figure-chc-es_combined.png", es_plot_combined, width = 8, height = 5, dpi = 300)
 
 
 # Preview

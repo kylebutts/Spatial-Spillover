@@ -41,3 +41,7 @@ latex/slides_research
 *.run.xml
 .Rproj.user
 *.bib
+*.xdv
+
+# Submission Folders
+submissions/*

@@ -1,9 +1,7 @@
-## -----------------------------------------------------------------------------
-## figure-binscatter_example.R
+## figure-binscatter_example.R -------------------------------------------------
 ## Kyle Butts, CU Boulder Economics 
 ## 
-## Single indicator and multiple rings
-## -----------------------------------------------------------------------------
+## Single indicator vs. multiple rings
 
 library(tidyverse)
 library(glue)

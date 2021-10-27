@@ -1,6 +1,5 @@
 
 # Winsorize helper function ----------------------------------------------------
-
 # https://gist.github.com/maifeng/3e5a1f0dd65bf0fd9c2b8f4ac8f5fab3
 winsorize_x = function(x, cut = 0.01){
 	cut_point_top <- quantile(x, 1 - cut, na.rm = T)

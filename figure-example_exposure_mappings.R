@@ -2,35 +2,22 @@
 ## figure-example_exposure_mappings.R
 ## Kyle Butts, CU Boulder Economics 
 ## 
-## Create examples of each exposure mapping
+## Create examples of each exposure mapping using US counties
 ## -----------------------------------------------------------------------------
 
-library("tidyverse")
-library("glue")
-library("sf")
-library("stars")
-library("units")
-library("gstat")
-library("exactextractr")
-library("fixest")
-library("doParallel")
-library("gt")
-library("magrittr")
-
-# Macbook
-setwd("~/Documents/Projects/Spatial Spillover/")
-# Research Computing
-# setwd("/projects/kybu6659/spatial_spillover/")
-
-# Load theme_kyle()
-source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd46ef9f/raw/15196997e5aad41696b03c49be3bfaaca132fdf2/theme_kyle.R")
+library(tidyverse)
+library(here)
+library(glue)
+library(sf)
+library(stars)
+library(fixest)
+library(doParallel)
+library(gt)
+library(kfbmisc)
 
 # Export Options
 slides <- TRUE
 h_w_ratio <- 9/16
-# h_w_ratio <- 3/4
-
-
 
 # sim_data_misspecification()
 source("helper-sim_function_misspecification.R")
@@ -38,18 +25,14 @@ source("helper-sim_function_misspecification.R")
 
 ## Load Spatial Data -----------------------------------------------------------
 # From data_prepare_counties.R
-load(file= "data/counties_and_mat.RData")
+load(file= here::here("data/counties_and_mat.RData"))
 
 us <- counties %>% summarize()
-
 
 set.seed(20210215)
 
 df <- sim_data_misspecification(drop_geometry = FALSE, normalize = TRUE) %>% 
 	st_as_sf()
-
-
-
 
 
 ## Treatment Effect ------------------------------------------------------------
@@ -86,7 +69,7 @@ for(type in types){
 				fill = "Spillover", color = "Treated"
 			) + 
 			scale_fill_gradient(low = "white", high = "grey10", na.value = NA, limits = c(0, 2)) +
-			theme_kyle(slides = TRUE) + 
+			theme_kyle() + 
 			guides(
 				fill = guide_legend(title.position = "top"),
 				color = guide_legend(title.position = "top")
@@ -94,7 +77,7 @@ for(type in types){
 			theme(title = element_text(lineheight = 1.2))
 	)
 
-	ggsave(glue("figures/figure-{type}.png"), plot, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")	
+	ggsave(glue("figures/figure-{type}.png"), plot, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")	
 }
 
 
@@ -131,7 +114,7 @@ grey_palette <- glue("grey{seq(10, 80, by=14)}")
 		) + 
 		scale_fill_manual(values = grey_palette, na.value="white") +
 		# scale_fill_gradient(low = "white", high = "#E34A33", na.value = NA) +
-		theme_kyle(slides = TRUE) + 
+		theme_kyle() + 
 		guides(
 			fill = guide_legend(title.position = "top"),
 			color = guide_legend(title.position = "top")
@@ -141,7 +124,7 @@ grey_palette <- glue("grey{seq(10, 80, by=14)}")
 
 
 
-ggsave(glue("figures/figure-spill_ring.png"), plot, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")	
+ggsave(glue("figures/figure-spill_ring.png"), plot, dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "transparent")	
 
 
 

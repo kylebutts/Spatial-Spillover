@@ -2,38 +2,13 @@
 ## figure-binscatter_example.R
 ## Kyle Butts, CU Boulder Economics 
 ## 
-## On Binscatter (2020)
+## Single indicator and multiple rings
 ## -----------------------------------------------------------------------------
 
 library(tidyverse)
 library(glue)
 library(binsreg)
-
-logname <- Sys.getenv("LOGNAME")
-cli::cli_alert_success("User: {logname}")
-
-if (logname == "kylebutts") setwd("~/Documents/Projects/Spatial Spillover/")
-rm(logname)
-
-# Load Custom Theme 
-source("https://raw.githubusercontent.com/kylebutts/templates/master/ggplot_theme/theme_kyle.R")
-
-# ggpreview
-ggpreview <- function(..., device = "png", cairo = TRUE) {
-	fname <- tempfile(fileext = paste0(".", device))
-	
-	if (cairo & device == "pdf") {
-		ggplot2::ggsave(filename = fname, device = cairo_pdf, ...)
-	} else if (cairo & device == "png") {
-		ggplot2::ggsave(filename = fname, device = device, type = "cairo", ...)
-	} else {
-		ggplot2::ggsave(filename = fname, device = device, ...)
-	}
-	
-	system2("open", fname)
-	invisible(NULL)
-}
-
+library(kfbmisc)
 
 # Generate Data ----------------------------------------------------------------
 
@@ -129,10 +104,10 @@ line_within <- tribble(
 (plot <- ggplot() + 
 	geom_point(data=first_diff, aes(x=dist, y=d_y1), shape=16, col="lightgrey") + 
 	geom_hline(yintercept = reg[[("(Intercept)")]], linetype = 'longdash') + 
-	geom_point(data=dots, aes(x=x, y=fit), col="#5e81ac", size=2, shape=19) +
-	geom_line(data=line, aes(x=x, y=fit), col="#5e81ac", size=0.5) + 
+	geom_point(data=dots, aes(x=x, y=fit), col="#5e81ac", size=3, shape=19) +
+	geom_line(data=line, aes(x=x, y=fit), col="#5e81ac", size=1.5) + 
 	theme_kyle(base_size = 16) + 
-	labs(x = "Distance from Nearest Treated", y = "Change in Outcome") +
+	labs(x = "Distance from Nearest Treated", y = "Change in Outcome (ΔY)") +
 	scale_x_continuous(breaks=c(0, 15, 30, 45, 60, 100), labels=c("Treated", 15, 30, 45, 60, 100)) +
 	# Annotation: Counterfactual Trend
 	geom_curve(data = data.frame(x = 35, y = 1.85, xend = 42.5, yend = reg[[("(Intercept)")]] - 0.03),
@@ -146,10 +121,10 @@ line_within <- tribble(
 (plot_within <- ggplot() + 
 		geom_point(data=first_diff, aes(x=dist, y=d_y1), shape=16, col="lightgrey") + 
 		geom_hline(yintercept = reg_within[[("(Intercept)")]], linetype = 'longdash') + 
-		geom_point(data=dots_within, aes(x=x, y=fit), col="#bf616a", size=2, shape=19) +
-		geom_line(data=line_within, aes(x=x, y=fit), col="#bf616a", size=0.5) + 
+		geom_point(data=dots_within, aes(x=x, y=fit), col="#bf616a", size=3, shape=19) +
+		geom_line(data=line_within, aes(x=x, y=fit), col="#bf616a", size=1.5) + 
 		theme_kyle(base_size = 16) + 
-		labs(x = "Distance from Nearest Treated", y = "Change in Outcome") +
+		labs(x = "Distance from Nearest Treated", y = "Change in Outcome (ΔY)") +
 		scale_x_continuous(breaks=c(0, 15, 30, 45, 60, 100), labels=c("Treated", 15, 30, 45, 60, 100)) +
 		# Annotation: Counterfactual Trend
 		geom_curve(data = data.frame(x = 35, y = 1.85, xend = 42.5, yend = reg_within[[("(Intercept)")]] - 0.03),
@@ -160,18 +135,67 @@ line_within <- tribble(
 				  mapping = aes(x = x, y = y, label = label), size = 4, 
 				  hjust = 0L, vjust = 0L, family = "fira_sans", fontface = 3, inherit.aes = FALSE))
 
-ggpreview(plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
-ggpreview(plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300, device="pdf")
+# ggpreview(plot, width = 8, height = 8 * 9/16, dpi = 300, device="pdf")
+# ggpreview(plot_within, width = 8, height = 8 * 9/16, dpi = 300, device="pdf")
 
-ggsave("figures/figure-rings_example.pdf", plot, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
-ggsave("figures/figure-within_example.pdf", plot_within, width = 2400/300, height = 2400/300 * 9/16, dpi = 300)
-
-
-
-
-
-
-
-
+ggsave(
+	here::here("figures/figure-rings_example.pdf"), plot, 
+	width = 8, height = 8 * 9/16, dpi = 300
+)
+ggsave(
+	here::here("figures/figure-within_example.pdf"), plot_within, 
+	width = 8, height = 8 * 9/16, dpi = 300
+)
 
 
+
+# Combined
+
+(plot_both <- ggplot() + 
+		geom_point(data = first_diff |> filter(dist <= 90), 
+				   aes(x=dist, y=d_y1), shape=16, col="lightgrey") + 
+		geom_hline(yintercept = reg[[("(Intercept)")]], linetype = 'dotted') + 
+		# Within
+		geom_point(data=dots_within, aes(x=x, y=fit, color="#bf616a"), size=3, shape=19) +
+		geom_line(data=line_within, aes(x=x, y=fit, color="#bf616a", linetype = 1), size=1.5) + 
+		# Rings
+		geom_point(data=dots, aes(x=x, y=fit, color="#5e81ac"), size=3, shape=19) +
+		geom_line(data=line, aes(x=x, y=fit, color="#5e81ac", linetype = 1), size=1.5) +
+		theme_kyle(base_size = 16) + 
+		labs(
+			x = "Distance from Nearest Treated", y = "Change in Outcome (ΔY)",
+			color = "Estimation Method"
+		) +
+		scale_x_continuous(
+			breaks=c(0, 15, 30, 45, 60, 75, 90, 100), 
+			labels=c("Treated", 15, 30, 45, 60, 75, 90, 100)
+		) +
+		scale_color_identity(
+			breaks = c("#bf616a", "#5e81ac"),
+			labels = c("One Ring", "Multiple Rings"),
+			guide = guide_legend(
+				override.aes = list(linetype = c(1, 1), shape = c(NA, NA), size = c(2,2))
+			)
+		) +
+		scale_linetype_identity(guide = "none") +
+		theme(
+			panel.grid.minor = element_blank(),
+			legend.position = c(0.8, 0.8), 
+			legend.background = element_rect(fill = "white")
+			# legend.key.width = unit(4,"cm")
+		) +
+		# Annotation: Counterfactual Trend
+		geom_curve(data = data.frame(x = 35, y = 1.85, xend = 42.5, yend = reg[[("(Intercept)")]] - 0.03),
+				   mapping = aes(x = x, y = y, xend = xend, yend = yend),
+				   arrow = arrow(30L, unit(0.1, "inches"), "last", "closed"),
+				   inherit.aes = FALSE) + 
+		geom_text(data = data.frame(x = -1, y = 1.82, label = "Counterfactual Trend Estimate"),
+				  mapping = aes(x = x, y = y, label = label), size = 4, 
+				  hjust = 0L, vjust = 0L, family = "fira_sans", fontface = 3, inherit.aes = FALSE)) 
+
+# ggpreview(plot_both, width = 8, height = 8 * 9/16, dpi = 300, device="pdf")
+
+ggsave(
+	here::here("figures/figure-rings_v_within.pdf"), plot_both, 
+	width = 8, height = 8 * 9/16, dpi = 300
+)

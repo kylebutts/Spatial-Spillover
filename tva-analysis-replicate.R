@@ -1,44 +1,37 @@
-## -----------------------------------------------------------------------------
-## tva-analysis-replicate.R
+## tva-analysis-replicate.R ----------------------------------------------------
 ## Kyle Butts, CU Boulder Economics 
 ## 
-## Replicate Table 3 of Klein and Moretti (2014) 
-## -----------------------------------------------------------------------------
+## Replicate Table 3 of Klein and Moretti (2014) with extension that includes
+## spillover control using rings method
 
 library(tidyverse)
 library(haven)
 library(sf)
 library(Rcpp)
 library(RcppArmadillo)
-
-
-setwd("~/Documents/Projects/Spatial Spillover/")
-
-# Load theme_kyle()
-source("https://raw.githubusercontent.com/kylebutts/templates/master/ggplot_theme/theme_kyle.R")
+library(kfbmisc)
 
 # Helper functions
-source("tva-analysis-helpers.R")
-source("helper-conley.R")
+source(here::here("tva-analysis-helpers.R"))
+source(here::here("helper-conley.R"))
 
-# Export
-export <- TRUE
-slides <- FALSE
+h_w_ratio <- 9/16
 
-## Load Data -------------------------------------------------------------------
 
-df <- read_dta("data/tva/build.dta") %>% 
+# ---- Load Data ---------------------------------------------------------------
+
+df <- read_dta(here::here("data/tva/build.dta")) %>% 
 	mutate(
 		fips = sprintf("%05d", fipstat * 1000 + fipcnty)
 	)
  
-counties <- sf::read_sf("data/2010_county.geojson") %>% 
+counties <- sf::read_sf(here::here("data/2010_county.geojson")) %>% 
 	mutate(fips = paste0(STATEFP10, COUNTYFP10)) %>% 
 	select(state = STATEFP10, county = COUNTYFP10, fips) %>% 
 	rmapshaper::ms_simplify(keep = 0.05)
 
 # Create TVA shape
-tva_fips <- scan("data/tva/tvacounties.txt", character())
+tva_fips <- scan(here::here("data/tva/tvacounties.txt"), character())
 
 tva <- counties %>% 
 	filter(fips %in% tva_fips) %>% 
@@ -51,7 +44,7 @@ counties$dist_to_tva <- as.vector(units::drop_units(units::set_units(dist_mat, "
 controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpop30", "lnpop30sq", "popdifsq", "agrshr20", "agrshr20sq", "agrshr30", "agrshr30sq", "manufshr20", "manufshr30", "lnwage20", "lnwage30", "lntwage30", "lnemp20", "lnemp30", "urbshare20", "urbshare30", "lnfaval20", "lnfaval30", "lnmedhsval30", "lnmedrnt30", "white20", "white20sq", "white30", "white30sq", "pctil20", "pctil30", "urate30", "fbshr20", "fbshr30", "PRADIO30", "nowage20dum", "nowage30dum", "notwage30dum")
 
 
-## Create Spillover Variables --------------------------------------------------
+# ---- Create Spillover Variables ----------------------------------------------
 
 # lat-long of county centroids
 temp <- counties %>% st_transform(4326) %>% st_point_on_surface() %>% st_coordinates()
@@ -70,7 +63,7 @@ df_reg <- df %>%
 	)
 
 
-## Logit for subsample ---------------------------------------------------------
+# ---- Logit for subsample -----------------------------------------------------
 
 formula_logit <- as.formula(paste0("tva ~ ", paste(controls, collapse = " + ")))
 tva_logit <- fixest::femlm(formula_logit, data = df_reg, family = "logit")
@@ -81,7 +74,7 @@ df_reg <- df_reg %>%
 	)
 
 
-## Figure of counties and spillover variable -----------------------------------
+# ---- Figure of counties and spillover variable -------------------------------
 
 fips_in_sample <- df_reg %>%
 	drop_na(!!c(controls)) %>% 
@@ -115,10 +108,9 @@ grey_palette <- c("grey30", "grey50", "grey70")
 		# Outline of TVA
 		geom_sf(data = tva, color = "Black", fill = NA, size = 1.1) + 
 		coord_sf(datum = NA) + 
-		theme_kyle(base_size = 14, slides = slides) +
+		theme_kyle(base_size = 14) +
 		theme(
-			legend.position = c(0.1, 0.15), 
-			legend.background = element_rect(colour = "grey40")
+			legend.position = c(0.1, 0.15),
 		) +
 		labs(fill = "Spillover Bin") + {
 			if(slides) labs(title = "Effective Sample and Spillover Variables")
@@ -127,16 +119,19 @@ grey_palette <- c("grey30", "grey50", "grey70")
 		# scale_fill_manual(values = grey_palette, na.translate = FALSE)) 
 
 
-if(export & !slides) ggsave("figures/figure-tva-sample.pdf", spillover_map, 
-	   dpi= 300, width= 2400/300, height= 1350/300, bg= "white")
+# ggpreview(spillover_map, width = 8, height = 8 * h_w_ratio, device = "pdf")
 
-if(export & slides) ggsave("figures/figure-tva-sample_slides.pdf", spillover_map, 
-						   dpi= 300, width= 2400/300, height= 2400/300 * h_w_ratio, bg= "#ECECEC")
+ggsave("figures/figure-tva-sample.pdf", spillover_map, 
+	   dpi= 300, width= 8, height= 4.5, bg= "white")
+
+ggsave("figures/figure-tva-sample_slides.pdf", spillover_map, 
+	   dpi= 300, width= 8, height= 8 * h_w_ratio, bg= "white")
 
 
 
 
-## Regression -------------------------------------------------------------------
+
+# ---- Regression --------------------------------------------------------------
 
 df_reg <- df_reg %>% 
 	mutate( 
@@ -159,7 +154,7 @@ df_reg <- df_reg %>%
 controls <- c("lnelevmax", "lnelevrang", "lnarea", "lnpop20", "lnpop20sq", "lnpop30", "lnpop30sq", "popdifsq", "agrshr20", "agrshr20sq", "agrshr30", "agrshr30sq", "manufshr20", "manufshr30", "lnwage20", "lnwage30", "lntwage30", "lnemp20", "lnemp30", "urbshare20", "urbshare30", "lnfaval20", "lnfaval30", "lnmedhsval30", "lnmedrnt30", "white20", "white20sq", "white30", "white30sq", "pctil20", "pctil30", "urate30", "fbshr20", "fbshr30", "PRADIO30", "nowage20dum", "nowage30dum", "notwage30dum")
 
 
-# 1940 - 2000 Version ----------------------------------------------------------
+# ---- 1940 - 2000 Version -----------------------------------------------------
 
 
 dep_names <- c(
@@ -268,12 +263,12 @@ for(y in dep_names) {
 }
 
 cat(table_tex)
-if(export) cat(table_tex, file = "tables/tva_replication.tex")
+cat(table_tex, file = "tables/tva_replication.tex")
 
 
 
 
-## 1940 - 1960 Version ---------------------------------------------------------
+# ---- 1940 - 1960 Version -----------------------------------------------------
 
 dep_names <- c(
 	"Agricultural employment" = "D_lnagr_short", 
@@ -378,7 +373,7 @@ for(y in dep_names) {
 }
 
 cat(table_tex)
-if(export) cat(table_tex, file = "tables/tva_replication_short.tex")
+cat(table_tex, file = "tables/tva_replication_short.tex")
 
 
 

@@ -1,6 +1,4 @@
 \documentclass[aspectratio=169]{beamer}
-% Metropolis Theme ------------------------------------------------------------------------------
-\usetheme{metropolis} % Use metropolis theme
 
 
 % Title ------------------------------------------------------------------------------
@@ -12,35 +10,6 @@
 \input{preamble.tex}
 
 \addbibresource{references.bib}
-
-\usepackage{adjustbox}
-\usepackage{tabularx}
-\usepackage{booktabs}
-\usepackage{threeparttable}
-\usepackage{dcolumn} 
-
-% Table Highlighting
-\usepackage[beamer,customcolors]{hf-tikz}
-\usetikzlibrary{calc}
-\usetikzlibrary{fit,shapes.misc}
-
-% To set the hypothesis highlighting boxes red.
-\tikzset{hl/.style={
-    set fill color=red!80!black!40,
-    set border color=red!80!black,
-  },
-}
-\newcommand\marktopleft[1]{%
-    \tikz[overlay,remember picture] 
-        \node (marker-#1-a) at (0,1.5ex) {};%
-}
-\newcommand\markbottomright[1]{%
-    \tikz[overlay,remember picture] 
-        \node (marker-#1-b) at (0,0) {};%
-    \tikz[red, ultra thick, overlay, remember picture, inner sep=4pt]
-        \node[draw, rectangle, fit=(marker-#1-a.center) (marker-#1-b.center)] {};%
-}
-
 
 % ------------------------------------------------------------------------------
 \begin{document}
@@ -58,20 +27,20 @@
     Estimation is complicated by \textbf{Spillover Effects}
     
     \vspace{5mm}
-    \textbf{Spillover effects} are when effect of treatment extend over the treatment boundaries (states, counties, etc.). Example:
+    \textbf{Spillover effects} occur when the effect of treatment extends over the treatment boundaries (states, counties, etc.). Example: Amazon Shipping Center
     
     \begin{itemize}
-        \item A large employer opening/closing in a treated county have positive employment effects on \textbf{control counties}
+        \item A shipping center opening in county \textit{c} has positive employment effects on \textbf{nearby control counties}
         
-        \item Having nearby counties with factories raises wages and reduces effect of \textbf{treated counties}
+        \item Having nearby counties with shipping centers raises employment and therefore reduces the effect of \textbf{treated counties} through general equilibrium effects
     \end{itemize}
 \end{frame}
 
 \begin{frame}{This Paper}
-    In this paper, I
+    In this paper, I...
 
     \begin{itemize}
-        \item Present a potential outcomes framework to formalize spillover effects and evaluate ad-hoc adjustments done in the literature
+        \item Present a potential outcomes framework to formalize spillover effects and evaluate ad-hoc adjustments commonly found in the literature
         
         \item Propose an estimation strategy that improves on current practices by being more robust to spillovers
         
@@ -94,32 +63,32 @@
         \only<2>{
             \[ 
                 \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\text{Counterfactual Trend} \ + \ \tau} - 
-                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{purple} Spillover on Control}}}
+                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
             \]
         }
         \only<3>{
             \[ 
-                \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\substack{\text{Counterfactual Trend} \ + \ \tau \\[2mm] \ + \ \text{\color{red} Spillover on Treated}}} - 
-                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{purple} Spillover on Control}}}
+                \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\substack{\text{Counterfactual Trend} \ + \ \tau \\[2mm] \ + \ \text{\color{kelly} Spillover on Treated}}} - 
+                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
             \]
         }
     } 
 
-    Two problems in presence of spillover effects:
+    Two problems occur in the presence of spillover effects:
     
     
     \begin{itemize}
         \onslide<2->{
-            \item {\bf \color{purple} Spillover onto Control Units:} 
+            \item {\bf \color{coral} Spillover onto Control Units:} 
             
             Nearby ``control'' units fail to estimate counterfactual trends because they are affected by treatment
         }
         
         \onslide<3->{
             \vspace{2.5mm}
-            \item {\bf \color{red} Spillover onto other Treated Units:} 
+            \item {\bf \color{kelly} Spillover onto other Treated Units:} 
             
-            Treated units are also affected by nearby units and therefore combines ``direct'' effects with spillover effects
+            Treated units are also affected by nearby units and therefore combine ``direct'' effects with spillover effects
         }
     \end{itemize}
 
@@ -131,22 +100,56 @@
     }
     \only<2>{
         \[ 
-            y_{it} = \mu_t + \mu_i + \tau D_{it} + \text{Within}_{it} * D_{it} + \text{Within}_{it} * (1-D_{it}) + \varepsilon_{it}
+            y_{it} = \mu_t + \mu_i + \tau D_{it} + {\color{coral} \tau_{\text{spill,control}} \text{Within}_{it} * (1-D_{it}) } + {\color{kelly} \tau_{\text{spill,treat}} \text{Within}_{it} * D_{it}} +  + \varepsilon_{it}
         \]
     }
 
     \only<1>{ 
         \[ 
-            \mathbb{E}\{\hat{\tau}\} = \tau + \text{\color{purple} Spillover on Control} + \text{\color{red}Spillover on Treated}
+            \mathbb{E}[\hat{\tau}] = \tau + \text{\color{coral} Spillover on Control} + \text{\color{kelly}Spillover on Treated}
         \]
     }
     \only<2>{
         \[ 
-            \mathbb{E}\{\hat{\tau}\} = \tau,
+            \mathbb{E}[\hat{\tau}] = \tau,
         \]
         so long as $\text{Within}_{it}$ contains all the units with spillovers.
     }
 \end{frame}
+
+
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Single Ring - Removes spillover effects}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics{../../figures/figure-within_example.pdf}
+            }
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Multiple Rings - Improves estimation of spillover effects}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics{../../figures/figure-rings_example.pdf}
+                } 
+            \end{center}
+    \end{figure}
+\end{frame}
+
+% \begin{frame}
+%     \begin{figure}[tb!]
+%         \caption{Community Health Centers}
+%         \begin{center}
+%             \resizebox{0.9\textwidth}{!}{
+%                 \includegraphics{../../figures/figure-chc-es_combined_slides.pdf}
+%                 } 
+%             \end{center}
+%     \end{figure}
+% \end{frame}
 
 
 % Grey out overlays
@@ -191,6 +194,9 @@
             
             \vspace{2.5mm}
             \item Discuss how framework can reconcile conflicting findings on effect of federal Empowerment Zones \begin{citecolor}\citep{Busso_Gregory_Kline_2013,Neumark_Kolko_2010}\end{citecolor}
+            
+            \vspace{2.5mm}
+            \item Event Study estimates of Community Health Centers find highly localized efffects \begin{citecolor}\citep{Bailey_Goodman_Bacon_2015}\end{citecolor}
         \end{itemize}
     \end{itemize} 
 \end{frame}
@@ -206,15 +212,15 @@
     For exposition, I will label units as counties. Assume all treatment occurs at the same time (2-periods or pre-post averages).\footnote{I extend this into an event study framework in the paper, but the intuition is the same as in the $2 \times 2$ setting.}
     
     \begin{itemize}
-        \item $Y_{it}(D_i, \textcolor{blue}{h(\vec{D}, i)})$ is the potential outcome of county $i \in \{ 1, \dots, N \}$ at time $t$ with treatment status $D_i \in \{0, 1\}$.
+        \item $Y_{it}(D_i, \textcolor{alice}{h(\vec{D}, i)})$ is the potential outcome of county $i \in \{ 1, \dots, N \}$ at time $t$ with treatment status $D_i \in \{0, 1\}$.
         
         \item $\vec{D} \in \{0,1\}^N$ is the vector of all units treatments.
         
         \pause
-        \item The function $\textcolor{blue}{h(\vec{D}, i)}$ maps the entire treatment vector into an `exposure mapping' which can be a scalar or a vector.
+        \item The function $\textcolor{alice}{h(\vec{D}, i)}$ maps the entire treatment vector into an `exposure mapping' which can be a scalar or a vector.
         
         \pause
-        \item No exposure is when $\textcolor{blue}{h(\vec{D}, i)} = \vec{0}$.
+        \item No exposure is when $\textcolor{alice}{h(\vec{D}, i)} = \vec{0}$.
     \end{itemize}
 \end{frame}
 
@@ -228,12 +234,12 @@
     \begin{itemize}
         \item \textbf{Treatment within $x$ miles:}
         
-        $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
+        $\textcolor{alice}{h(\vec{D}, i)} = max_j \ 1\left(d(i, j\right) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
 
         \begin{itemize}
             \item e.g. library access where $x$ is the maximum distance people will travel
             
-            \item Spillovers are non-additive
+            \item Spillovers are non-additive, i.e. spillover effects do not depend on number of nearby treated areas
         \end{itemize}
 
     \end{itemize}
@@ -248,7 +254,7 @@
     \begin{itemize}
         \item \textbf{Treatment within $x$ miles:}
         
-        $\textcolor{blue}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
+        $\textcolor{alice}{h(\vec{D}, i)} = max_j \ 1(d(i, j) \leq x)$ where $d(i,j)$ is the distance between counties $i$ and $j$. 
 
         \begin{itemize}
             \item e.g. library access where $x$ is the maximum distance people will travel
@@ -259,10 +265,10 @@
         \vspace{2.5mm}
         \item \textbf{Number of Treated within $x$ miles:}
         
-        $\textcolor{blue}{h(\vec{D}, i)} = \sum_{j = 1}^k 1(d(i, j) \leq x)$. 
+        $\textcolor{alice}{h(\vec{D}, i)} = \sum_{j = 1}^k 1(d(i, j) \leq x)$. 
 
         \begin{itemize}
-            \item e.g. large factories opening
+            \item e.g. Amazon shipping center
             
             \item Agglomeration economies suggest spillovers are additive
         \end{itemize}
@@ -275,39 +281,41 @@
 
 
 \begin{frame}{Estimand of Interest}
-    Estimand of Interest: 
+    \begin{block}{Estimand of Interest:}
     \[ 
         \textcolor{green}{\tau_{\text{direct}}} \equiv \textcolor{green}{\mathbb{E}\left[ Y_{i,1}(1, 0) - Y_{i,1}(0, 0) \mid D_i = 1\right]}
     \]
+    \end{block}
 
 
     \pause
     \vspace{2.5mm}
-    Spillover Effects:
-
+    \begin{block}{Spillover Effects:}
     \[
         \textcolor{red}{\tau_{\text{spillover, treated}}} \equiv \textcolor{red}{\mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right]}
     \]
 
     \[ 
-        \textcolor{purple}{\tau_{\text{spillover, control}}} = \textcolor{purple}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]}
+        \textcolor{coral}{\tau_{\text{spillover, control}}} = \textcolor{coral}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]}
     \]
+    \end{block}
 \end{frame}
 
 
 \begin{frame}{Parallel Trends}
     I assume a modified version of the parallel counterfactual trends assumption: 
 
-    \textbf{Assumption:} \textit{Parallel Counterfactual Trends}
+    \vspace{2.5mm}
+    \begin{block}{Assumption: {\it Parallel Counterfactual Trends}}
     \begin{align*}
-        &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 1 \big] \\
-        = \ &\mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{blue}{\vec{0}}) - Y_{i,0}(0, \textcolor{blue}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 0 \big],
+        \mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{alice}{\vec{0}}) - Y_{i,0}(0, \textcolor{alice}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 1 \big] = \ \mathbb{E}\big[ \underbrace{Y_{i,1}(0, \textcolor{alice}{\vec{0}}) - Y_{i,0}(0, \textcolor{alice}{\vec{0}})}_{\text{Counterfactual Trend}} \mid D_i = 0 \big]
     \end{align*}
+    \end{block}
 
     \vspace{5mm}
     In the \textit{complete absence of treatment }(not just the absence of individual $i$'s treatment):
     
-    Changes in outcomes does not depend on treatment status
+    Changes in outcomes do not depend on treatment status
     
 \end{frame}
 
@@ -321,46 +329,47 @@
         &\quad + \quad 
         \textcolor{red}{\mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(1, 0) \mid D_i = 1 \right]} \\ 
         &\quad - \quad  
-        \textcolor{purple}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]} \\[3mm]
-        &= \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{purple}{\tau_{\text{spillover, control}}}
+        \textcolor{coral}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i1}(0, 0) \mid D_i = 0 \right]} \\[3mm]
+        &= \textcolor{green}{\tau_{\text{direct}}} + \textcolor{red}{\tau_{\text{spillover, treated}}} - \textcolor{coral}{\tau_{\text{spillover, control}}}
     \end{align*}
 
 \end{frame}
 
 
 \begin{frame}{Removing Bias}
-    \textbf{Assumption:} \textit{Spillovers are Local}
+    
+    \begin{block}{Assumption: {\it Spillovers are Local}}
 
     Let $d(i,j)$ be the distance between units $i$ and $j$. There exists a distance $\bar{d}$ such that 
         
         (i) For all units $i$,
         \[ 
-            \min_{j: \ D_j = 1} d(i,j) > \bar{d} \implies h(\vec{D}, i) = \vec{0}. 
+            \min_{j: D_j = 1} d(i,j) > \bar{d} \implies h(\vec{D}, i) = \vec{0}. 
         \]
     
         (ii) There are treated and control units such that $\min_{j: \ D_j = 1} d(i,j) > \bar{d}$.
+
+    \end{block}
 \end{frame}
 
 \begin{frame}{Removing Bias}
-    With assumption that spillovers are local, define $S_i$ to be an indicator that contains all units with $h(\vec{D}, i) \neq \vec{0}$ (and potentially some units with $= \vec{0}$).
+    With assumption that spillovers are local, define $S_it$ to be an indicator equal to one in the post period for all units with $h(\vec{D}, i) \neq \vec{0}$ (and potentially some units with $= \vec{0}$).
     
-    Then $\hat{\tau}$ will be a consistent estimate for $\tau$ in this specification: 
+    Estimation of the following equation:
     \[ 
-        y_{it} = \mu_t + \mu_i + \tau D_{it} + \text{Within}_{it} * D_{it} + \text{Within}_{it} * (1-D_{it}) + \varepsilon_{it}
+        y_{it} = \mu_t + \mu_i + \tau D_{it} + \tau_{\text{spill,treat}} S_{it} * D_{it} + \tau_{\text{spill,control}} S_{it} * (1-D_{it}) + \varepsilon_{it}
     \]
-    
+
+    \begin{itemize}
+        \item $\hat{\tau}$ is consistent for $\tau_{\text{direct}}$
+        
+        \item $\hat{\tau}_{\text{spill}}$'s are not consistent for average spillover effects (hence the need for rings).
+    \end{itemize}
 
 \end{frame}
 
-
-
-% ------------------------------------------------------------------------------
-\section{Estimation with Spillovers}
-% ------------------------------------------------------------------------------
-
-
-\begin{frame}{Common Solution: Removing ``contaminated'' controls}
-    A common solution to the problem of spillover is to restimate on a subsample with neighboring control units removed.
+\begin{frame}{Aside -- Removing ``contaminated'' controls}
+    A common solution to the problem of spillover is to re-estimate on a subsample with neighboring control units removed.
 
     This is not recommended for two reasons:
 
@@ -371,16 +380,14 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Solution: Parametrize potential outcomes}
-    Another option is to directly control for spillovers by parametrizing the exposure mapping. 
-    
-    The corret exposure mapping is not observable to a researcher which raises the question:
 
-    Are there specifications that work well even if the spillovers are misspecified?
-\end{frame}
+% ------------------------------------------------------------------------------
+\section{Estimation of Spillovers}
+% ------------------------------------------------------------------------------
+
 
 \begin{frame}{Robustness to Misspecification}
-    Generate data using the same data-generating process as before but with different spillover functions:
+    Generate data using the following data-generating process with different exposure mappings:
 
     \[ 
         y_{\it} = \mu_t + \mu_i + 2 D_{it} + \beta_{\text{spill,control}} * (1-D_{it}) h(\vec{D}, i) + \varepsilon_{it}
@@ -388,6 +395,8 @@
 
     \begin{itemize}
         \item Observation $i$ is a U.S. county, year $t \in \{2000, \dots, 2019\}$, treatment $D_{it}$ turns on in 2010 and is assigned randomly.
+        
+        \item Details in the paper, but $\mu_t$ is normally distributed on a linear time trend, $\mu_i$ are normally distributed
     \end{itemize}
 
     Then, I estimate each data-generating process using (potentially) misspecified $\tilde{h}(\vec{D}, i)$ and report the average estimate bias.
@@ -416,17 +425,6 @@
 \begin{frame}{Specifications of $h(\vec{D}, i)$}
     
     \begin{itemize}
-        \item \textit{Within $40/80$mi.}:
-        \begin{itemize}
-            \item Indicator for nearest treated unit being within $40/80$ miles.
-        \end{itemize}
-        
-        \item \textit{Within $40/80$mi. (Additive)}: 
-        \begin{itemize}
-            \item Number of treated units being within $40/80$ miles.
-        \end{itemize}
-        
-
         \item \textit{Decay}: 
         \begin{itemize}
             \item $\max_j D_j * e^{-0.02 d(i,j)} * 1(d(i,j) < 80)$
@@ -449,26 +447,6 @@
 \begin{frame}{Specifications of $h(\vec{D}, i)$}
     
     \begin{itemize}
-        \item \textit{Within $40/80$mi.}:
-        \begin{itemize}
-            \item Indicator for nearest treated unit being within $40/80$ miles.
-        \end{itemize}
-        
-        \item \textit{Within $40/80$mi. (Additive)}: 
-        \begin{itemize}
-            \item Number of treated units being within $40/80$ miles.
-        \end{itemize}
-        
-        \item \textit{Decay}: 
-        \begin{itemize}
-            \item $\max_j D_j * e^{-0.02 d(i,j)} * 1(d(i,j) < 80)$
-        \end{itemize}
-        
-        \item \textit{Decay (Additive)}: 
-        \begin{itemize}
-            \item $\sum_j D_j * e^{-0.02 d(i,j)} * 1(d(i,j) < 80)$
-        \end{itemize}
-        
         \item \textit{Rings}: 
         \begin{itemize}
             \item Set of concentric rings. For each ring, indicator for nearest treated unit being within that distance bin
@@ -490,7 +468,7 @@
         \caption{Bias from Misspecification of Spillovers}
         \label{tab:misspecification}
     
-        \begin{adjustbox}{width = 1.1\textwidth, center}
+        \begin{adjustbox}{width = \textwidth, center}
             \begin{threeparttable}
                 \begin{tabular}{@{} l rrrrrr @{}}
                     % Head
@@ -531,7 +509,7 @@
     \end{table}
 
     \onslide<3->{
-        \textbf{Indicator (or set of indicators) that captures all affected unit removes all bias}
+        \textbf{Indicator (or set of rings) that captures \emph{all} affected unit removes all bias}
     }
 \end{frame}
 
@@ -540,7 +518,7 @@
     
     However, the two other spillover effects are of interest as well:
     \begin{itemize}
-        \item $\textcolor{purple}{\tau_{\text{spillover, control}}}$: Do the benefits of a treated county come at a cost to neighbor counties? 
+        \item $\textcolor{coral}{\tau_{\text{spillover, control}}}$: Do the benefits of a treated county come at a cost to neighbor counties? 
         
         \item $\textcolor{red}{\tau_{\text{spillover, treated}}}$: Does the estimated effect change based on treatment of neighbors? 
     \end{itemize}
@@ -563,13 +541,35 @@
 
 \end{frame}
 
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Single Ring - Removes spillover effects}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics{../../figures/figure-within_example.pdf}
+            }
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Multiple Rings - Improves estimation of spillover effects}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics{../../figures/figure-rings_example.pdf}
+                } 
+            \end{center}
+    \end{figure}
+\end{frame}
+
 
 \begin{frame}
     \begin{table}[!tb]
         \caption{Percent of Spillovers Predicted by Specification}
         \label{tab:misspecification_mspe}
     
-        \begin{adjustbox}{width = 1.1\textwidth, center}
+        \begin{adjustbox}{width = \textwidth, center}
             \begin{threeparttable}
                 \begin{tabular}{@{} l rrrrrr @{}}
                     % Head
@@ -633,7 +633,12 @@
         \item The program focused on large-scale dam construction that brought cheap wholesale electricity to the region
     \end{itemize}
 
-    Research Question: What are the local effects of TVA on manufacturing and agricultural economies? Do these effects come at the cost of other counties?
+    \pause
+    Research Questions:
+    \begin{itemize}
+        \item What are the local effects of TVA on manufacturing and agricultural economies?
+        \item Do these effects come at the cost of other counties?
+    \end{itemize}
 \end{frame}
 
 \begin{frame}{Identification}
@@ -676,7 +681,7 @@
 
     \begin{itemize}
         \item $\text{Ring}(d)$ is a set of indicators for being in the following distance bins (in miles) from the Tennessee Valley Authority: 
-        \[ d \in \left\{ (0, 50], (50, 100], (100, 150] \right\} \]
+        \[ d \in \left\{ (0, 50], (50, 100], (100, 150] (150, 200]\right\} \]
     \end{itemize}
 \end{frame}
 
@@ -690,25 +695,26 @@
 
     \begin{adjustbox}{width = 1\textwidth, center}
         \begin{threeparttable}
-            \begin{tabular}{@{} lc@{\extracolsep{20pt}}c@{\extracolsep{4pt}}ccc @{}}
+            \begin{tabular}{@{} l c@{\extracolsep{20pt}}c@{\extracolsep{4pt}}cccc @{}}
                 % Head
                 \toprule
 
-                & \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{4}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
-                \cmidrule{2-2} \cmidrule{3-6} 
-                & & & TVA between & TVA between & TVA between \\ 
-                \textit{Dependent Var.} & TVA & TVA & 0-50 mi. & 50-100 mi. & 100-150 mi. \\ 
+                & \multicolumn{1}{c}{\textbf{Diff-in-Diff}} & \multicolumn{5}{c}{\textbf{Diff-in-Diff with Spillovers}} \\ 
+                \cmidrule{2-2} \cmidrule{3-7}
+                & & & TVA between & TVA between & TVA between & TVA between \\ 
+                & TVA & TVA & 0-50 mi. & 50-100 mi. & 100-150 mi. & 150-200 mi. \\ 
+                \textit{Dependent Var.} & (1) & (2) & (3) & (4) & (5) & (6) \\
 
                 % Body
                 \midrule
                 
-                Agricultural employment     & $-0.0514^{***}$& $-0.0678^{***}$& $-0.0310^{**}$ &    $-0.0112$   & $-0.0252^{***}$\\
-                &   $(0.0087)$   &   $(0.0102)$   &   $(0.0123)$   &   $(0.0094)$   &   $(0.0084)$ 
+                Agricultural employment     & $-0.0514^{***}$ & $-0.0739^{***}$& $-0.0371^{***}$&    $-0.0164$   & $-0.0298^{***}$&  $-0.0157^{*}$ \\
+                &   $(0.0114)$   &   $(0.0142)$   &   $(0.0002)$   &   $(0.0114)$   &   $(0.0096)$   &   $(0.0088)$
 
                 \onslide<2->{
                     \\
-                    Manufacturing employment    & $0.0560^{***}$ &  $0.0461^{**}$ &    $-0.0104$   &    $-0.0128$   &  $-0.0248^{*}$ \\
-                    &   $(0.0187)$   &   $(0.0210)$   &   $(0.0205)$   &   $(0.0257)$   &   $(0.0147)$
+                    Manufacturing employment    & $0.0560^{***}$ &    $0.0350$    & $-0.0203^{***}$&    $-0.0245$   &  $-0.0331^{*}$ & $-0.0296^{**}$ \\
+                    &   $(0.0161)$   &   $(0.0218)$   &   $(0.0006)$   &   $(0.0282)$   &   $(0.0189)$   &   $(0.0142)$ 
                 }
                
                 \\ \bottomrule
@@ -729,9 +735,13 @@
 \begin{frame}{Identification Strategies and Place-Based Policies}
 
     The literature on federal Enterprise Zones, place-based policy that gives tax breaks to businesses that locate within the boundary, has found conflicting results, suggesting positive or near-zero effects of the program \citep{Neumark_Young_2019}. 
+
+
+\end{frame}
+
+\begin{frame}{Identification Strategies and Place-Based Policies}
     
     \begin{itemize}
-        \pause
         \item \citet{Busso_Gregory_Kline_2013} compare census tracts in Empowerment Zones to census tracts that qualified and were rejected from the program. They find significant large reduction of poverty.
         
         \pause
@@ -743,9 +753,68 @@
 
 \end{frame}
 
+\section{Event Study}
 
+\begin{frame}{Gardner (2021) Overview}
 
+    \[ 
+        y_{it} = \mu_i + \mu_t + \tau D_{it} + \varepsilon_{it}
+    \]
 
+    The problem with estimating this by OLS is that the treatment variable becomes residualized $\tilde{D}_{it}$ and this leads to all sorts of problems... (see new diff-in-diff literature)
+
+    \pause
+
+    Gardner (2021) recommends a two-step approach:
+
+    1. Estimate $\mu_i$ and $\mu_t$ using never-treated/not-year-treated observations ($D_{it}$ = 0). Then subtract off $\hat{\mu}_i$ and $\hat{\mu}_t$.
+        
+    \pause
+    2. Then, regress $y_{it} - \hat{\mu}_i - \hat{\mu}_t \equiv \tilde{y}_{it}$ on $\tau D_{it}$ (or event study leads/lags). This estimate is unbiased because $D_{it}$ is non-residualized (standard errors require adjusting).
+\end{frame}
+
+\begin{frame}{Controlling for Spillovers in Staggered Treatment Timing}
+    \[ 
+        y_{it} = \mu_i + \mu_t + \tau D_{it} + {\color{coral} \tau_{\text{spill,control}} \text{Within}_{it} * (1-D_{it}) } + {\color{kelly} \tau_{\text{spill,treat}} \text{Within}_{it} * D_{it}} + \varepsilon_{it}
+    \]
+
+    Adjust two-step approach:
+
+    \pause
+
+    1. Estimate $\mu_i$ and $\mu_t$ using observations that aren't yet treated/affected by spillovers ($D_{it} = 0$ and $Within_{it} = 0$). Then subtract off $\hat{\mu}_i$ and $\hat{\mu}_t$.  
+    
+    2. Then, regress $\tilde{y}_{it}$ on $\tau D_{it} + {\color{coral} \tau_{\text{spill,control}} \text{Within}_{it} * (1-D_{it}) } + {\color{kelly} \tau_{\text{spill,treat}} \text{Within}_{it} * D_{it}}$ (or interacted event study leads/lags). This estimate is unbiased because $D_{it}$ is non-residualized (standard errors require adjusting).
+
+\end{frame}
+
+\begin{frame}{Community Health Centers}
+    \begin{citecolor}\citet{Bailey_Goodman_Bacon_2015}\end{citecolor} study the creation of federal community health centers between 1965 and 1974
+    
+    \textbf{Research Question:} Do low-/no-cost health services lower the mortality rate of the treated counties? \emph{New Question:} Do these effects spread to neighboring counties?
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Effects of Establishment of Community Health Centers}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics[width=\textwidth]{../../figures/figure-chc-es_original.pdf}
+            }
+        \end{center}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[tb!]
+        \caption{Direct and Spillover Effects of Community Health Centers}
+        \begin{center}
+            \resizebox{0.9\textwidth}{!}{
+                \includegraphics[width=\textwidth]{../../figures/figure-chc-es_combined.pdf}
+            }
+        \end{center}
+    \end{figure}
+\end{frame}
 
 \section{Conclusion}
 

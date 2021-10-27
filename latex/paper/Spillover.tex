@@ -1,8 +1,8 @@
 \documentclass[11pt]{article}
 
-\title{\color{navyblue} Difference-in-Differences Estimation with Spatial Spillovers}
-\author{\normalsize Kyle Butts\\{\footnotesize Univ. of Colorado, Boulder}}
-\date{\footnotesize\today}
+\title{Difference-in-Differences Estimation with Spatial Spillovers\thanks{I am grateful to Taylor Jaworski, Adam McCloskey, Damian Clarke, Daniel Kaffine, Tania Barham, Alexander Bentz, James Flynn, Brach Champion, Hannah Denker, and participants of the CU Boulder Labor Economics Seminar for helpful comments.}}
+\author{\href{https://kylebutts.com/}{Kyle Butts}\thanks{University of Colorado, Boulder. Email: \href{mailto:kyle.butts@colorado.edu}{kyle.butts@colorado.edu}.}}
+\date{\today}
 
 \input{preamble.tex}
 
@@ -14,9 +14,14 @@
 % ------------------------------------------------------------------------------
 \begin{titlepage}
     \maketitle
-    
     \begin{abstract}
         Empirical work often uses treatment assigned following geographic boundaries. When the effects of treatment cross over borders, classical difference-in-differences estimation produces biased estimates for the average treatment effect. In this paper, I introduce a potential outcomes framework to model spillover effects and decompose the estimate's bias in two parts: (1) the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment and (2) changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I propose estimation strategies that can remove both sources of bias and semi-parametrically estimate the spillover effects themselves. I extend \citet{Callaway_SantAnna_2020} to allow for event-study estimates that control for spillovers. To highlight the importance of spillover effects, I revisit analyses of three place-based interventions. 
+        
+        \par~\par
+        \noindent{\bf Keywords:} causal inference, spatial econometrics, spillover effects
+        \par
+        \noindent{\bf JEL Classification Number:} C01, R15, R58
+        \par 
     \end{abstract}
 \end{titlepage}
 % ------------------------------------------------------------------------------
@@ -257,7 +262,7 @@ However, the estimates are not trivial to interpret as the ``typical'' magnitude
     \noindent{\footnotesize \textit{Notes:} Panel (a) shows the estimate of a single large ring indicator following equation (\ref{eq:twfe_with_ind}). Panel (b) shows a set of concentric ring indicators following equation (\ref{eq:twfe_with_ind}) where $S_{i}$ is replaced with a set of ring indicators.}
 \end{figure}
 
-An improvement on this is to use a set of concentric ring indicators instead of a single large ring indicator to more flexibly estimate the spillover effects (e.g 0-20 miles, 20-40 miles and 40-60 miles from the nearest treated unit). Since the set of rings is collinear with a single large ring, the direct effect estimate retains its unbiased properties, while spillover effects can potentially be estimated more accurately. A simple example of how rings improves estimation of spillover effects can be seen in Figure \ref{fig:example_rings}. The figure displays observations of $\bar{Y}_{i,Post} - \bar{Y}_{i,Pre}$ on the y-axis and the distance to the nearest treated unit on the x-axis and treated units are placed at a zero distance for visualization purposes. The example has a counterfactual trend of 2 so any difference from 2 is due to either treatment/spillover effects and the error term. Panel (a) uses a single indicator for being between 0 and 60 miles from treatment and the difference between the bar and the estimated counterfactual trend is the estimated spillover effect which in this case is about 0.6. This number masks that units within the first 15 miles have a treatment effect of 1 or larger and units between 40 and 60 miles have 0 spillover effects. 
+An improvement on this is to use a set of concentric ring indicators instead of a single large ring indicator to more flexibly estimate the spillover effects (e.g 0-20 miles, 20-40 miles and 40-60 miles from the nearest treated unit). Since the set of rings is collinear with a single large ring, the direct effect estimate retains its unbiased properties, while spillover effects can potentially be estimated more accurately. A simple example of how rings improves estimation of spillover effects can be seen in Figure \ref{fig:example_rings}. The figure displays observations of $Y_{i,Post} - Y_{i,Pre}$ on the y-axis and the distance to the nearest treated unit on the x-axis and treated units are placed at a zero distance for visualization purposes. The example has a counterfactual trend of 2 so any difference from 2 is due to either treatment/spillover effects and the error term. Panel (a) uses a single indicator for being between 0 and 60 miles from treatment and the difference between the bar and the estimated counterfactual trend is the estimated spillover effect which in this case is about 0.6. This number masks that units within the first 15 miles have a treatment effect of 1 or larger and units between 40 and 60 miles have 0 spillover effects. 
 
 Figure (b) on the other hand uses 4 indicators for every 15 mile interval (0-15, 15-30, 30-45, and 45-60 miles). This improves on the estimate of a single ring in two ways. Multiple rings are better able to capture the evolution of spillover effects over distance. Furthermore, the ring that is included past the true maximum distance where spillover effects occur has a point estimate near zero. The rings method acts a semi-parametric estimator in the sense that as the number of rings increase and their width shrinks, the estimates would trace out the spillover effect function (subject to their being units outside of the rings). However, precision of estimates would decrease as the number of rings increase and therefore there is a bias-variance trade-off in the number and width of rings. \citet{Clarke_2017} proposes a cross-validation technique for optimally choosing the number of rings and their techniques that uses the out-of-sample mean square prediction error as a way to estimate the bias-variance tradeoff. Interested readers can see the paper for technical and implementation details.
 

@@ -2,28 +2,22 @@
 ## sim-misspecification_of_spillover.R
 ## Kyle Butts, CU Boulder Economics 
 ## 
-## This file estimates spillover functions using misspecified spillover variables and compares the biases found.
+## This file performs a set of Monte Carlo simulations that estimate a set of 
+## DGPs using various exposure mappings and estimates them using exposure 
+## mappings and ring(s). The first simulation reports on average bias found in 
+## the treatment effect estimate and the second simulation reports on the 
+## ability to accurately predict spillover effects from fitted values.
 ## -----------------------------------------------------------------------------
 
-library("tidyverse")
-library("glue")
-library("sf")
-library("stars")
-library("units")
-library("gstat")
-library("exactextractr")
-library("fixest")
-library("doParallel")
-library("gt")
-library("magrittr")
-
-# Macbook
-setwd("~/Documents/Projects/Spatial Spillover/")
-# Research Computing
-# setwd("/projects/kybu6659/spatial_spillover/")
-
-# Load theme_kyle()
-source("https://gist.githubusercontent.com/kylebutts/7dc66a01ec7e499faa90b4f1fd46ef9f/raw/15196997e5aad41696b03c49be3bfaaca132fdf2/theme_kyle.R")
+library(tidyverse)
+library(here)
+library(glue)
+library(sf)
+library(stars)
+library(fixest)
+library(doParallel)
+library(gt)
+library(kfbmisc)
 
 # Export
 export <- TRUE
@@ -37,17 +31,20 @@ extract_body <- function(gt) {
 }
 
 
-
 # sim_data_misspecification()
-source("helper-sim_function_misspecification.R")
+source(here::here("helper-sim_function_misspecification.R"))
  
 
-## Load Spatial Data -----------------------------------------------------------
+# ---- Load Spatial Data -------------------------------------------------------
 # From data_prepare_counties.R
-load(file= "data/counties_and_mat.RData")
+load(file= here::here("data/counties_and_mat.RData"))
 
 
-## Simulation: Bias ------------------------------------------------------------
+# ---- Simulation: Bias --------------------------------------------------------
+# Simulates a set of DGPs with different kinds of exposure mappings
+# For each DGP, estimates using many different parametric forms + ring(s) method
+# Report on the bias of the treatment effect estimate
+
 # Helper function estimate
 estimate_treatment_effect <- function(df, formula, treat_var){
 	feols(formula, data= df) %>%
@@ -191,8 +188,10 @@ if(export) cat(table_tex, file="tables/misspecification.tex")
 
 
 
-## Simulation: MSPE of Spillovers ----------------------------------------------
-
+# ---- Simulation: MSPE of Spillovers ------------------------------------------
+# Simulates a set of DGPs with different kinds of exposure mappings
+# For each DGP, estimates using many different parametric forms + ring(s) method
+# Estimate spillover effect for control units and determine mspe of spillover
 
 n_trials <- 1000
 doParallel::registerDoParallel(10)
@@ -317,8 +316,8 @@ results_mspe <- foreach(i = 1:n_trials, .combine = 'rbind') %dopar% {
 }
 }
 
-if(run) save(results_mspe, file="data/sim_misspecification_mspe.RData")
-if(!run) load("data/sim_misspecification_mspe.RData")
+if(run) save(results_mspe, file=here::here("data/sim_misspecification_mspe.RData"))
+if(!run) load(here::here("data/sim_misspecification_mspe.RData"))
 
 results_tbl <- results_mspe %>% 
 	group_by(spec, dgp) %>% 
@@ -342,8 +341,7 @@ results_tbl %>%
 		columns = 2:7,
 		decimals = 3
 	) %>%
-	extract_body() %T>% cat(., file="tables/misspecification_mspe.tex") %>% cat()
-	# {.}
+	extract_body() %T>% cat(., file=here::here("tables/misspecification_mspe.tex")) %>% cat()
 
 
 
@@ -353,6 +351,5 @@ results_tbl %>%
 		columns = 2:7,
 		decimals = 1
 	) %>%
-	extract_body() %T>% cat(., file="tables/misspecification_mspe_percent.tex") %>% cat()
-	# {.}
+	extract_body() %T>% cat(., file=here::here("tables/misspecification_mspe_percent.tex")) %>% cat()
 

@@ -197,7 +197,3 @@ ggsave(
 	here::here("figures/figure-rings_v_within.pdf"), plot_both, 
 	width = 8, height = 8 * 9/16, dpi = 300
 )
-ggsave(
-	here::here("figures/figure-rings_v_within.png"), plot_both, 
-	width = 8, height = 8 * 9/16, dpi = 300
-)

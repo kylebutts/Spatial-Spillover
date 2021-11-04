@@ -12,7 +12,7 @@ Empirical work often uses treatment assigned following geographic boundaries. Wh
 
 Figure 1 -- Comparison of Single vs. Multiple Rings Estimation of Spillover Effects
 
-![Within vs. Rings]((https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/figures/figure-rings_v_within.png))
+![Within vs. Rings](https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/figures/figure-rings_v_within.png)
 
 <caption>An example figure that describes the advantages of multiple rings when estimating spillover effects.</caption>
 

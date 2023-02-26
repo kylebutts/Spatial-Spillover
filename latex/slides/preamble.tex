@@ -1,38 +1,46 @@
 % xcolor and define colors -------------------------
 \usepackage{xcolor}
 
-% https://www.materialpalette.com/colors
-\definecolor{red}{HTML}{c62828}
-\definecolor{orange}{HTML}{ef6c00}
-\definecolor{green}{HTML}{2e7d32}
-\definecolor{blue}{HTML}{1565c0}
-% \definecolor{purple}{HTML}{283593}
-\definecolor{maroon}{HTML}{AF3335}
-\definecolor{dark-maroon}{HTML}{5D0F0D}
-\definecolor{teal}{HTML}{00695c}
-\definecolor{bluegrey}{HTML}{455a64}
-% \definecolor{indigo}{HTML}{1A237E}
-\definecolor{navyblue}{HTML}{0A3044}
-\definecolor{bluegreen}{HTML}{4A8676}
-
 % https://www.viget.com/articles/color-contrast/
-\definecolor{purple}{HTML}{93869a}
-\definecolor{navy}{HTML}{0D3D56}
+\definecolor{purple}{HTML}{695693}
+\definecolor{navy}{HTML}{567293}
 \definecolor{ruby}{HTML}{9a2515}
 \definecolor{alice}{HTML}{107895}
 \definecolor{daisy}{HTML}{EBC944}
 \definecolor{coral}{HTML}{F26D21}
 \definecolor{kelly}{HTML}{829356}
+\definecolor{cranberry}{HTML}{E64173}
 \definecolor{jet}{HTML}{131516}
 \definecolor{asher}{HTML}{555F61}
+\definecolor{slate}{HTML}{314F4F}
 
 % Main theme colors
 \definecolor{accent}{HTML}{107895}
 \definecolor{accent2}{HTML}{9a2515}
 
+\newcommand\navy[1]{{\color{navy}#1}}
+\newcommand\purple[1]{{\color{purple}#1}}
+\newcommand\kelly[1]{{\color{kelly}#1}}
+\newcommand\ruby[1]{{\color{ruby}#1}}
+\newcommand\alice[1]{{\color{alice}#1}}
+\newcommand\daisy[1]{{\color{daisy}#1}}
+\newcommand\coral[1]{{\color{coral}#1}}
+\newcommand\cranberry[1]{{\color{cranberry}#1}}
+\newcommand\slate[1]{{\color{slate}#1}}
+\newcommand\jet[1]{{\color{jet}#1}}
+\newcommand\asher[1]{{\color{asher}#1}}
+
+\newcommand\bgNavy[1]{{\colorbox{navy!80!white}{#1}}}
+\newcommand\bgPurple[1]{{\colorbox{purple!80!white}{#1}}}
+\newcommand\bgKelly[1]{{\colorbox{kelly!80!white}{#1}}}
+\newcommand\bgRuby[1]{{\colorbox{ruby!80!white}{#1}}}
+\newcommand\bgAlice[1]{{\colorbox{alice!80!white}{#1}}}
+\newcommand\bgDaisy[1]{{\colorbox{daisy!80!white}{#1}}}
+\newcommand\bgCoral[1]{{\colorbox{coral!80!white}{#1}}}
+\newcommand\bgCranberry[1]{{\colorbox{cranberry!80!white}{#1}}}
+
 
 % Beamer Options -------------------------------------
-
 
 % Background
 \setbeamercolor{background canvas}{bg = white}
@@ -49,12 +57,27 @@
 \setbeamerfont{framesubtitle}{size = \small, shape = \itshape}
 
 % Block
-\setbeamercolor{block title}{fg = white, bg = accent!20!jet}
-\setbeamercolor{block body}{fg = jet, bg = black!5!white}
+\setbeamercolor{block title}{fg = white, bg = accent2}
+\setbeamercolor{block body}{fg = jet, bg = jet!10!white}
 
 % Title page
 \setbeamercolor{title}{fg = jet}
 \setbeamercolor{subtitle}{fg = accent}
+
+%% Custom \maketitle and \titlepage
+\setbeamertemplate{title page}
+{
+    %\begin{centering}
+        \vspace{20mm}
+        {\Large \usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle}\\ \vskip0.25em%
+        \ifx\insertsubtitle\@empty%
+        \else%
+          {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+        \fi% 
+        {\vspace{10mm}\insertauthor}\\
+        {\color{asher}\small{\insertdate}}\\
+    %\end{centering}
+}
 
 % Table of Contents
 \setbeamercolor{section in toc}{fg = accent!70!jet}
@@ -83,13 +106,14 @@
 \setbeamertemplate{enumerate item}{\insertenumlabel.}
 
 %% itemize
-\setbeamercolor{itemize item}{fg = jet}
+\setbeamercolor{itemize item}{fg = accent!70!white}
 \setbeamerfont{itemize item}{size = \small}
-\setbeamertemplate{itemize item}[square]
+\setbeamertemplate{itemize item}[circle]
 
-\setbeamertemplate{itemize subitem}[square]
-\setbeamercolor{itemize subitem}{fg = jet}
+%% right arrow for subitems
+\setbeamercolor{itemize subitem}{fg = accent!60!white}
 \setbeamerfont{itemize subitem}{size = \small}
+\setbeamertemplate{itemize subitem}{$\rightarrow$}
 
 \setbeamertemplate{itemize subsubitem}[square]
 \setbeamercolor{itemize subsubitem}{fg = jet}
@@ -160,7 +184,7 @@
 \setbeamerfont{myTOC}{series=\bfseries, size=\Large}
 \AtBeginSection[]{
         \frame{
-            \frametitle{Outline}
+            \frametitle{Roadmap}
             \tableofcontents[current]   
         }
     }
@@ -182,11 +206,11 @@
 
 % Color citations for slides
 \newenvironment{citecolor}
-    {\footnotesize\begin{color}{accent2}}
+    {\footnotesize\begin{color}{asher}}
     {\end{color}}
 
-\newcommand{\citetcolor}[1]{\footnotesize\textcolor{accent2}{\citet{#1}}}
-\newcommand{\citepcolor}[1]{\footnotesize\textcolor{accent2}{\citep{#1}}}
+\newcommand{\citetcolor}[1]{{\footnotesize\textcolor{gray}{\citet{#1}}}}
+\newcommand{\citepcolor}[1]{{\footnotesize\textcolor{gray}{\citep{#1}}}}
 
 % Tables -------------------------------------------
 % Tables too big
@@ -211,6 +235,7 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 
+% Figures
 
 % \imageframe{img_name} -----------------------------
 % from https://github.com/mattjetwell/cousteau
@@ -224,6 +249,20 @@
     \end{frame}%
 }
 
+% subfigures
+\usepackage{subfigure}
+
+
+% Highlight slide -----------------------------------
+% \begin{transitionframe} Text \end{transitionframe}
+% from paulgp's beamer tips
+\newenvironment{transitionframe}{
+    \setbeamercolor{background canvas}{bg=accent!60!black}
+    \begin{frame}\color{accent!10!white}\LARGE\centering
+}{
+    \end{frame}
+}
+
 
 % Table Highlighting --------------------------------
 % Create top-left and bottom-right markets in tabular cells with a unique matching id and these commands will outline those cells
@@ -232,11 +271,6 @@
 \usetikzlibrary{fit,shapes.misc}
 
 % To set the hypothesis highlighting boxes red.
-\tikzset{hl/.style={
-    set fill color=red!80!jet!40,
-    set border color=red!80!jet,
-  },
-}
 \newcommand\marktopleft[1]{%
     \tikz[overlay,remember picture] 
         \node (marker-#1-a) at (0,1.5ex) {};%
@@ -247,5 +281,3 @@
     \tikz[accent!80!jet, ultra thick, overlay, remember picture, inner sep=4pt]
         \node[draw, rectangle, fit=(marker-#1-a.center) (marker-#1-b.center)] {};%
 }
-
-

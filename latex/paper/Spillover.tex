@@ -252,6 +252,19 @@ It is worth remarking on \nameref{assumption:parallel-mod} in terms of applied w
 The proof is given in Appendix \ref{sec:proofs}, but the intuition is simple. Conditioning on $S_i = 0$ will use only observations with $h_i(\vec{D}) = 0$ which gives rise to the identification of the total effect. 
 This proposition shows that a researcher does not need to know how the spillovers occur over space to have an unbiased estimate for treatment effects. All that is required to identify the total effect is being able to classify which units are considered `close' to treatment.\footnote{In contexts with different measures of `distance', note that this result only requires an indicator that captures all affected units. For example, thinking about spillovers between industries, this requires the researcher to correctly identify which industries are affected by spillovers and which are not.} 
 
+\begin{remark}
+  To highlight the importance of the modified parallel trends, we will compare the two estimands under the original \nameref{assumption:parallel}. The standard difference-in-differences estimate is biased from spillovers on nearby control units: 
+  $$
+    \expec{Y_{i1} - Y_{i0} \ \vert \ D_i = 1 } - \expec{Y_{i1} - Y_{i0} \ \vert \ D_i = 0 } = \tau_{\text{total}} - \tau_{\text{spill}}(0).
+  $$
+  On the other hand, using the $S_i = 0$ control group is biased by (potentially) non-parallel trends:
+  \begin{align*}
+    &\expec{Y_{i1} - Y_{i0} \ \vert \ D_i = 1} - \expec{Y_{i1} - Y_{i0} \ \vert \ D_i = 0, S_{i} = 0} \\
+    &\quad\quad= \tau_{\text{total}} + (\expec{Y_{i1}(0, 0) - Y_{i0}(0,0) \ \mid \ D_i = 1} - \expec{Y_{i1}(0, 0) - Y_{i0}(0,0) \ \mid \ D_i = 0, S_i = 0}) 
+  \end{align*}
+  In this sense, there is a practical trade-off between two different sources of bias: spillover bias and the forming of potentially worse counterfactual conrol group.
+\end{remark}
+
 % ------------------------------------------------------------------------------
 \section{Estimation of Effects}\label{sec:estimation}
 % ------------------------------------------------------------------------------
@@ -548,7 +561,7 @@ where the fourth equality follows from our parallel trends assumption \ref{assum
 
 \begin{align*}
     &\expec{Y_{i1} - Y_{i0} \ \mid \ D_i = 1} - \expec{Y_{i1} - Y_{i0} \ \mid \ D_i = 0, S_i = 0} \\
-    &\quad\quad= \expec{Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,0) \ \mid \ D_i = 1} - \expec{Y_{i1}(0, 0) - Y_{i0}(0,0) \ \mid \ D_i = 0} \\
+    &\quad\quad= \expec{Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,0) \ \mid \ D_i = 1} - \expec{Y_{i1}(0, 0) - Y_{i0}(0,0) \ \mid \ D_i = 0, S_i = 0} \\
     &\quad\quad= \expec{Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,0) \ \mid \ D_i = 1} - \expec{Y_{i1}(0, 0) - Y_{i0}(0,0) \ \mid \ D_i = 1} \\
     &\quad\quad= \expec{Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,0) - Y_{i1}(0, 0) + Y_{i0}(0,0) \ \mid \ D_i = 1} \\
     &\quad\quad= \expec{Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(0, 0) \ \mid \ D_i = 1} \\
@@ -562,20 +575,20 @@ where the first equality comes from the fact that $S_i = 0$ implies $h_i(\vec{D}
 % ------------------------------------------------------------------------------
 
 This section will give identification arguments for the total effect and spillover effects. First, note under \nameref{assumption:parallel_staggered}, we have 
-\begin{align}
+\begin{align*}
   \expec{Y_{it}(D_{it}, h_i(\vec{D}_t)) - \mu_i - \lambda_t \ | \ D_{it} = 1} 
   &= \expec{\tau_{it}(D_{it}, h_i(\vec{D}_t)) + \varepsilon_{it} \ | \ D_{it} = 1} \\
   &= \expec{\tau_{it}(D_{it}, h_i(\vec{D}_t)) \ | \ D_{it} = 1} \\
   &= \tau_{total}.
-\end{align}
+\end{align*}
 In the first stage, we estimate $\mu_i$ and $\lambda_t$ using observations with $D_{it}$ and $S_{it} = 0$. Unbiasedness/consistency follows from \nameref{assumption:local} and \nameref{assumption:no-anticipation_staggered} and the arguments of the appendix of \citet{Gardner_2021}.
 
 A similar argument follows for spillover effects. Again, assuming \nameref{assumption:parallel_staggered}, we have 
-\begin{align}
+\begin{align*}
   \expec{Y_{it}(D_{it}, h_i(\vec{D}_t)) - \mu_i - \lambda_t \ | \ D_{it} = 0, S_{it} = 1} 
   &= \expec{\tau_{it}(D_{it}, h_i(\vec{D}_t)) + \varepsilon_{it} \ | \ D_{it} = 0, S_{it} = 0} \\
   &= \expec{\tau_{it}(D_{it}, h_i(\vec{D}_t)) \ | \ D_{it} = 0, S_{it} = 1}.
-\end{align}
+\end{align*}
 
 
 % ------------------------------------------------------------------------------

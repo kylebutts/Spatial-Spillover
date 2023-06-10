@@ -1,6 +1,6 @@
 % Margins ----------------------------------------------------------------------
 
-\usepackage[margin=1.25in]{geometry}
+\usepackage[margin=1in]{geometry}
 
 % AMS --------------------------------------------------------------------------
 
@@ -8,19 +8,20 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{graphicx}
-
+\usepackage[shortlabels]{enumitem}
+\usepackage{bm}
 
 % Line Spacing -----------------------------------------------------------------
 
-\renewcommand{\baselinestretch}{1.655}
+\renewcommand{\baselinestretch}{1.5}
 
 
 % Font -------------------------------------------------------------------------
 
 \usepackage[T1]{fontenc}
-\usepackage[default]{lato} % Lato as text font
-% \usepackage[utopia, varg]{newtxmath}
-% \renewcommand{\rmdefault}{futs} % Utopia as text font 
+\usepackage[bitstream-charter]{mathdesign}
+% \usepackage[default]{lato}
+% \usepackage{mathpazo}
 
 % Small adjustments to text kerning
 \usepackage{microtype}
@@ -41,12 +42,6 @@
 
 % https://www.materialpalette.com/colors
 \definecolor{dark-maroon}{HTML}{5D0F0D}
-\definecolor{navyblue}{HTML}{0A3044}
-
-% From Davidson Mackinnon
-\definecolor{dm-blue}{HTML}{086fbd}
-\definecolor{dm-red}{HTML}{ba3132}
-\definecolor{dm-green}{HTML}{3f7e32}
 
 % https://www.viget.com/articles/color-contrast/
 \definecolor{purple}{HTML}{5601A4}
@@ -61,16 +56,16 @@
 \definecolor{asher}{HTML}{555F61}
 \definecolor{slate}{HTML}{314F4F}
 
+\definecolor{kylemagenta}{HTML}{c24074}
+\definecolor{kyleblue}{HTML}{3b587a}
+
 
 % Hyperlinks -------------------------------------------------------------------
 
 \usepackage{hyperref}
 \hypersetup{
     colorlinks= true,
-    citecolor= purple,
-    linkcolor= purple,
-    filecolor= purple,
-    urlcolor= purple,
+    allcolors = purple
 }
 
 
@@ -79,7 +74,8 @@
 % note, natbib provides better hyperlinking
 \usepackage{natbib}
 \bibliographystyle{econ-aea}
-
+% How to display multiple in \citet{}
+\setcitestyle{comma,aysep={}}
 
 % Define Theorems --------------------------------------------------------------
 
@@ -87,30 +83,35 @@
 \newtheoremstyle{spacing}
 {}%          Space above, empty = `usual value'
 {}%          Space below
+% {\itshape}%  Body font
 {}%  Body font
 {}%          Indent amount (empty = no indent, \parindent = para indent)
 {\bfseries}% Thm head font
-{.}%         Punctuation after thm head
+{.\ }%         Punctuation after thm head
 {2.5mm}%  Space after thm head: \newline = linebreak
 {}%          Thm head spec
 
 % note, theorem is the name that goes in \begin{} and Theorem is the name displayed as Theorem 1
 \theoremstyle{spacing}
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{lemma}{Lemma}[section]
 \newtheorem{assumption}{Assumption}
-\newtheorem{example}{Example}
-\newtheorem{remark}{Remark}
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{cor}{Corollary}[section]
 
 
 % Custom Math Definitions ------------------------------------------------------
 
-\newcommand{\expec}[1]{\mathbb{E}\left[#1\right]}%
-\newcommand{\condexpec}[2]{\mathbb{E}\left[#1 \ \vert \ #2\right]}%
-\newcommand{\prob}[1]{\mathbb{P}\left[#1\right]}%
-\newcommand{\var}[1]{\mathrm{Var}\left[#1\right]}%
-\newcommand{\cov}[1]{\mathrm{Cov}\left[#1\right]}%
-\newcommand{\one}{\mathbf{1}}
+\global\long\def\expec#1{\mathbb{E}\left[#1\right]}%
+\newcommand{\condexpec}[2]{\mathbb{E}\left[#1 \ \vert \ #2\right]}
+\global\long\def\prob#1{\mathbb{P}\left[#1\right]}%
+\global\long\def\var#1{\mathrm{Var}\left[#1\right]}%
+\global\long\def\cov#1{\mathrm{Cov}\left[#1\right]}%
+\global\long\def\one{\mathbf{1}}%
+\newcommand{\plim}{\stackrel{p}{\rightarrow}} %convergence in probability 
+\newcommand{\convd}{\stackrel{d}{\rightarrow}} %convergence in distribution symbol
 
 
 % Titlepage --------------------------------------------------------------------
@@ -137,7 +138,7 @@
 % alternative abstract
 % \renewenvironment{abstract}
 % {
-%   \centerline {\large \bfseries \scshape \color{navyblue} Abstract}
+%   \centerline {\large \bfseries \scshape  Abstract}
 %   \begin{quote}
 % }
 % {\end{quote}}
@@ -148,7 +149,7 @@
 \usepackage[explicit]{titlesec}
 
 \titleformat{\section}
-  {\Large \bf }
+  {\large \bf }
   {\thesection \,---}
   {0.25em}
   {#1}
@@ -159,8 +160,6 @@
   {1em}
   {#1}
 
-% Don't number subsubsection
-\setcounter{secnumdepth}{2}
 
 % Footnote ---------------------------------------------------------------------
 
@@ -197,14 +196,13 @@
 \usepackage{caption}
 
 \DeclareCaptionLabelSeparator{threedash}{\,---\,}
-\DeclareCaptionFont{navyblue}{\color{navyblue}}
 \DeclareCaptionFont{jet}{\color{jet}}
-\captionsetup[table]{format=plain, labelsep=threedash, font={navyblue, bf}}
-\captionsetup[figure]{format=plain, labelsep=threedash, font={navyblue, bf}}
+\captionsetup[table]{format=plain, labelsep=threedash, font={bf}}
+\captionsetup[figure]{format=plain, labelsep=threedash, font={bf}}
 
 % Alternative: Left align captions
-% \captionsetup[table]{labelfont=it, textfont={navyblue, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
-% \captionsetup[figure]{labelfont=it, textfont={navyblue, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+% \captionsetup[table]{labelfont=it, textfont={navy, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
+% \captionsetup[figure]{labelfont=it, textfont={navy, bf}, labelsep=newline, justification=raggedright, singlelinecheck=off}
 
 % multifigure with \caption
 % \begin{subfigure}\caption{} \end{subfigure}
@@ -216,7 +214,6 @@
 
 % Fix \input with tables
 % \input fails when \\ is at end of external .tex file
-
 \makeatletter
 \let\input\@@input
 \makeatother
@@ -228,7 +225,7 @@
 
 % Slighty more spacing between rows
 \usepackage{array}
-\renewcommand\arraystretch{1.2}
+\renewcommand\arraystretch{1.25}
 
 % Table with easy to use footnotes
 % \begin{threeparttable}
@@ -253,15 +250,6 @@
 \newcolumntype{R}{>{\raggedleft\arraybackslash}X}
 \newcolumntype{C}{>{\centering\arraybackslash}X}
 
-% Shorter multicolumn commands
-\newcommand{\mcc}[1]{\multicolumn{1}{c@{}}{#1}}
-\newcommand{\mcl}[1]{\multicolumn{1}{l@{}}{#1}}
-\newcommand{\mcr}[1]{\multicolumn{1}{r@{}}{#1}}
-
-% d column
-\usepackage{dcolumn}
-\newcolumntype{d}[1]{D..{#1}}
-
 % Landscape table 
 % \begin{landscape} \pagestyle{lscaped} table... \end{landscsape}
 % \usepackage{pdflscape} - rotates page left-side up in pdf
@@ -283,3 +271,34 @@
   
 
 % ------------------------------------------------------------------------------
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{polar}
+\usepgfplotslibrary{smithchart}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{dateplot}
+\usepgfplotslibrary{ternary}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{backgrounds}
+\usepgfplotslibrary{patchplots}
+\usepgfplotslibrary{fillbetween}
+\pgfplotsset{%
+    layers/standard/.define layer set={%
+        background,axis background,axis grid,axis ticks,axis lines,axis tick labels,pre main,main,axis descriptions,axis foreground%
+    }{
+        grid style={/pgfplots/on layer=axis grid},%
+        tick style={/pgfplots/on layer=axis ticks},%
+        axis line style={/pgfplots/on layer=axis lines},%
+        label style={/pgfplots/on layer=axis descriptions},%
+        legend style={/pgfplots/on layer=axis descriptions},%
+        title style={/pgfplots/on layer=axis descriptions},%
+        colorbar style={/pgfplots/on layer=axis descriptions},%
+        ticklabel style={/pgfplots/on layer=axis tick labels},%
+        axis background@ style={/pgfplots/on layer=axis background},%
+        3d box foreground style={/pgfplots/on layer=axis foreground},%
+    },
+}
+
+

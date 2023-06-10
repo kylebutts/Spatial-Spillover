@@ -41,7 +41,7 @@
     \begin{itemize}
         \item Present a potential outcomes framework to formalize treatment and spillover effects and discuss potential estimands of interest
         
-        \item Discuss estimation of effects that are \emph{robust} to spillovers
+        \item Discuss estimation of effects in the presence of spillovers
         
         \item Apply this framework to improve estimation of the local effect of place-based policies in Urban Economics 
     \end{itemize}
@@ -51,99 +51,38 @@
 
 \begin{frame}{Bias from Spatial Spillovers}
     
-    \onslide<1->{
-        The canonical difference-in-differences estimate is: 
-        \only<1>{
-            \[ 
-                \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\text{Counterfactual Trend} \ + \ \tau} - 
-                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\text{Counterfactual Trend}}
-            \]
-        }
-        \only<2>{
-            \[ 
-                \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\text{Counterfactual Trend} \ + \ \tau} - 
-                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
-            \]
-        }
-        \only<3>{
-            \[ 
-                \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\substack{\text{Counterfactual Trend} \ + \ \tau \\[2mm] \ + \ \text{\color{kelly} Spillover on Treated}}} - 
-                \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
-            \]
-        }
-    } 
+  The canonical difference-in-differences estimate is: 
+  \only<1>{
+      \[ 
+          \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\text{Counterfactual Trend} \ + \ \tau} - 
+          \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\text{Counterfactual Trend}}
+      \]
+  }
+  \only<2>{
+      \[ 
+          \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\text{Counterfactual Trend} \ + \ \tau} - 
+          \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
+      \]
+  }
+  \only<3>{
+      \[ 
+          \hat{\tau} = \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 1 \right]}_{\substack{\text{Counterfactual Trend} \ + \ \tau \\[2mm] \ + \ \text{\color{kelly} Spillover on Treated}}} - 
+          \underbrace{\hat{\mathbb{E}} \left[ Y_{i1} - Y_{i0} \mid D_i = 0 \right]}_{\substack{\text{Counterfactual Trend} \\[2mm] \ + \ \text{\color{coral} Spillover on Control}}}
+      \]
+  }
 
-    Two problems occur in the presence of spillover effects:
-    
+  \only<1>{Use the control units to estimate what the treated units' trends would have been without treatment}
+  \only<2-3>{
+    \noindent Two problems occur in the presence of spillover effects:
     \begin{itemize}
-        \onslide<2->{
-            \item {\bf \color{coral} Spillover onto Control Units:} Nearby ``control'' units fail to estimate counterfactual trends
-        }
+        \item {\bf \color{coral} Spillover onto Control Units:} Nearby ``control'' units fail to estimate counterfactual trends
         
-        \onslide<3->{
-            \vspace{2.5mm}
+        \only<3>{
             \item {\bf \color{kelly} Spillover onto other Treated Units:} Treated units are also affected by nearby units and therefore combine ``direct'' effects with spillover effects
         }
     \end{itemize}
-
+  }
 \end{frame}
-
-% \begin{frame}{Remove Bias}
-%     \only<1>{
-%         \[ y_{it} = \mu_t + \mu_i + \tau D_{it} + \varepsilon_{it} \]
-%     }
-%     \only<2>{
-%         \[ 
-%             y_{it} = \mu_t + \mu_i + \tau D_{it} + {\color{coral} \tau_{\text{spill,control}} S_{it} * (1-D_{it}) } + {\color{kelly} \tau_{\text{spill,treat}} S_{it} * D_{it}} +  + \varepsilon_{it}
-%         \]
-%     }
-
-%     \only<1>{ 
-%         \[ 
-%             \mathbb{E}[\hat{\tau}] = \tau + \text{\color{coral} Spillover on Control} + \text{\color{kelly}Spillover on Treated}
-%         \]
-%     }
-%     \only<2>{
-%         \[ 
-%             \mathbb{E}[\hat{\tau}] = \tau,
-%         \]
-%         so long as $S_{it}$ contains all the units with spillovers.
-%     }
-% \end{frame}
-
-% \begin{frame}
-%     \begin{figure}[tb!]
-%         \caption{Single Ring - Removes spillover effects}
-%         \begin{center}
-%             \resizebox{0.9\textwidth}{!}{
-%                 \includegraphics{../../figures/figure-within_example.pdf}
-%             }
-%         \end{center}
-%     \end{figure}
-% \end{frame}
-
-% \begin{frame}
-%     \begin{figure}[tb!]
-%         \caption{Multiple Rings - Improves estimation of spillover effects}
-%         \begin{center}
-%             \resizebox{0.9\textwidth}{!}{
-%                 \includegraphics{../../figures/figure-rings_example.pdf}
-%                 } 
-%             \end{center}
-%     \end{figure}
-% \end{frame}
-
-% \begin{frame}
-%     \begin{figure}[tb!]
-%         \caption{Community Health Centers}
-%         \begin{center}
-%             \resizebox{0.9\textwidth}{!}{
-%                 \includegraphics{../../figures/figure-chc-es_combined_slides.pdf}
-%                 } 
-%             \end{center}
-%     \end{figure}
-% \end{frame}
-
 
 % Grey out overlays
 \setbeamercovered{transparent}
@@ -159,10 +98,10 @@
 
         \begin{itemize}
             \vspace{2.5mm}
-            \item I decompose the difference-in-differences estimator into three parts: Direct Effect of Treatment, Spillover onto Treated Units, Spillover onto Control Units
+            \item I focus on non-parametric identification conditions
             
             \vspace{2.5mm}
-            \item Discuss estimands of interest and classify which are identifiable and which are not
+            \item Discuss estimands of interest and classify identification for each
         \end{itemize} 
 
     \end{itemize}
@@ -279,7 +218,7 @@
 
 \begin{frame}{Estimands}{Switching Effect}
     \[
-        \textcolor{maroon}{\tau_{\text{switch}}(h)} \equiv \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(0, h_i(\vec{D})) \mid D_i = 1, h_i(\vec{D}) = h \right]
+        \textcolor{purple}{\tau_{\text{switch}}(h)} \equiv \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i1}(0, h_i(\vec{D})) \mid D_i = 1, h_i(\vec{D}) = h \right]
     \]
 
     \vspace{5mm}
@@ -298,7 +237,7 @@
 
 \begin{frame}{Estimands}{Switching Effect}
     \begin{align*}
-        \textcolor{maroon}{\tau_{\text{switch}}(h)} &= \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,\vec{0}) \mid D_i = 1, h_i(\vec{D}) = h \right]\\ 
+        \textcolor{purple}{\tau_{\text{switch}}(h)} &= \mathbb{E} \left[ Y_{i1}(1, h_i(\vec{D})) - Y_{i0}(0,\vec{0}) \mid D_i = 1, h_i(\vec{D}) = h \right]\\ 
         &\quad\quad - \textcolor{asher}{\mathbb{E} \left[ Y_{i1}(0, h_i(\vec{D})) - Y_{i0}(0,\vec{0}) \mid D_i = 1, h_i(\vec{D}) = h \right]} 
     \end{align*}
         

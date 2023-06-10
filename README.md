@@ -12,18 +12,6 @@
 Empirical work often uses treatment assigned following geographic boundaries. When the effects of treatment cross over borders, classical difference-in-differences estimation produces biased estimates for the average treatment effect. In this paper, I introduce a potential outcomes framework to model spillover effects and decompose the estimate's bias in two parts: (1) the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment and (2) changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I propose estimation strategies that can remove both sources of bias and semi-parametrically estimate the spillover effects themselves including in settings with staggered treatment timing. To highlight the importance of spillover effects, I revisit analyses of three place-based interventions.
 
 
-## Citation
-
-```
-@article{butts2023difference,
-  title={Difference-in-Differences Estimation with Spatial Spillovers},
-  author={Butts, Kyle},
-  journal={arXiv preprint arXiv:2105.03737},
-  year={2023}
-}
-```
-
-
 ## Replication
 
 **Figure 1:** Comparison of Single vs. Multiple Rings Estimation of Spillover Effects
@@ -50,3 +38,13 @@ Empirical work often uses treatment assigned following geographic boundaries. Wh
 - `chc-analysis.R`
 
 
+## Citation
+
+```
+@article{butts2023difference,
+  title={Difference-in-Differences Estimation with Spatial Spillovers},
+  author={Butts, Kyle},
+  journal={arXiv preprint arXiv:2105.03737},
+  year={2023}
+}
+```

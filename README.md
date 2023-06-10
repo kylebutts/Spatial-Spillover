@@ -1,45 +1,52 @@
-# **Differences-in-Differences with Spatial Spillovers**
+# Difference-in-Differences with Spatial Spillovers
 
-<a href="https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/latex/paper/auxiliary/Spillover.pdf">![Paper](https://img.shields.io/badge/Paper-%23323330.svg?style=for-the-badge&logo=adobe&logoColor=white)</a>
-<a href="https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/latex/slides/auxiliary/Spillover_slides.pdf">![Slides](https://img.shields.io/badge/Slides-%23323330.svg?style=for-the-badge&logo=adobe&logoColor=white)</a>
+[Kyle Butts](https://www.kylebutts.com/)<sup>1</sup>
+<br>
+<sup>1</sup>University of Colorado: Boulder
+
+#### [Paper](https://arxiv.org/abs/2105.03737) | [Five-minute Summary](https://www.kylebutts.com/papers/spatial-spillovers/)
 
 
-## Abstract 
+## Abstract
 
 Empirical work often uses treatment assigned following geographic boundaries. When the effects of treatment cross over borders, classical difference-in-differences estimation produces biased estimates for the average treatment effect. In this paper, I introduce a potential outcomes framework to model spillover effects and decompose the estimate's bias in two parts: (1) the control group no longer identifies the counterfactual trend because their outcomes are affected by treatment and (2) changes in treated units' outcomes reflect the effect of their own treatment status and the effect from the treatment status of ``close'' units. I propose estimation strategies that can remove both sources of bias and semi-parametrically estimate the spillover effects themselves including in settings with staggered treatment timing. To highlight the importance of spillover effects, I revisit analyses of three place-based interventions.
 
-## Figures from Paper
 
-Figure 1 -- Comparison of Single vs. Multiple Rings Estimation of Spillover Effects
+## Citation
 
-![Within vs. Rings](https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/figures/figure-rings_v_within.png)
-
-<caption>An example figure that describes the advantages of multiple rings when estimating spillover effects.</caption>
-
-Figure 3 -- Direct and Spillover Effects of Community Health Centers
-
-![Revisiting Bailey and Goodman-Bacon (2016)](https://raw.githubusercontent.com/kylebutts/Spatial-Spillover/master/figures/figure-chc-es_combined.png)
-
-<caption>Revisiting Bailey and Goodman-Bacon (2016) to see if results are robust to spillovers (they are) and to see if the effects of community health centers extended to other counties (they do not).</caption>
+```
+@article{butts2023difference,
+  title={Difference-in-Differences Estimation with Spatial Spillovers},
+  author={Butts, Kyle},
+  journal={arXiv preprint arXiv:2105.03737},
+  year={2023}
+}
+```
 
 
+## Replication
 
-## To Recreate Exhibits
+**Figure 1:** Comparison of Single vs. Multiple Rings Estimation of Spillover Effects
 
-Figure 1 -- Comparison of Single vs. Multiple Rings Estimation of Spillover Effects
+- `figure-rings_example.R`
 
-- figure-rings_example.R
+**Figure 2:** TVA Effective Sample and Spillover Variables
 
-Figure 2 -- TVA Effective Sample and Spillover Variables
+- `tva-data-build.do`
+- `tva-analysis-replicate.R`
 
-- tva-data-build.do
-- tva-analysis-replicate.R
+**Table 1:** Effects of Tennessee Valley Authority on Decadel Growth
 
-Table 1 -- Effects of Tennessee Valley Authority on Decadel Growth
+- `tva-data-build.do`
+- `tva-analysis-replicate.R`
 
-- tva-data-build.do
-- tva-analysis-replicate.R
+**Table B1:** Effects of Opportunity Zones on Annual Home Price Growth
 
-Figure 3 -- Direct and Spillover Effects of Community Health Centers
+- `OZ-analaysis-replicate.R`
+- `OZ-analaysis-spillovers.R`
 
-- chc-analysis.R
+**Figure C1:** Total and Spillover Effects of Community Health Centers
+
+- `chc-analysis.R`
+
+

@@ -1,0 +1,6 @@
+/*-- scss:rules --*/
+/* Left border for cell-output (stdout, stdwrn, stderr) */
+.cell-output pre {
+  border-left: 2px solid rgba(red($code-block-bg-color), green($code-block-bg-color), blue($code-block-bg-color), 1);
+  padding: $code-block-bg-padding;
+}

@@ -1,5 +1,6 @@
 ## Large Files
 data/
+
 ## Latex folders
 latex/diff_in_diff_bias/*
 latex/literature_review/*
@@ -10,6 +11,7 @@ latex/literature_review/*
 .Rapp.history
 .Rproj.user/*
 .Renviron
+
 ## Core latex/pdflatex auxiliary files:
 /latex/.vscode
 *.aux
@@ -36,5 +38,6 @@ latex/literature_review/*
 .Rproj.user
 *.bib
 *.xdv
+
 # Submission Folders
 submissions/*

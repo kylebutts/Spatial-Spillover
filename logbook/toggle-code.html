@@ -1,0 +1,72 @@
+<div class="toc-actions" id="source-code-toggler">
+	<ul>
+		<li>
+			<div class="toggle form-check">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					checked
+					id="toggle-code-checkbox"
+					style="margin-right: 0.4em; font-size: 0.8rem"
+				/>
+				<label class="form-check-label" for="toggle-code-checkbox"
+					>Code visibility</label
+				>
+			</div>
+		</li>
+	</ul>
+</div>
+
+<script>
+	window.document.addEventListener("DOMContentLoaded", function (event) {
+		const sourceCodeToggler = window.document.getElementById(
+			"source-code-toggler"
+		)
+		const hasTOC = !(
+			window.document.querySelector("#quarto-margin-sidebar #TOC") === null
+		)
+		const hasSourceCodeCells =
+			document.querySelectorAll(".cell > .sourceCode").length > 0
+
+		// Delete if there are no source code cells
+		if (!hasSourceCodeCells) {
+			sourceCodeToggler.remove()
+			return
+		}
+
+		// Create TOC if it doesn't exist
+		if (!hasTOC) {
+			const tocElement = window.document.createElement("nav")
+			tocElement.id = "TOC"
+			tocElement.setAttribute("role", "doc-toc")
+			tocElement.classList.add("toc-active")
+			window.document
+				.querySelector("#quarto-margin-sidebar")
+				.appendChild(tocElement)
+		}
+
+		// Move into `#TOC`
+		window.document
+			.querySelector("#quarto-margin-sidebar #TOC")
+			.appendChild(sourceCodeToggler)
+
+		// Make toggle interactive
+		function toggleCellCodeDivs() {
+			const cellCodeDivs = document.querySelectorAll(".cell > .sourceCode")
+			const toggleCodeCheckbox = document.getElementById("toggle-code-checkbox")
+
+			for (let i = 0; i < cellCodeDivs.length; i++) {
+				if (toggleCodeCheckbox.checked) {
+					cellCodeDivs[i].classList.remove("hidden")
+				} else {
+					cellCodeDivs[i].classList.add("hidden")
+				}
+			}
+		}
+
+		const toggleCodeCheckbox = document.getElementById("toggle-code-checkbox")
+		if (toggleCodeCheckbox) {
+			toggleCodeCheckbox.addEventListener("change", toggleCellCodeDivs)
+		}
+	})
+</script>
